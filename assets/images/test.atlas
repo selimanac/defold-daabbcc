@@ -1,0 +1,18 @@
+images {
+  image: "/assets/images/20x20_circle.png"
+}
+images {
+  image: "/assets/images/30x30_circle.png"
+}
+images {
+  image: "/assets/images/40x40_rect.png"
+}
+images {
+  image: "/assets/images/60x30_rect.png"
+}
+images {
+  image: "/assets/images/view.png"
+}
+margin: 0
+extrude_borders: 0
+inner_padding: 0

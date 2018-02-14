@@ -1,0 +1,7 @@
+name: DAABBCC
+
+platforms:
+ x86_64-osx:
+  context:
+   flags:      ["-stdlib=libc++"]
+   libs:       ["c++"]

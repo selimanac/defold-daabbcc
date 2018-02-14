@@ -10,8 +10,8 @@ game_binding = /input/game.input_bindingc
 use_accelerometer = 0
 
 [display]
-width = 1280
-height = 720
+width = 640
+height = 360
 
 [physics]
 scale = 0.02
