@@ -4,7 +4,15 @@ local _id = 0
 local _height = 0
 local _nodeCount = 0
 local viewport= hash("/viewport")
-local  particlecount = 19
+local  particlecount = 3
+
+local v_x
+local v_y
+local v_w
+local v_h
+
+local bounds = vmath.vector3(640,360,0)
+
 
 local prt = {
   {
@@ -41,22 +49,38 @@ local function insetParticles ()
   local spriteSize = prt[rnd]["size"]
   msg.post(_sprite, "play_animation", {id = rndSprite})
 
-  pprint("pos: ".. pos)
-  pprint("spriteSize: ".. spriteSize)
-
   if rndType == 0 then
-    _particleId = ctr.addCircle("particles", spriteSize,pos, _targetId)
+    _particleId = ctr.addCircle("particles", spriteSize,pos, _targetId,_sprite,rndType)
   else
-    _particleId =   ctr.addRect("particles", spriteSize, pos, _targetId)
+    _particleId =   ctr.addRect("particles", spriteSize, pos, _targetId,_sprite,rndType)
   end
 
   label.set_text(_label, (_particleId .. " / " .. pos.x .. " - " .. pos.y) )
-  print(rndSprite)
 end
+
+local function setNewAnimate(self, url, property) 
+  local _to = vmath.vector3()
+  _to.x =  math.random (0, bounds.x)
+  _to.y = math.random (0, bounds.y)
+  _to.z = 0
+  go.animate(url, "position",  go.PLAYBACK_ONCE_FORWARD, _to, go.EASING_LINEAR, 2,0,setNewAnimate)
+
+end 
+local function setAnimate() 
+
+  for i=0,(particlecount-1) do
+    local _to = vmath.vector3()
+    _to.x =  math.random (0, bounds.x)
+    _to.y = math.random (0, bounds.y)
+    _to.z = 0
+    go.animate(ctr.particleGroup[i][2], "position",  go.PLAYBACK_ONCE_FORWARD, _to, go.EASING_LINEAR, 2,0,setNewAnimate)
+  end
+end 
+
 
 function init(self)
 
-  daabbcc.createTree("particles", 2, 0.1, 20)
+  daabbcc.createTree("particles", 2, 0.1, 100)
 
 
   local viewport_sprite = msg.url("main", viewport, "sprite")
@@ -70,35 +94,43 @@ function init(self)
   end
 
   --pprint(ctr.particleGroup)
+  pprint(ctr.particleGroup)
   print("-------------------")
   pprint("viewport_pos: ".. viewport_pos)
   pprint("viewport_size: ".. viewport_size)
-  local x = viewport_pos.x
-  local y = viewport_pos.y
-  local w = viewport_size.x
-  local h = viewport_size.y
-
-  local xl = x-(w/2)
-  local yb = y-(h/2)
-  local xr = x+(w/2)
-  local yt = y+(h/2)
+  v_x = viewport_pos.x
+  v_y = viewport_pos.y
+  v_w = viewport_size.x
+  v_h = viewport_size.y
+  --[[
+  xl = x-(w/2)
+  yb = y-(h/2)
+  xr = x+(w/2)
+  yt = y+(h/2)
+  
   print("xl: " , xl)
   print("yb: " , yb)
   print("xr: " , xr)
   print("yt: " , yt)
-  local _result = daabbcc.queryAABB("particles",x,y,w,h)
+  ]]--
+  local _result = daabbcc.queryAABB("particles",v_x,v_y,v_w,v_h)
   pprint(_result)
-
+  setAnimate() 
 end
 
-function final(self)
-  -- Add finalization code here
-  -- Remove this function if not needed
-end
 
 function update(self, dt)
-  -- Add update code here
-  -- Remove this function if not needed
+  for i=0,(particlecount-1) do
+    local pp = ctr.particleGroup[i]
+    local tpos = go.get_position(pp[2]) 
+    if pp[5]== 0 then      
+      ctr.updateCircle("particles",pp[6], tpos, pp[1])
+    else
+      ctr.updateRect("particles",pp[6], tpos, pp[1])
+    end 
+  end
+  local _result = daabbcc.queryAABB("particles",v_x,v_y,v_w,v_h)
+  pprint(_result)
 end
 
 function on_message(self, message_id, message, sender)

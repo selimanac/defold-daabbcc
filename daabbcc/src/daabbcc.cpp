@@ -201,14 +201,15 @@ static int updateCircle(lua_State* L){
 
 //Update the tree if a particle moves outside its fattened AABB.
 //string _name, unsigned int _id, vector<double>& _position, vector<double>& _size
+//daabbcc.updateRect(_name,_id, _position.x , _position.y, _size.x, _size.y)
 static int updateRect(lua_State* L){
   int top = lua_gettop(L);
   string _name = luaL_checkstring(L, 1);
   unsigned int _id = luaL_checknumber(L, 2);
-  double x = luaL_checknumber(L, 2);
-  double y = luaL_checknumber(L, 3);
-  double w = luaL_checknumber(L, 4);
-  double h = luaL_checknumber(L, 5);
+  double x = luaL_checknumber(L, 3);
+  double y = luaL_checknumber(L, 4);
+  double w = luaL_checknumber(L, 5);
+  double h = luaL_checknumber(L, 6);
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
     double xl = x - (w/2);
@@ -270,6 +271,7 @@ static const luaL_reg Module_methods[] =
 {
   {"queryAABB", queryAABB},
   {"queryID", queryID},
+  {"updateRect", updateRect},
   {"updateCircle", updateCircle},
   {"getNodeCount", getNodeCount},
   {"getHeight", getHeight},
