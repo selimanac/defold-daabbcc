@@ -90,9 +90,7 @@ static int queryAABB(lua_State* L){
     upperBound.push_back(yt);
     AABB aabb(lowerBound, upperBound);
     particles = treeArr[_result.second]->query(aabb);
-    for(int i=0; i < particles.size(); i++) {
-        cout << "\nparticles: " << particles[i] << "\n";
-    }
+
   }else{
     warning(_name);
   }
@@ -139,7 +137,7 @@ static int insertRect(lua_State* L){
   double w = luaL_checknumber(L, 4);
   double h = luaL_checknumber(L, 5);
 
-  cout << "pos-size: " << x << y << w << h << "\n";
+
   unsigned int _index = particleCount;
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
@@ -157,8 +155,7 @@ static int insertRect(lua_State* L){
     upperBound.push_back(yt);
     treeArr[_result.second]->insertParticle(particleCount, lowerBound, upperBound);
     particleCount++;
-    cout << lowerBound[0] << " Bound.\n";
-    cout << lowerBound[1] << " Bound.\n";
+
   } else{
     warning(_name);
   }
