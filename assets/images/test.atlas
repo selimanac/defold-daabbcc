@@ -13,6 +13,12 @@ images {
 images {
   image: "/assets/images/view.png"
 }
+images {
+  image: "/assets/images/ground.png"
+}
+images {
+  image: "/assets/images/wall.png"
+}
 margin: 0
 extrude_borders: 1
 inner_padding: 0

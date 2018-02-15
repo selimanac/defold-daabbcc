@@ -1,0 +1,48 @@
+platforms:
+    x86-win32:
+        context:
+            excludeLibs: ["librecord", "libvpx", "libprofilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["librecord_null.lib"]
+
+    x86_64-win32:
+        context:
+            excludeLibs: ["librecord", "libvpx", "libprofilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["librecord_null.lib"]
+
+    x86_64-osx:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext","engine"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null","engine_release"]
+
+    x86_64-linux:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null"]
+
+    js-web:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null"]
+
+    armv7-android:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null"]
+
+    armv7-ios:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null"]
+
+    arm64-ios:
+        context:
+            excludeLibs: ["record", "vpx", "profilerext"]
+            excludeSymbols: ["ProfilerExt", "FacebookExt"]
+            libs: ["record_null"]

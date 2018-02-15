@@ -5,3 +5,7 @@ platforms:
   context:
    flags:      ["-stdlib=libc++"]
    libs:       ["c++"]
+
+ x86_64-linux:
+  context:
+   flags:      ["-std=c++11"]

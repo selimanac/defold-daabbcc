@@ -1,0 +1,57 @@
+local dt_table = {}
+local dt_sum = 0
+local frames_per_second = 0
+local seconds_to_track = 2
+local expected_fps = 60
+
+function round(x)
+  return x>=0 and math.floor(x+0.5) or math.ceil(x-0.5)
+end
+
+local function show_fps(dt)
+
+	dt_sum = dt_sum + dt
+	table.insert(dt_table, dt)
+	local len = #(dt_table)
+
+	frames_per_second = len / dt_sum
+
+	if len >= seconds_to_track*expected_fps then
+		dt_sum = dt_sum - dt_table[1]
+		splice(dt_table, 1, 1)
+	end
+
+	local n = gui.get_node("fps")
+	gui.set_text(n, "FPS (dt): " .. round(frames_per_second))
+
+end
+
+
+function init(self)
+	-- Add initialization code here
+	-- Remove this function if not needed
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	show_fps(dt)
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end

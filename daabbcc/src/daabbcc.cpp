@@ -17,6 +17,15 @@ vector<string> treeTxtArr; // Tree name array for name conversation
 
 unsigned int particleCount = 0; // Particle ID's
 
+//Debug
+void pprint (const vector<unsigned int>& v){
+    cout << "HIT: \n";
+    for (int i=0; i<v.size();i++){
+        cout << v[i] << endl;
+    }
+}
+
+
 //Tree name conversation
 pair<bool, int> checkTreeName(string _name)
 {
@@ -54,14 +63,12 @@ static int queryID(lua_State* L){
   }else{
     warning(_name);
   }
-
   lua_createtable(L, particles.size(), 0);
   int newTable = lua_gettop(L);
   for(int i=0; i < particles.size(); i++) {
     lua_pushnumber(L, particles[i]);
     lua_rawseti(L, newTable, i + 1);
   }
-
   assert(top + 1 == lua_gettop(L));
   return 1;
 }
@@ -90,7 +97,7 @@ static int queryAABB(lua_State* L){
     upperBound.push_back(yt);
     AABB aabb(lowerBound, upperBound);
     particles = treeArr[_result.second]->query(aabb);
-
+  //  pprint(particles);
   }else{
     warning(_name);
   }

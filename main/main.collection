@@ -3,8 +3,8 @@ instances {
   id: "viewport"
   prototype: "/assets/go/viewport.go"
   position {
-    x: 338.0
-    y: 222.0
+    x: 480.0
+    y: 320.0
     z: 0.0
   }
   rotation {
