@@ -1,4 +1,4 @@
-script: "/main/test.gui_script"
+script: ""
 fonts {
   name: "system_font"
   font: "/assets/system_font.font"

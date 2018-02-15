@@ -1,7 +1,7 @@
 name: "default"
 scale_along_z: 0
 embedded_instances {
-  id: "ground"
+  id: "bWall"
   data: "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
@@ -41,7 +41,7 @@ embedded_instances {
   }
 }
 embedded_instances {
-  id: "wall"
+  id: "rWall"
   data: "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
@@ -81,7 +81,7 @@ embedded_instances {
   }
 }
 embedded_instances {
-  id: "wall1"
+  id: "lWall"
   data: "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
@@ -121,7 +121,7 @@ embedded_instances {
   }
 }
 embedded_instances {
-  id: "ground1"
+  id: "tWall"
   data: "embedded_components {\n"
   "  id: \"sprite\"\n"
   "  type: \"sprite\"\n"
@@ -201,10 +201,10 @@ embedded_instances {
   }
 }
 embedded_instances {
-  id: "go"
+  id: "script"
   data: "components {\n"
-  "  id: \"test\"\n"
-  "  component: \"/main/test.gui\"\n"
+  "  id: \"bounce\"\n"
+  "  component: \"/main/bounce/bounce.script\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -221,6 +221,46 @@ embedded_instances {
   position {
     x: 0.0
     y: 0.0
+    z: 0.0
+  }
+  rotation {
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    w: 1.0
+  }
+  scale3 {
+    x: 1.0
+    y: 1.0
+    z: 1.0
+  }
+}
+embedded_instances {
+  id: "ball1"
+  data: "embedded_components {\n"
+  "  id: \"sprite\"\n"
+  "  type: \"sprite\"\n"
+  "  data: \"tile_set: \\\"/assets/images/test.atlas\\\"\\n"
+  "default_animation: \\\"20x20_circle\\\"\\n"
+  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
+  "blend_mode: BLEND_MODE_ALPHA\\n"
+  "\"\n"
+  "  position {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "  }\n"
+  "  rotation {\n"
+  "    x: 0.0\n"
+  "    y: 0.0\n"
+  "    z: 0.0\n"
+  "    w: 1.0\n"
+  "  }\n"
+  "}\n"
+  ""
+  position {
+    x: 301.0
+    y: 173.0
     z: 0.0
   }
   rotation {

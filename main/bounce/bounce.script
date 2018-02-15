@@ -1,0 +1,150 @@
+local ctr = require "main.controller"
+
+local lWall = hash("/lWall")
+local rWall = hash("/rWall")
+local tWall = hash("/tWall")
+local bWall = hash("/bWall")
+local ball = hash("/ball")
+local ball1 = hash("/ball1")
+
+local ballPosition = vmath.vector3()
+local ballPosition2 = vmath.vector3()
+local ballVelocity = vmath.vector3()
+local ballSpeed = 600
+local ballRadius = 0
+local ballSize = vmath.vector3()
+local ballId = 0
+local ballId2 = 0
+local prevHit
+
+function init(self)
+  --msg.post("@system:", "toggle_profile")
+  math.randomseed(os.time())
+
+
+  daabbcc.createTree("walls", 2, 0.1, 4)
+  daabbcc.createTree("balls", 2, 0.1, 4)
+  --lWall 0
+  local _pos = go.get_position(lWall)
+  local _sprite =  msg.url("default", lWall, "sprite")
+  local _spriteSize = go.get(_sprite, "size")
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+
+  --rWall 1
+  _pos = go.get_position(rWall)
+  _sprite =  msg.url("default", rWall, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+
+  --tWall 2
+  _pos = go.get_position(tWall)
+  _sprite =  msg.url("default", tWall, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+
+  --bWall 3
+  _pos = go.get_position(bWall)
+  _sprite =  msg.url("default", bWall, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+
+  --ball
+  _pos = go.get_position(ball)
+  _sprite =  msg.url("default", ball, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+
+
+
+  --ball Init
+  ballSize = _spriteSize
+  ballPosition = _pos
+  ballVelocity.x = (math.random(5, 10) / 10) * ballSpeed
+  ballVelocity.y = ballSpeed
+
+  ballId = ctr.addCircle("walls", _spriteSize, _pos, 0, 0, 0)
+  ballId2 = ctr.addCircle("balls", _spriteSize, _pos, 0, 0, 0)
+
+  --ball
+  _pos = go.get_position(ball1)
+  ballPosition2 = _pos
+  ballId3 = ctr.addCircle("walls", _spriteSize, _pos, 0, 0, 0)
+  ballId4 = ctr.addCircle("balls", _spriteSize, _pos, 0, 0, 0)
+
+
+end
+
+function final(self)
+  -- Add finalization code here
+  -- Remove this function if not needed
+end
+
+--function M.updateCircle(_name, _size, _position, _id)
+local function updateBall(dt)
+  ballPosition = ballPosition + ballVelocity * dt
+  go.set_position(ballPosition, ball)
+  ctr.updateCircle("walls",ballSize, ballPosition,ballId)
+  ctr.updateCircle("balls",ballSize, ballPosition,ballId2)
+
+
+  ballPosition2 = ballPosition2 + ballVelocity * dt
+  go.set_position(ballPosition2, ball1)
+  ctr.updateCircle("walls",ballSize, ballPosition2,ballId3)
+  ctr.updateCircle("balls",ballSize, ballPosition2,ballId4)
+end
+
+local function checkCollision()
+
+  local _result = daabbcc.queryID("walls",ballId )
+
+  if #_result > 0  then
+
+    -- 0 LEFT
+     -- 1 RIGHT
+     -- 2 TOP
+     -- 3 BOTTOM
+    local _normal = vmath.vector3(0, 1, 0)
+    for i=1,#_result do
+
+      if  _result[i] == 1 then
+        _normal = vmath.vector3(1, 0, 0)
+      elseif _result[i] == 0 then
+        _normal = vmath.vector3(-1, 0, 0)
+      elseif _result[i] == 3 then
+        _normal = vmath.vector3(0, -1, 0)
+      end
+
+      if prevHit == _result[i] then
+        return
+      end
+      prevHit = _result[i]
+    end
+
+    local normal_velocity = vmath.dot(_normal, ballVelocity) * _normal
+    local tangent_velocity = ballVelocity - normal_velocity
+    normal_velocity = normal_velocity * -1
+    ballVelocity = normal_velocity + tangent_velocity
+
+--  go.set_position(ballPosition + (_normal * 0.5))
+
+  end
+end
+
+function update(self, dt)
+  updateBall(dt)
+  checkCollision()
+end
+
+function on_message(self, message_id, message, sender)
+  -- Add message-handling code here
+  -- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+  -- Add input-handling code here
+  -- Remove this function if not needed
+end
+
+function on_reload(self)
+  -- Add reload-handling code here
+  -- Remove this function if not needed
+end

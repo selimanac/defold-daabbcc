@@ -52,10 +52,10 @@ local function insetParticles ()
   local lr = math.random (0, 1)
   local pos = vmath.vector3()
   if lr == 0 then
-pos = vmath.vector3( math.random (0, 0),  math.random (0, 600), 0)
-else
-  pos = vmath.vector3( math.random (900, 900),  math.random (0, 600), 0)
-end
+    pos = vmath.vector3( math.random (0, 0),  math.random (0, 600), 0)
+  else
+    pos = vmath.vector3( math.random (900, 900),  math.random (0, 600), 0)
+  end
 
   local _targetId =  factory.create("/factory#particle",pos)
   local _sprite = msg.url("main", _targetId, "sprite")
@@ -98,7 +98,7 @@ end
 
 
 function init(self)
- --msg.post("@system:", "toggle_profile")
+  --msg.post("@system:", "toggle_profile")
   daabbcc.createTree("particles", 2, 0.2, particlecount)
 
 
