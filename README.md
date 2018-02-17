@@ -1,5 +1,5 @@
 # DAABBCC
-AABBs tree native extension for Defold Engine
+DAABBCC is a terrible name of a AABBs tree native extension for Defold Engine
 
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) lib for Defold Engine. [AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
@@ -18,18 +18,15 @@ You can use this native extension by calling 'daabbcc' directly.
 
 ### Creating a new AABB Tree
 
-You should create a new tree(s)
-
 #### - createTree
 ```lua
 local tree_name = "particles" -- Name of your tree
 local dimension = 2 -- 2D. Original library works with 2D and 3D. Only 2D is implemented   
 local skin_thickness = 0.1 -- Thickness of bounding boxes.
-local n_particles = 4 -- Number of bounding boxes
+local number = 4 -- Number of bounding boxes
 
-daabbcc.createTree(tree_name, dimension, skin_thickness, n_particles)
+daabbcc.createTree(tree_name, dimension, skin_thickness, number)
 ```
-
 You can create as much as trees according to your needs.
 Pseudo example for a platformer:
 
@@ -41,13 +38,11 @@ daabbcc.createTree("collectables", 2, 0.1, 150)
 
 ### Inserting AABBs
 
-Two ways of inserting AABBs into the tree. 
-
 #### - insertCircle
 
-Insert a AABB into the name given tree. Works with radius. This is **not** going to create a circular shape. It creates a square from given radius.
+Insert a AABB into the created tree. Works with radius. This method is **not** going to create a circular shape. It creates a square AABB from given radius. (radius = 10 mean 20x20 square)
 
-insertCircle, returns the ID of the added AABB. You should keep track of those IDs in a table.
+insertCircle, returns the ID of the inserted AABB. You should probably keep track of those IDs in a lua table.
 
 **Caution**: IDs starts with '0'
 
@@ -56,14 +51,14 @@ local tree_name = "particles" -- Name of your tree
 local radius = 10 -- radius of the circle. It is basically:  width/2 
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 
-local _id = daabbcc.insertCircle(tree_name, radius, position.x , position.y)
+local _id = daabbcc.insertCircle(tree_name, radius, position.x, position.y)
 ```
 
 #### - insertRect
 
-Insert a AABB into the name given tree.
+Same as insertCircle but using size.
 
-insertRect, returns the ID of the added AABB. You should keep track of those IDs in a table.
+insertRect, returns the ID of the inserted AABB. You should probably keep track of those IDs in a lua table.
 
 **Caution**: IDs starts with '0'
 
@@ -72,11 +67,11 @@ local tree_name = "particles" -- Name of your tree
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
 
-local _id = daabbcc.insertRect(tree_name, position.x , position.y, size.x , size.y)
+local _id = daabbcc.insertRect(tree_name, position.x, position.y, size.x, size.y)
 ```
 ### Updating AABBs
 
-If your game objects are not static, you should update their position and size when they move or resize.
+If your game object(s) are not static, you should update their position and size when they move or resize.
 
 #### - updateCircle
 
@@ -86,7 +81,7 @@ local id = 0 -- ID of your object
 local radius = 10 -- radius of the circle. It is basically:  width/2
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 
-daabbcc.updateCircle(tree_name,id, radius, position.x , position.y)
+daabbcc.updateCircle(tree_name, id, radius, position.x, position.y)
 ```
 
 #### - updateRect
@@ -96,7 +91,7 @@ local id = 0 -- ID of your object
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
 
-daabbcc.updateRect(tree_name,id, position.x , position.y, size.x, size.y)
+daabbcc.updateRect(tree_name, id, position.x, position.y, size.x, size.y)
 ```
 ### Removing AABBs from Tree
 
@@ -108,7 +103,7 @@ local id = 0 -- ID of your object
 daabbcc.removeAABB(tree_name,id)
 ```
 ### Queries
-You can query the tree(s) by id or AABB. Queries returns a table of object IDs
+You can query the tree(s) by id or AABB. Queries returns a lua table of object ID(s)
 
 ### Query with ID
 
@@ -130,9 +125,9 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 
 ## Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe many of them. That kind of approach is very CPU intensive and results may differ according to CPU performance. Also resolution will affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe many of them. This kind of approach is very CPU intensive and results may differ according to CPU performance. Also resolution will affect the performance.
 
-I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed because screen video recording cause a memory leap. 
+I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because screen video recording cause a memory leap. 
 
 My test platform is:
 - macOS 10.13.2
@@ -158,7 +153,9 @@ Since I am a lazy developer, you can find my terrible examples in the source. I 
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
 
-https://github.com/selimanac/aabbcc/tree/defoldWrapper
+I need a help for building AABB.cc on Windows. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
+
+I removed unnecessary stuff like python and Doxygen. Here is my build/make files: https://github.com/selimanac/aabbcc/tree/defoldWrapper
 
 ```bash
 make release 
