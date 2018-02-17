@@ -1,9 +1,9 @@
 [project]
-title = D-AABBs
+title = DAABBCC
 version = 0.6
 
 [bootstrap]
-main_collection = /main/platformer/platformer.collectionc
+main_collection = /main/bounce/bounce.collectionc
 
 [input]
 game_binding = /input/game.input_bindingc

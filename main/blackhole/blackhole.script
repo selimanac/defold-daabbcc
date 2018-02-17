@@ -4,21 +4,19 @@ local _id = 0
 local _height = 0
 local _nodeCount = 0
 local viewport= hash("/viewport")
-local  particlecount = 700
-
 local v_x = 0
 local v_y = 0
 local v_w = 0
 local v_h = 0
-
 local bounds = vmath.vector3(960,640,0)
 local prevResult={}
 local _particleGroup = {}
 local _particleM = {}
 local _particlePosition = vmath.vector3()
 local _queryResult = {}
-
 local _queryCount = 0
+
+local particlecount = 300
 
 local prt = {
   {
@@ -90,7 +88,7 @@ local function setAnimate()
 end
 
 function init(self)
-  --msg.post("@system:", "toggle_profile")
+  msg.post("@system:", "toggle_profile")
   daabbcc.createTree("particles", 2, 0.2, particlecount)
 
   local viewport_sprite = msg.url("main", viewport, "sprite")
@@ -142,40 +140,6 @@ local function checkCollision()
       end
     end
   end
-  -- local tprevResult = difference(prevResult , _queryResult)
-  -- if #tprevResult > 0 then
-  --
-  --   for i = 1, #tprevResult do
-  --     local ll = ctr.particleGroup[tprevResult[i]]
-  --
-  --     if ll[7] == true then
-  --       go.animate(ll[3], 'tint.w', go.PLAYBACK_ONCE_FORWARD, 1, go.EASING_LINEAR, 0.1)
-  --       ll[7] = false
-  --     end
-  --   end
-  -- end
-  --
-  --
-  --
-  -- for i = 1, #_queryResult do
-  --   local ll = ctr.particleGroup[_queryResult[i]]
-  --   if ll[7] == false then
-  --     go.cancel_animations(ll[2],"position")
-  --
-  --     go.animate(ll[3], 'tint.w', go.PLAYBACK_ONCE_FORWARD, 0.5, go.EASING_LINEAR, 0.1)
-  --     ll[7] = true
-  --
-  --     -- Remove from removeAABB
-  --
-  --    --[[
-  --     pprint(ll[1])
-  --     daabbcc.removeAABB("particles",ll[1] )
-  --     table.remove(ctr.particleGroup,ll[1])
-  --     table.remove(_result,_i)
-  --   ]]--
-  --   end
-  -- end
-  -- prevResult = _result
 end
 
 function update(self, dt)

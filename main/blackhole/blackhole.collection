@@ -24,7 +24,7 @@ embedded_instances {
   id: "script"
   data: "components {\n"
   "  id: \"main\"\n"
-  "  component: \"/main/main.script\"\n"
+  "  component: \"/main/blackhole/blackhole.script\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"

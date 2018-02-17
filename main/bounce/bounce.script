@@ -1,147 +1,146 @@
 local ctr = require "main.controller"
 
-local  particlecount = 500
-
+-- Walls
 local lWall = hash("/lWall")
 local rWall = hash("/rWall")
 local tWall = hash("/tWall")
 local bWall = hash("/bWall")
-local ball = hash("/ball")
 
 local vdown = vmath.vector3(0, -1, 0)
 local vleft = vmath.vector3(-1, 0, 0)
 local vright = vmath.vector3(1, 0, 0)
 local vup = vmath.vector3(0, 1, 0)
 local _normal = vdown
-local currentBall
+
+local current_ball
 
 local normal_velocity = vmath.vector3()
 local tangent_velocity  = vmath.vector3()
 local setposition = go.set_position
-local _wallResult = {}
--- local ball1 = hash("/ball1")
+local wall_results = {}
 
-local ballSpeed = 600
+local  balls_count = 150 -- Number of balls
+local ball_speed = 300 -- Speed ıf balls
 
-
+-- Balls
 local prt = {
   {
     sprite= hash("20x20_circle"),
-    type = 0,
     size = vmath.vector3(20,20,0)
   },
   {
     sprite= hash("30x30_circle"),
-    type = 0,
     size =vmath.vector3(30,30,0)
   }
 }
 
-
 local balls={}
-
 
 local function insetParticles ()
   local _particleId
-
-  local pos = vmath.vector3()
-  pos = vmath.vector3( math.random (100, 1000),  math.random (100, 600), 0)
-  local _targetId =  factory.create("/factory#particle",pos)
+  local _pos = vmath.vector3()
+  _pos = vmath.vector3( math.random (100, 800),  math.random (100, 600), 0)
+  local _targetId =  factory.create("/factory#particle",_pos)
   local _sprite = msg.url("default", _targetId, "sprite")
-  local rnd =math.random (1,2)
-  local rndSprite = prt[rnd]["sprite"]
-  local spriteSize = prt[rnd]["size"]
-  msg.post(_sprite, "play_animation", {id = rndSprite})
-
-  local ballVelocity = vmath.vector3()
-  ballVelocity.x = (math.random(5, 10) / 10) * ballSpeed
-  ballVelocity.y = (math.random(5, 10) / 10) * ballSpeed
-
-  local _radius = spriteSize.x/2
-  local _id = daabbcc.insertCircle("balls", _radius, pos.x , pos.y)
+  local _rnd =math.random (1,2)
+  local _rndSprite = prt[_rnd]["sprite"]
+  local _spriteSize = prt[_rnd]["size"]
+  msg.post(_sprite, "play_animation", {id = _rndSprite})
+  local _ballVelocity = vmath.vector3()
+  _ballVelocity.x = (math.random(5, 10) / 10) * ball_speed
+  _ballVelocity.y = (math.random(5, 10) / 10) * ball_speed
+  local _radius = _spriteSize.x/2
+  local _id = daabbcc.insertCircle("balls", _radius, _pos.x , _pos.y)
   table.insert(balls,#balls+1, {
     _id,
     _targetId,
-    pos,
+    _pos,
     _radius,
-    ballVelocity
+    _ballVelocity
   }
 )
 end
 
 function init(self)
+
   msg.post("@system:", "toggle_profile")
   math.randomseed(os.time())
 
+  --Create Walls and Balls Trees
+
   daabbcc.createTree("walls", 2, 0.0, 4)
-  daabbcc.createTree("balls", 2, 0.1, particlecount)
+  daabbcc.createTree("balls", 2, 0.1, balls_count)
 
-
-  --lWall 0
+  --Left Wall: 0
   local _pos = go.get_position(lWall)
   local _sprite =  msg.url("default", lWall, "sprite")
   local _spriteSize = go.get(_sprite, "size")
-  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
-  --rWall 1
+  --Right Wall: 1
   _pos = go.get_position(rWall)
   _sprite =  msg.url("default", rWall, "sprite")
   _spriteSize = go.get(_sprite, "size")
-  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
-  --tWall 2
+  --Top Wall: 2
   _pos = go.get_position(tWall)
   _sprite =  msg.url("default", tWall, "sprite")
   _spriteSize = go.get(_sprite, "size")
-  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
-  --bWall 3
+  --Bottom Wall: 3
   _pos = go.get_position(bWall)
   _sprite =  msg.url("default", bWall, "sprite")
   _spriteSize = go.get(_sprite, "size")
-  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0)
+  ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
-  math.randomseed(os.time())
-  for i=1,particlecount do
+  -- Spawn balls from factory
+  for i=1,balls_count do
     insetParticles()
   end
+
 end
 
 
 local function updateBalls(dt)
-  for i=1,particlecount do   --loop all balls
-    currentBall = balls[i]
-    currentBall[3] = currentBall[3]+currentBall[5]*dt   -- Next Frame position
+  for i=1,balls_count do   --loop all balls
+    current_ball = balls[i] -- Localise current ball
+    current_ball[3] = current_ball[3]+current_ball[5]*dt   -- Next Frame position
 
     --Check if there is a wall on next frame
-    _wallResult = daabbcc.queryAABB("walls", currentBall[3].x,currentBall[3].y,currentBall[4]*2,currentBall[4]*2 )
+    wall_results = daabbcc.queryAABB("walls", current_ball[3].x,current_ball[3].y,current_ball[4]*2,current_ball[4]*2 )
 
-    local _resultCount = #_wallResult
+    local _resultCount = #wall_results
     if _resultCount > 0  then --Ball is going to hit on next Frame
       -- Walls: 0 LEFT, 1 RIGHT, 2 TOP, 3 BOTTOM
       _normal = vdown -- 2 Top
-      if _wallResult[_resultCount] == 1 then -- 1 RIGHT
+      if wall_results[_resultCount] == 1 then -- 1 RIGHT
         _normal = vleft
-      elseif _wallResult[_resultCount] == 0 then -- 1 LEFT
+      elseif wall_results[_resultCount] == 0 then -- 1 LEFT
         _normal = vright
-      elseif _wallResult[_resultCount] == 3 then -- 3 BOTTOM
+      elseif wall_results[_resultCount] == 3 then -- 3 BOTTOM
         _normal = vup
       end
       --Calculate new position and velocity
-      normal_velocity = vmath.dot(_normal, currentBall[5]) * _normal
-      tangent_velocity = currentBall[5] - normal_velocity
+      normal_velocity = vmath.dot(_normal, current_ball[5]) * _normal
+      tangent_velocity = current_ball[5] - normal_velocity
       normal_velocity = normal_velocity * -1
-      currentBall[5] = normal_velocity + tangent_velocity
-      currentBall[3] = currentBall[3] + (_normal * 10.5)
+      current_ball[5] = normal_velocity + tangent_velocity
+      current_ball[3] = current_ball[3] + (_normal * 10.5)
     end -- wall result
 
-  --  daabbcc.updateCircle("balls",currentBall[1], currentBall[4], currentBall[3].x , currentBall[3].y)
+    --[[
 
-    -- Not possible to demo this with large quantity.
-    --Check if there is a ball on next frame
-    -- local _ballResult = daabbcc.queryID("balls", currentBall[1])
+    Not possible to demo below with large quantity. Also it is buggy because of the initial random overlap.
+    But you can check it out for learning.
+
+    ]]--
+
+    -- Check if there is a ball on next frame
+    -- local _ballResult = daabbcc.queryID("balls", current_ball[1])
     -- local _ballCount = #_ballResult
-    -- local angle = math.atan2(currentBall[5].y, currentBall[5].x)
+    -- local angle = math.atan2(current_ball[5].y, current_ball[5].x)
     --
     -- if _ballCount > 0  then
     --   local _normal = vdown
@@ -160,16 +159,16 @@ local function updateBalls(dt)
     --   if angle < -0 and angle > -2 then --Bottom right
     --     _normal = vup + vleft
     --   end
-    --   normal_velocity = vmath.dot(_normal, currentBall[5]) * _normal
-    --   tangent_velocity = currentBall[5] - normal_velocity
+    --   normal_velocity = vmath.dot(_normal, current_ball[5]) * _normal
+    --   tangent_velocity = current_ball[5] - normal_velocity
     --   normal_velocity = normal_velocity * -0
-    --   currentBall[5] = normal_velocity + tangent_velocity
-    --   currentBall[3] = currentBall[3] + (_normal * 20.2)
+    --   current_ball[5] = normal_velocity + tangent_velocity
+    --   current_ball[3] = current_ball[3] + (_normal * 20.2)
     -- end
 
-    setposition(currentBall[3], currentBall[2])
-    daabbcc.updateCircle("balls",currentBall[1], currentBall[4], currentBall[3].x , currentBall[3].y)
-
+    setposition(current_ball[3], current_ball[2]) -- Set new possition
+    -- Update the AABB of the ball
+    daabbcc.updateCircle("balls",current_ball[1], current_ball[4], current_ball[3].x , current_ball[3].y)
   end --end loop all balls
 end
 
