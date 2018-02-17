@@ -14,7 +14,7 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
   
 ## Usage in Defold Engine
 
-You can use this native extension by calling 'daabbcc' directly.
+You can use this native extension by using 'daabbcc' directly.
 
 ### Creating a new AABB Tree
 
@@ -22,12 +22,12 @@ You can use this native extension by calling 'daabbcc' directly.
 ```lua
 local tree_name = "particles" -- Name of your tree
 local dimension = 2 -- 2D. Original library works with 2D and 3D. Only 2D is implemented   
-local skin_thickness = 0.1 -- Thickness of bounding boxes.
-local number = 4 -- Number of bounding boxes
+local thickness = 0.1 -- Thickness of bounding boxes.
+local number = 4 -- Number of object/bounding boxes
 
-daabbcc.createTree(tree_name, dimension, skin_thickness, number)
+daabbcc.createTree(tree_name, dimension, thickness, number)
 ```
-You can create as much as trees according to your needs.
+You can create as many as trees according to your needs.
 Pseudo example for a platformer:
 
 ```lua
@@ -103,7 +103,9 @@ local id = 0 -- ID of your object
 daabbcc.removeAABB(tree_name,id)
 ```
 ### Queries
-You can query the tree(s) by id or AABB. Queries returns a lua table of object ID(s)
+You can query the tree(s) by id or AABB. Query returns a lua table of object ID(s).
+
+**Caution**: You can't cross query with ID. 
 
 ### Query with ID
 
@@ -127,9 +129,11 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 
 ## Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution will affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because screen video recording cause a memory leap. 
+
+- [Need more performance testing ](https://github.com/selimanac/DAABBCC/issues/2)
 
 My test platform is:
 - macOS 10.13.2
