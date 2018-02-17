@@ -14,11 +14,11 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
   
 ## What is this for?
 
-Since there is a build in physics in [Defold Engine](https://www.defold.com/), that looks like ridiculous. I believe, trusted Defold engineers made tons of optimisations on Box2D. But there are different ways of using this lib. Like culling off-screen object, simple raycasting or for puzzle game. Sometimes you don't need to use Box2D's all functionality, even triggers are not cheap. Also overlapping lots of triggers may cause a big headache. These are all about your game concept and how you use this lib.
+Since there is a build in physic engine in [Defold](https://www.defold.com/), that looks ridiculous. I believe, trusted Defold engineers made tons of optimisations on Box2D. But there are different ways of using this lib. Like culling off-screen object, simple raycasting or for puzzle games. Sometimes you don't need to use Box2D's all functionality, even triggers are not cheap. Also overlapping lots of triggers may cause a big headache. These are all about your game concept and how you use this lib.
 
 ## Usage in Defold
 
-You can use this native extension by using 'daabbcc' directly.
+You can use this native extension by simply calling 'daabbcc'
 
 ### Creating a new AABB Tree
 
@@ -133,7 +133,7 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 
 ## Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because screen video recording cause a memory leap. 
 
