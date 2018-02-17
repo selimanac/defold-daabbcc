@@ -130,6 +130,16 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 
 ## Performance and Notes
 
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe many of them. That kind of approach is very CPU intensive and results may differ according to CPU performance. 
+
+I made some stress tests just for fun. Those number are not acceptable in real game. Maybe you can use less than half of them.
+
+[![600 sprites in the box with Defold Engine](http://img.youtube.com/vi/vUKKxa1Sso8/0.jpg)](http://www.youtube.com/watch?v=vUKKxa1Sso8)
+
+[![Crazy 700 sprites goes into the black hole with Defold Engine](http://img.youtube.com/vi/1APPkiQ3Hag/0.jpg)](http://www.youtube.com/watch?v=1APPkiQ3Hag)
+
+
+
 ## Examples
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
