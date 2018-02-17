@@ -6,3 +6,26 @@ DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) lib fo
 
 DAABBCC is a C++ implementation of a dynamic bounding volume hierarchy ([BVH](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy)) using axis-aligned bounding boxes ([AABBs](https://en.wikipedia.org/wiki/Minimum_bounding_box)).
 The data structure provides an efficient way of detecting potential overlap between objects of arbitrary shape and size and is commonly used in computer games engines for collision detection and ray tracing.
+
+## Installation
+You can use DefOS in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/). Open your game.project file and in the dependencies field under project add:
+
+	https://github.com/selimanac/DAABBCC/archive/master.zip
+  
+## Usage in Defold Engine
+
+## Examples
+
+## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
+
+https://github.com/selimanac/aabbcc/tree/defoldWrapper
+
+```bash
+make release 
+make build
+make PREFIX=MY_INSTALL_DIR install
+```
+
+## [AABB.cc](https://github.com/lohedges/aabbcc) Docs
+
+Doxygen Docs: https://codedocs.xyz/selimanac/aabbcc/
