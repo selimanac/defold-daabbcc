@@ -53,8 +53,8 @@ insertCircle, returns the ID of the added AABB. You should keep track of those I
 
 ```lua
 local tree_name = "particles" -- Name of your tree
-local radius = 10 -- radius of the circle. It is basically:  width/2
-local position = vmath.vector3(x,y,z) -- Position of your game object
+local radius = 10 -- radius of the circle. It is basically:  width/2 
+local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 
 local _id = daabbcc.insertCircle(tree_name, radius, position.x , position.y)
 ```
@@ -69,8 +69,8 @@ insertRect, returns the ID of the added AABB. You should keep track of those IDs
 
 ```lua
 local tree_name = "particles" -- Name of your tree
-local position = vmath.vector3(x,y,z) -- Position of your game object
-local size = vmath.vector3(x,y,z) -- Size of your game object/Sprite
+local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
+local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
 
 local _id = daabbcc.insertRect(tree_name, position.x , position.y, size.x , size.y)
 ```
@@ -84,7 +84,7 @@ If your game objects are not static, you should update their position and size w
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
 local radius = 10 -- radius of the circle. It is basically:  width/2
-local position = vmath.vector3(x,y,z) -- Position of your game object
+local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 
 daabbcc.updateCircle(tree_name,id, radius, position.x , position.y)
 ```
@@ -93,12 +93,37 @@ daabbcc.updateCircle(tree_name,id, radius, position.x , position.y)
 ```lua
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
-local position = vmath.vector3(x,y,z) -- Position of your game object
-local size = vmath.vector3(x,y,z) -- Size of your game object/Sprite
+local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
+local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
 
 daabbcc.updateRect(tree_name,id, position.x , position.y, size.x, size.y)
 ```
 ### Removing AABBs from Tree
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local id = 0 -- ID of your object
+
+daabbcc.removeAABB(tree_name,id)
+```
+### Queries
+You can query the tree(s) by id or AABB. Queries returns a table of object IDs
+
+### Query with ID
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local id = 0 -- ID of your object
+local _result = daabbcc.queryID(tree_name, id)
+```
+### Query with AABB
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local position = go.get_position() -- Position of your object
+local size = go.get("#sprite", "size")
+local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
+```
 
 ## Performance and Notes
 
