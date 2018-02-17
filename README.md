@@ -100,6 +100,7 @@ daabbcc.updateRect(tree_name,id, position.x , position.y, size.x, size.y)
 ```
 ### Removing AABBs from Tree
 
+#### - removeAABB
 ```lua
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
@@ -111,6 +112,7 @@ You can query the tree(s) by id or AABB. Queries returns a table of object IDs
 
 ### Query with ID
 
+#### - queryID
 ```lua
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
@@ -118,6 +120,7 @@ local _result = daabbcc.queryID(tree_name, id)
 ```
 ### Query with AABB
 
+#### - queryAABB
 ```lua
 local tree_name = "particles" -- Name of your tree
 local position = go.get_position() -- Position of your object
