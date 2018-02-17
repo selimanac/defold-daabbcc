@@ -132,7 +132,7 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 
 If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions by yourself. Which means you need loops. Maybe many of them. That kind of approach is very CPU intensive and results may differ according to CPU performance. 
 
-I made some stress tests just for fun. Those number are not acceptable in real game. Maybe you can use less than half of them.
+I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers.
 
 My test platform is:
 - macOS 10.13.2
