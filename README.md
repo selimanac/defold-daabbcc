@@ -111,6 +111,7 @@ You can query the tree(s) by id or AABB. Queries returns a lua table of object I
 ```lua
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
+
 local _result = daabbcc.queryID(tree_name, id)
 ```
 ### Query with AABB
@@ -120,6 +121,7 @@ local _result = daabbcc.queryID(tree_name, id)
 local tree_name = "particles" -- Name of your tree
 local position = go.get_position() -- Position of your object
 local size = go.get("#sprite", "size")
+
 local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 ```
 
