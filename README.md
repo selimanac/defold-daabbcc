@@ -18,6 +18,9 @@ You can use this native extension directly.
 
 ### Creating a new AABB Tree
 
+You should create a new tree(s)
+
+#### - createTree
 ```lua
 local tree_name = "particles" -- Name of your tree
 local dimension = 2 -- 2D. Original library works with 2D and 3D. Only 2D is implemented   
@@ -40,7 +43,7 @@ daabbcc.createTree("collectables", 2, 0.1, 150)
 
 Two ways of inserting AABBs into the tree. 
 
-#### insertCircle
+#### - insertCircle
 
 Insert a AABB into the name given tree. Works with radius. This is **not** going to create a circular shape. It creates a square from given radius.
 
@@ -53,6 +56,21 @@ local radius = 10 -- radius of the circle. It is basically:  width/2
 local position = vmath.vector3(x,y,z) -- Position of your game object
 
 local _id = daabbcc.insertCircle(table_name, radius, position.x , position.y)
+```
+
+#### - insertRect
+
+Insert a AABB into the name given tree.
+
+insertRect, returns the ID of the added AABB. You should keep track of those IDs in a table.
+**Caution**: IDs starts with '0'
+
+```lua
+local table_name = "particles" -- Name of your tree
+local position = vmath.vector3(x,y,z) -- Position of your game object
+local size = vmath.vector3(x,y,z) -- Size of your game object/Sprite
+
+local _id = daabbcc.insertRect(table_name, position.x , position.y, size.x , size.y)
 ```
 
 ## Performance and Notes
