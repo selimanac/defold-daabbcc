@@ -18,9 +18,7 @@ end
 
 
 function M.updateCircle(_name, _size, _position, _id)
-  
   local _radius = _size.x/2
-
   daabbcc.updateCircle(_name,_id, _radius, _position.x , _position.y)
 end
 
@@ -30,7 +28,6 @@ end
 
 function M.removeFromTree(_name,_id)
   table.remove(M.particleGroup, _id)
---  M.particleGroup[_id] = nil
   daabbcc.removeAABB("particles",_id)
 end
 

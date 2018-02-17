@@ -8,35 +8,51 @@
 using namespace std;
 using namespace aabb;
 
-/*TODO: Kamera için Update yapılacak ve kontrol edilecek. */
+/*TODO: Camera update. */
 
-//Arrays
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
 vector<string> treeTxtArr; // Tree name array for name conversation
 
-unsigned int particleCount = 0; // Particle ID's
+unsigned int particleCount = 0; // Particle IDs
 
-//Debug
+//Debug vector values
 void pprint (const vector<unsigned int>& v){
-    cout << "HIT: \n";
-    for (int i=0; i<v.size();i++){
-        cout << v[i] << endl;
-    }
+  cout << "HIT: \n";
+  for (int i=0; i<v.size();i++){
+    cout << v[i] << endl;
+  }
 }
 
+void warning(string _name){
+  cout << "WARNING!! : " << _name << " tree not found. Check your tree name. \n";
+}
 
 //Tree name conversation
 pair<bool, int> checkTreeName(string _name)
 {
   long pos = find(treeTxtArr.begin(), treeTxtArr.end(), _name) - treeTxtArr.begin();
   if( pos < treeTxtArr.size() ) return std::make_pair(true, pos);
+  warning(_name);
   return std::make_pair(false, 0);
 }
 
-void warning(string _name){
-  cout << "WARNING!! : " << _name << " not found. Check your tree name. \n";
+//Bounds
+pair< vector<double> , vector<double> > calculateBounds(double x, double y, double w, double h)
+{
+  double xl = x - (w/2);
+  double yb = y - (h/2);
+  double xr = x + (w/2);
+  double yt = y + (h/2);
+  vector<double> lowerBound;
+  lowerBound.push_back(xl);
+  lowerBound.push_back(yb);
+  vector<double> upperBound;
+  upperBound.push_back(xr);
+  upperBound.push_back(yt);
+  return std::make_pair(lowerBound, upperBound);
 }
+
 //Constructor (non-periodic)
 static int createTree(lua_State* L)
 {
@@ -51,7 +67,7 @@ static int createTree(lua_State* L)
   return 0;
 }
 
-//Query the tree to find candidate interactions for a particle.
+//Query the tree to find candidate interactions for a particle ID.
 static int queryID(lua_State* L){
   int top = lua_gettop(L);
   string _name =  luaL_checkstring(L, 1);
@@ -60,8 +76,6 @@ static int queryID(lua_State* L){
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first) {
     particles = treeArr[_result.second]->query(_id);
-  }else{
-    warning(_name);
   }
   lua_createtable(L, particles.size(), 0);
   int newTable = lua_gettop(L);
@@ -84,22 +98,9 @@ static int queryAABB(lua_State* L){
   vector<unsigned int> particles;
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first) {
-    double xl = x - (w/2);
-    double yb = y - (h/2);
-    double xr = x + (w/2);
-    double yt = y + (h/2);
-
-    vector<double> lowerBound;
-    lowerBound.push_back(xl);
-    lowerBound.push_back(yb);
-    vector<double> upperBound;
-    upperBound.push_back(xr);
-    upperBound.push_back(yt);
-    AABB aabb(lowerBound, upperBound);
+    pair< vector<double> , vector<double>  > _bounds = calculateBounds(x,y,w,h);
+    AABB aabb(_bounds.first, _bounds.second);
     particles = treeArr[_result.second]->query(aabb);
-  //  pprint(particles);
-  }else{
-    warning(_name);
   }
   lua_createtable(L, particles.size(), 0);
   int newTable = lua_gettop(L);
@@ -112,7 +113,6 @@ static int queryAABB(lua_State* L){
 }
 
 //Insert a particle into the tree (point particle)
-//string _name, double _radius,  vector<double>& _position
 static int insertCircle(lua_State* L){
   int top = lua_gettop(L);
   string _name = luaL_checkstring(L, 1);
@@ -127,8 +127,6 @@ static int insertCircle(lua_State* L){
     _position.push_back(y);
     treeArr[_result.second]->insertParticle(particleCount, _position, _radius);
     particleCount++;
-  }else{
-    warning(_name);
   }
   lua_pushinteger(L, _index);
   assert(top + 1 == lua_gettop(L));
@@ -143,28 +141,12 @@ static int insertRect(lua_State* L){
   double y = luaL_checknumber(L, 3);
   double w = luaL_checknumber(L, 4);
   double h = luaL_checknumber(L, 5);
-
-
   unsigned int _index = particleCount;
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
-
-    double xl = x - (w/2);
-    double yb = y - (h/2);
-    double xr = x + (w/2);
-    double yt = y + (h/2);
-
-    vector<double> lowerBound;
-    lowerBound.push_back(xl);
-    lowerBound.push_back(yb);
-    vector<double> upperBound;
-    upperBound.push_back(xr);
-    upperBound.push_back(yt);
-    treeArr[_result.second]->insertParticle(particleCount, lowerBound, upperBound);
+    pair< vector<double> , vector<double>  > _bounds = calculateBounds(x,y,w,h);
+    treeArr[_result.second]->insertParticle(particleCount, _bounds.first, _bounds.second);
     particleCount++;
-
-  } else{
-    warning(_name);
   }
   lua_pushinteger(L, _index);
   assert(top + 1 == lua_gettop(L));
@@ -172,7 +154,6 @@ static int insertRect(lua_State* L){
 }
 
 //Remove a particle from the tree.
-//string _name,unsigned int _id
 static int removeAABB(lua_State* L){
   int top = lua_gettop(L);
   string _name = luaL_checkstring(L, 1);
@@ -180,8 +161,6 @@ static int removeAABB(lua_State* L){
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
     treeArr[_result.second]->removeParticle(_id);
-  }else{
-    warning(_name);
   }
   return 0;
 }
@@ -200,15 +179,11 @@ static int updateCircle(lua_State* L){
     _position.push_back(x);
     _position.push_back(y);
     treeArr[_result.second]->updateParticle(_id, _position, _radius);
-  }else{
-    warning(_name);
   }
   return 0;
 }
 
 //Update the tree if a particle moves outside its fattened AABB.
-//string _name, unsigned int _id, vector<double>& _position, vector<double>& _size
-//daabbcc.updateRect(_name,_id, _position.x , _position.y, _size.x, _size.y)
 static int updateRect(lua_State* L){
   int top = lua_gettop(L);
   string _name = luaL_checkstring(L, 1);
@@ -219,20 +194,8 @@ static int updateRect(lua_State* L){
   double h = luaL_checknumber(L, 6);
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
-    double xl = x - (w/2);
-    double yb = y - (h/2);
-    double xr = x + (w/2);
-    double yt = y + (h/2);
-
-    vector<double> lowerBound;
-    lowerBound.push_back(xl);
-    lowerBound.push_back(yb);
-    vector<double> upperBound;
-    upperBound.push_back(xr);
-    upperBound.push_back(yt);
-    treeArr[_result.second]->updateParticle(_id, lowerBound, upperBound);
-  }else{
-    warning(_name);
+    pair< vector<double> , vector<double>  > _bounds = calculateBounds(x,y,w,h);
+    treeArr[_result.second]->updateParticle(_id, _bounds.first, _bounds.second);
   }
   return 0;
 }
@@ -240,6 +203,28 @@ static int updateRect(lua_State* L){
 /*---------------
 **** Helpers ****
 -----------------*/
+
+//Validate the tree.
+static int validateTree(lua_State* L){
+  int top = lua_gettop(L);
+  string _name = luaL_checkstring(L, 1);
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    treeArr[_result.second]->validate();
+  }
+  return 0;
+}
+
+//Rebuild an optimal tree.
+static int rebuildTree(lua_State* L){
+  int top = lua_gettop(L);
+  string _name = luaL_checkstring(L, 1);
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    treeArr[_result.second]->rebuild();
+  }
+  return 0;
+}
 
 //Get the height of the binary tree..
 static int getHeight(lua_State* L){
@@ -249,8 +234,6 @@ static int getHeight(lua_State* L){
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
     _height = treeArr[_result.second]->getHeight();
-  }else{
-    warning(_name);
   }
   lua_pushinteger(L, _height);
   assert(top + 1 == lua_gettop(L));
@@ -265,8 +248,6 @@ static int getNodeCount(lua_State* L){
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
     _nodeCount = treeArr[_result.second]->getNodeCount();
-  }else{
-    warning(_name);
   }
   lua_pushinteger(L, _nodeCount);
   assert(top + 1 == lua_gettop(L));
@@ -276,6 +257,8 @@ static int getNodeCount(lua_State* L){
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
+  {"rebuildTree", rebuildTree},
+  {"validateTree", validateTree},
   {"queryAABB", queryAABB},
   {"queryID", queryID},
   {"updateRect", updateRect},

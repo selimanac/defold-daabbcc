@@ -43,10 +43,6 @@ local prt = {
   }
 }
 
-
-
-
-
 local function insetParticles ()
   local _particleId
   local lr = math.random (0, 1)
@@ -71,8 +67,6 @@ local function insetParticles ()
   else
     _particleId =   ctr.addRect("particles", spriteSize, pos, _targetId,_sprite,rndType)
   end
-
-  --label.set_text(_label, (_particleId .. " / " .. pos.x .. " - " .. pos.y) )
 end
 
 local function setNewAnimate(self, url, property)
@@ -82,10 +76,9 @@ local function setNewAnimate(self, url, property)
   _to.z = 0
   local ss = math.random (1.5, 4)
   go.animate(url, "position",  go.PLAYBACK_ONCE_FORWARD, _to, go.EASING_LINEAR, ss,0,setNewAnimate)
-
 end
-local function setAnimate()
 
+local function setAnimate()
   for i=1, #_particleGroup do
     local _to = vmath.vector3()
     _to.x =  math.random (0, bounds.x)
@@ -96,51 +89,26 @@ local function setAnimate()
   end
 end
 
-
 function init(self)
   --msg.post("@system:", "toggle_profile")
   daabbcc.createTree("particles", 2, 0.2, particlecount)
 
-
   local viewport_sprite = msg.url("main", viewport, "sprite")
   local viewport_size = go.get(viewport_sprite, "size")
   local viewport_pos = go.get_position(viewport)
-
 
   math.randomseed(os.time())
   for i=1,particlecount do
     insetParticles()
   end
   _particleGroup = ctr.particleGroup
-
   --pprint(_particleGroup)
 
-  print("-------------------")
-  pprint("viewport_pos: ".. viewport_pos)
-  pprint("viewport_size: ".. viewport_size)
   v_x = viewport_pos.x
   v_y = viewport_pos.y
   v_w = viewport_size.x
   v_h = viewport_size.y
-  --[[
-  xl = x-(w/2)
-  yb = y-(h/2)
-  xr = x+(w/2)
-  yt = y+(h/2)
 
-  print("xl: " , xl)
-  print("yb: " , yb)
-  print("xr: " , xr)
-  print("yt: " , yt)
-  ]]--
-
-  --local _result = daabbcc.queryAABB("particles",v_x,v_y,v_w,v_h)
-  --pprint(_result)
-  --daabbcc.removeAABB("particles",0)
-
-  --  table.remove(_particleGroup, 2)
-
-  --  pprint(_particleGroup)
   setAnimate()
 end
 
@@ -155,8 +123,6 @@ local function difference(a, b)
   end
   return ret
 end
-
-
 
 local function checkCollision()
 
@@ -175,8 +141,6 @@ local function checkCollision()
         break
       end
     end
-
-
   end
   -- local tprevResult = difference(prevResult , _queryResult)
   -- if #tprevResult > 0 then
@@ -215,7 +179,6 @@ local function checkCollision()
 end
 
 function update(self, dt)
-
   for i=1, #_particleGroup do
     _particleM = _particleGroup[i]
     _particlePosition = go.get_position(_particleM[2])
@@ -226,21 +189,4 @@ function update(self, dt)
     end
   end
   checkCollision()
-
-
-end
-
-function on_message(self, message_id, message, sender)
-  -- Add message-handling code here
-  -- Remove this function if not needed
-end
-
-function on_input(self, action_id, action)
-  -- Add input-handling code here
-  -- Remove this function if not needed
-end
-
-function on_reload(self)
-  -- Add reload-handling code here
-  -- Remove this function if not needed
 end
