@@ -134,9 +134,23 @@ If you know what you are doing, lib is very performant. But that doesn't mean it
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe you can use less than half of them.
 
+My test platform is:
+- macOS 10.13.2
+- 2GHz Intel Core i7
+- 8GB 1600 MHz DDR3
+- Intel HD Graphics 4000
+
+
+### Youtube videos: 
+
+[600 sprites in the box](https://www.youtube.com/watch?v=vUKKxa1Sso8)
+
+[Crazy 700 sprites goes into the black hole](https://www.youtube.com/watch?v=1APPkiQ3Hag)
+
 [![600 sprites in the box with Defold Engine](http://img.youtube.com/vi/vUKKxa1Sso8/0.jpg)](http://www.youtube.com/watch?v=vUKKxa1Sso8)
 
-[![Crazy 700 sprites goes into the black hole with Defold Engine](http://img.youtube.com/vi/1APPkiQ3Hag/0.jpg)](http://www.youtube.com/watch?v=1APPkiQ3Hag)
+
+[![Crazy 700 sprites goes into the black hole with Defold Engine](http://img.youtube.com/vi/1APPkiQ3Hag/0.jpg)](https://www.youtube.com/watch?v=1APPkiQ3Hag)
 
 
 
