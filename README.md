@@ -112,8 +112,6 @@ You can query the tree(s) by id or AABB. Query returns a lua table of object ID(
 
 **Caution**: You can't cross query. 
 
-### Query with ID
-
 #### - queryID
 ```lua
 local tree_name = "particles" -- Name of your tree
@@ -121,7 +119,6 @@ local id = 0 -- ID of your object
 
 local _result = daabbcc.queryID(tree_name, id)
 ```
-### Query with AABB
 
 #### - queryAABB
 ```lua
