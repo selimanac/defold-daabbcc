@@ -18,7 +18,8 @@ Since there is a build in physic engine in [Defold](https://www.defold.com/), th
 
 ## Usage in Defold
 
-You can use this native extension by simply calling 'daabbcc'
+You can use this native extension by simply calling 'daabbcc'.
+**Caution**: Scaling may break your collision. You should recalculate the size.
 
 ### Creating a new AABB Tree
 
