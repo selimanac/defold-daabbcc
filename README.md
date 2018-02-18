@@ -132,7 +132,40 @@ local size = go.get("#sprite", "size")
 local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 ```
 
-## Performance and Notes
+### Helpers
+
+#### - validateTree
+Validate the tree. 
+
+```lua
+local tree_name = "particles" -- Name of your tree
+daabbcc.validateTree(tree_name)
+```
+#### - rebuildTree
+Rebuild an optimal tree. 
+
+```lua
+local tree_name = "particles" -- Name of your tree
+daabbcc.rebuildTree(tree_name)
+```
+#### - getHeight
+Get the height of the tree.
+
+```lua
+local tree_name = "particles" -- Name of your tree
+daabbcc.getHeight(tree_name)
+```
+#### - getNodeCount
+Get the number of nodes in the tree.
+
+```lua
+local tree_name = "particles" -- Name of your tree
+daabbcc.getNodeCount(tree_name)
+```
+
+---
+
+# Performance and Notes
 
 If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
