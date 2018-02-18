@@ -108,7 +108,7 @@ local id = 0 -- ID of your object
 daabbcc.removeAABB(tree_name,id)
 ```
 ### Queries
-You can query the tree(s) by id or AABB. Query returns a lua table of object ID(s).
+You can query the tree(s) by id or AABB for possible overlaps. Query returns a lua table of object IDs.
 
 **Caution**: You can't cross query. 
 
