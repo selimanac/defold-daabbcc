@@ -1,4 +1,4 @@
-local ctr = require "main.controller"
+local ctr = require "tests.controller"
 
 local _id = 0
 local _height = 0

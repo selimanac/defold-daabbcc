@@ -1,0 +1,2 @@
+prototype: "/tests/assets/go/particle.go"
+load_dynamically: false

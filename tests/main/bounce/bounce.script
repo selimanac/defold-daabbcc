@@ -1,4 +1,4 @@
-local ctr = require "main.controller"
+local ctr = require "tests.controller"
 
 -- Walls
 local lWall = hash("/lWall")
@@ -19,8 +19,8 @@ local tangent_velocity  = vmath.vector3()
 local setposition = go.set_position
 local wall_results = {}
 
-local  balls_count = 150 -- Number of balls
-local ball_speed = 300 -- Speed ıf balls
+local  balls_count = 400 -- Number of balls
+local ball_speed = 600 -- Speed ıf balls
 
 -- Balls
 local prt = {

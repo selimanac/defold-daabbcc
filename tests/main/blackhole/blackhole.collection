@@ -1,7 +1,7 @@
 name: "main"
 instances {
   id: "viewport"
-  prototype: "/assets/go/viewport.go"
+  prototype: "/tests/assets/go/viewport.go"
   position {
     x: 480.0
     y: 320.0
@@ -24,7 +24,7 @@ embedded_instances {
   id: "script"
   data: "components {\n"
   "  id: \"main\"\n"
-  "  component: \"/main/blackhole/blackhole.script\"\n"
+  "  component: \"/tests/main/blackhole/blackhole.script\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
@@ -59,7 +59,7 @@ embedded_instances {
   id: "factory"
   data: "components {\n"
   "  id: \"particle\"\n"
-  "  component: \"/assets/particle.factory\"\n"
+  "  component: \"/tests/assets/particle.factory\"\n"
   "  position {\n"
   "    x: 0.0\n"
   "    y: 0.0\n"
