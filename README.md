@@ -110,7 +110,7 @@ daabbcc.removeAABB(tree_name,id)
 ### Queries
 You can query the tree(s) by id or AABB. Query returns a lua table of object ID(s).
 
-**Caution**: You can't cross query with ID. 
+**Caution**: You can't cross query. 
 
 ### Query with ID
 
