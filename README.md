@@ -14,7 +14,7 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
   
 ## What is this for?
 
-Since there is a build in physic engine in [Defold](https://www.defold.com/), that looks ridiculous. I believe, trusted Defold engineers made tons of optimisations on Box2D. But there are different ways of using this lib. Like culling off-screen object, simple raycasting or for puzzle games. Sometimes you don't need to use Box2D's all functionality, even triggers are not cheap. Also overlapping lots of triggers may cause a big headache. 
+Since there is a build in physic engine in [Defold](https://www.defold.com/), that looks ridiculous. I believe, trusted Defold engineers made tons of optimisations on Box2D. But there are different ways of using this lib. Like culling off-screen object, simple raycasting through tree or for puzzle game logic. Sometimes you don't need to use Box2D's all functionality, even triggers are not cheap. Also overlapping lots of triggers may cause a big headache. 
 
 ## Usage in Defold
 
