@@ -197,7 +197,7 @@ Since I am a lazy developer, you can find my terrible tests in the source.
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
 
-I need a help for building AABB.cc on Windows. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
+I need help for building AABB.cc library on Windows. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
 
 I removed unnecessary stuff like python wrapper and docs for Doxygen. Here is my build/make files: https://github.com/selimanac/aabbcc/tree/defoldWrapper
 
