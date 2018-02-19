@@ -31,6 +31,3 @@ update_frequency = 60
 [library]
 include_dirs = daabbcc
 
-[native_extension]
-app_manifest = /release-nophysic.appmanifest
-

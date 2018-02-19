@@ -63,7 +63,7 @@ end
 
 function init(self)
 
-  --msg.post("@system:", "toggle_profile")
+  msg.post("@system:", "toggle_profile")
   math.randomseed(os.time())
 
   --Create Walls and Balls Trees
