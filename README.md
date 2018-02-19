@@ -1,5 +1,5 @@
 # DAABBCC
-DAABBCC is a terrible name of AABBs tree native extension for [Defold Engine](https://www.defold.com/)
+DAABBCC is a terrible name for the AABBs tree native extension implementation on [Defold Engine](https://www.defold.com/)
 
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) lib for  [Defold Engine](https://www.defold.com/). [AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
