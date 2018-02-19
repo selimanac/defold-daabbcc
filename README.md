@@ -14,7 +14,7 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
   
 ## What is this for?
 
-First of all, **this is not a complete collision library/solution**. It is a Broad Phase collision for fast overlap checking. You have to handle collision yoursef like using Swept AABB. 
+First of all, **this is not a complete collision library/solution**. It is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef like using Swept AABB. 
 You can use it for culling offscreen objects, raycasting through the tree or for puzzle game logics. 
 
 ## Usage in Defold
