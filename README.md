@@ -1,5 +1,5 @@
 # DAABBCC
-DAABBCC is a terrible name of a AABBs tree native extension for [Defold Engine](https://www.defold.com/)
+DAABBCC is a terrible name of AABBs tree native extension for [Defold Engine](https://www.defold.com/)
 
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) lib for  [Defold Engine](https://www.defold.com/). [AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
@@ -10,17 +10,18 @@ The data structure provides an efficient way of detecting potential overlap betw
 ## Installation
 You can use DAABBCC in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/). Open your game.project file and in the dependencies field under project add:
 
-	https://github.com/selimanac/DAABBCC/archive/master.zip
+	https://github.com/selimanac/DAABBCC/archive/dev.zip
   
 ## What is this for?
 
-First of all, **this is not a collision library**. This is for fast overlap checks. Than you can handle collision yoursef like using Swept AABB. 
-Since there is a build in physic engine in [Defold](https://www.defold.com/), that looks ridiculous. I believe, trusted Defold engineers made tons of optimisations on Box2D. But there are different ways of using this lib. Like culling off-screen object, simple raycasting through tree or for puzzle game logic. Sometimes you don't need to use Box2D's all functionality, even triggers are not cheap. Also overlapping lots of triggers may cause a big headache. 
+First of all, **this is not a complete collision library/solution**. It is a Broad Phase collision for fast overlap checking. You have to handle collision yoursef like using Swept AABB. 
+You can use it for culling offscreen objects, raycasting through the tree or for puzzle game logics. 
 
 ## Usage in Defold
 
 You can use this native extension by simply calling 'daabbcc'.
-**Caution**: Scaling may break your collision. You should recalculate the size.
+
+**Caution**: Scaling may break your collision. You should recalculate the size manually.
 
 ### Creating a new AABB Tree
 
@@ -109,7 +110,8 @@ local id = 0 -- ID of your object
 daabbcc.removeAABB(tree_name,id)
 ```
 ### Queries
-You can query the tree(s) by id or AABB for possible overlaps. Query returns a lua table of object IDs.
+You can query a tree by id or with AABB for possible overlaps. 
+Query returns a lua table of object IDs.
 
 **Caution**: You can't cross query. 
 
@@ -133,14 +135,14 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 ### Helpers
 
 #### - validateTree
-Validate the tree. 
+Validate the tree. (Not documented)
 
 ```lua
 local tree_name = "particles" -- Name of your tree
 daabbcc.validateTree(tree_name)
 ```
 #### - rebuildTree
-Rebuild an optimal tree. 
+Rebuild an optimal tree. (Not documented)
 
 ```lua
 local tree_name = "particles" -- Name of your tree
@@ -165,9 +167,9 @@ daabbcc.getNodeCount(tree_name)
 
 # Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops and logics. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
-I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because of the screen video recording cause a memory leap. 
+I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because of the screen video recording cause a memory leap. I believe they can be more optimised.
 
 - [Need more performance testing ](https://github.com/selimanac/DAABBCC/issues/2)
 
@@ -191,7 +193,7 @@ My test platform is:
 
 ## Examples
 
-Since I am a lazy developer, you can find my terrible examples in the source. I believe they can be more optimised. 
+Since I am a lazy developer, you can find my terrible tests in the source.
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
 
