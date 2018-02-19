@@ -19,8 +19,8 @@ local tangent_velocity  = vmath.vector3()
 local setposition = go.set_position
 local wall_results = {}
 
-local  balls_count = 400 -- Number of balls
-local ball_speed = 600 -- Speed ıf balls
+local  balls_count = 100 -- Number of balls
+local ball_speed = 600 -- Speed of balls
 
 -- Balls
 local prt = {
@@ -63,7 +63,7 @@ end
 
 function init(self)
 
-  msg.post("@system:", "toggle_profile")
+  --msg.post("@system:", "toggle_profile")
   math.randomseed(os.time())
 
   --Create Walls and Balls Trees
