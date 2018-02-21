@@ -139,6 +139,7 @@ Validate the tree. (Not documented)
 
 ```lua
 local tree_name = "particles" -- Name of your tree
+
 daabbcc.validateTree(tree_name)
 ```
 #### - rebuildTree
@@ -146,6 +147,7 @@ Rebuild an optimal tree. (Not documented)
 
 ```lua
 local tree_name = "particles" -- Name of your tree
+
 daabbcc.rebuildTree(tree_name)
 ```
 #### - getHeight
@@ -153,6 +155,7 @@ Get the height of the tree.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
+
 daabbcc.getHeight(tree_name)
 ```
 #### - getNodeCount
@@ -160,7 +163,17 @@ Get the number of nodes in the tree.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
+
 daabbcc.getNodeCount(tree_name)
+```
+#### - getAABB
+Returns x,y, width, height
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local id = 0 -- ID of your object
+
+local x,y,w,h = daabbcc.getAABB("particles", id)
 ```
 
 ---
