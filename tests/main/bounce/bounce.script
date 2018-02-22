@@ -19,8 +19,8 @@ local tangent_velocity  = vmath.vector3()
 local setposition = go.set_position
 local wall_results = {}
 
-local  balls_count = 100 -- Number of balls
-local ball_speed = 600 -- Speed of balls
+local  balls_count = 1 -- Number of balls
+local ball_speed = 50 -- Speed of balls
 
 -- Balls
 local prt = {
@@ -77,17 +77,24 @@ function init(self)
   local _spriteSize = go.get(_sprite, "size")
   ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
+  
+
   --Right Wall: 1
   _pos = go.get_position(rWall)
   _sprite =  msg.url("default", rWall, "sprite")
   _spriteSize = go.get(_sprite, "size")
   ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
+
+
   --Top Wall: 2
   _pos = go.get_position(tWall)
   _sprite =  msg.url("default", tWall, "sprite")
   _spriteSize = go.get(_sprite, "size")
   ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+
+   pprint(_pos)
+  pprint(_spriteSize)
 
   --Bottom Wall: 3
   _pos = go.get_position(bWall)
@@ -99,6 +106,9 @@ function init(self)
   for i=1,balls_count do
     insetParticles()
   end
+
+  local x,y,w,h = daabbcc.getAABB("walls", 2)
+  print( x,y,w,h )
 
 end
 

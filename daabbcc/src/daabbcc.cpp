@@ -3,6 +3,8 @@
 
 #include <dmsdk/sdk.h>
 #include <iostream>
+#include <algorithm>
+#include <math.h>
 #include <aabb/AABB.h>
 
 using namespace std;
@@ -13,6 +15,9 @@ using namespace aabb;
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
 vector<string> treeTxtArr; // Tree name array for name conversation
+
+float _normalx;
+float _normaly;
 
 unsigned int particleCount = 0; // Particle IDs
 
@@ -254,9 +259,216 @@ static int getNodeCount(lua_State* L){
   return 1;
 }
 
+//Get the number of nodes in the tree.
+static int getAABB(lua_State* L){
+  int top = lua_gettop(L);
+  string _name = luaL_checkstring(L, 1);
+  unsigned int _id = luaL_checknumber(L, 2);
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    AABB aabb = treeArr[_result.second]->getAABB(_id);
+
+    double sizew =(aabb.upperBound[0] - aabb.lowerBound[0]);
+    double sizeh =(aabb.upperBound[1] - aabb.lowerBound[1]);
+    double posx = aabb.upperBound[0] - (sizew/2);
+    double posy = aabb.lowerBound[1] + (sizeh/2);
+
+    lua_pushnumber(L, posx);
+    lua_pushnumber(L, posy);
+    lua_pushnumber(L, sizew);
+    lua_pushnumber(L, sizeh);
+    assert(top + 4== lua_gettop(L));
+    return 4;
+  }
+
+  return 0;
+}
+
+
+AABB internalGetAABB(string _name, int _id){
+  AABB aabb;
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    aabb = treeArr[_result.second]->getAABB(_id);
+  }
+  else{
+    cout << _name << " not found.\n";
+  }
+  return aabb;
+}
+
+
+
+float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float& normaly)
+{
+
+  float xDistanceEntry, yDistanceEntry;
+  float xDistanceExit, yDistanceExit;
+
+  if (vel1[0] > 0.0f)
+  {
+    xDistanceEntry = (box2).lowerBound[0] - (box1).upperBound[0];
+    xDistanceExit = (box2).upperBound[0] - (box1).lowerBound[0];
+  }
+  else
+  {
+    xDistanceEntry = (box2).upperBound[0] - (box1).lowerBound[0];
+    xDistanceExit = (box2).lowerBound[0] - (box1).upperBound[0];
+  }
+
+  if (vel1[1] > 0.0f)
+  {
+    yDistanceEntry = (box2).lowerBound[1] - (box1).upperBound[1];
+    yDistanceExit = (box2).upperBound[1] - (box1).lowerBound[1];
+  }
+  else
+  {
+    yDistanceEntry = (box2).upperBound[1] - (box1).lowerBound[1];
+    yDistanceExit = (box2).lowerBound[1] - (box1).upperBound[1];
+  }
+
+  
+  float xEntryTime, yEntryTime;
+  float xExitTime, yExitTime;
+
+  
+  if (vel1[0] == 0.0f)
+  {
+   if (max(fabsf(xDistanceEntry), fabsf(xDistanceExit)) > (((box1).upperBound[0] - (box1).lowerBound[0]) + ((box2).upperBound[0] - (box2).lowerBound[0])))
+   {
+
+    xEntryTime = 2.0f;
+  }
+  else
+  {  
+    xEntryTime = -numeric_limits<float>::infinity();
+  }
+
+  xExitTime = numeric_limits<float>::infinity();
+}
+else
+{
+ xEntryTime = xDistanceEntry / vel1[0];
+ xExitTime = xDistanceExit / vel1[0];
+}
+
+if (vel1[1] == 0.0f)
+{
+  if (max(fabsf(yDistanceEntry), fabsf(yDistanceExit)) > (((box1).upperBound[1] - (box1).lowerBound[1]) + ((box2).upperBound[1] - (box2).lowerBound[1])))
+  {
+    yEntryTime = 2.0f;
+  }
+  else
+  {
+    yEntryTime = -std::numeric_limits<float>::infinity();
+  }
+
+  yExitTime = std::numeric_limits<float>::infinity();
+}
+else
+{
+  yEntryTime = yDistanceEntry / vel1[1];
+  yExitTime = yDistanceExit / vel1[1];
+}
+
+
+
+float entryTime = max(xEntryTime, yEntryTime);
+
+
+float exitTime = min(xExitTime, yExitTime);
+
+
+if (entryTime > exitTime || (xEntryTime < 0.0f && yEntryTime < 0.0f)  || xEntryTime > 1.0f || yEntryTime > 1.0f)
+{
+
+  normalx = 0.0f;
+  normaly = 0.0f;
+
+
+  return 2.0f;
+}
+else 
+{
+
+  if (xEntryTime > yEntryTime) 
+  {
+    if (xDistanceEntry < 0.0f) 
+    {
+      normalx = 1.0f;
+      normaly = 0.0f;
+    }
+    else
+    {
+      normalx = -1.0f;
+      normaly = 0.0f;
+    }
+  }
+  else if (yEntryTime > xEntryTime)
+  {
+    if (yDistanceEntry < 0.0f)
+    {
+      normalx = 0.0f;
+      normaly = 1.0f;
+    }
+    else
+    {
+      normalx = 0.0f;
+      normaly = -1.0f;
+    }
+  }
+
+  _normalx = normalx;
+  _normaly = normaly;
+  return entryTime;
+}
+}
+
+static int checkSweptCollision(lua_State* L){
+  int top = lua_gettop(L);
+
+  string _name = luaL_checkstring(L, 1);
+  int _moving_id = luaL_checkint(L, 2);
+  int _static_id = luaL_checkint(L, 3);
+  float _moving_velocity_x = luaL_checknumber(L, 4);
+  float _moving_velocity_y = luaL_checknumber(L, 5);
+  float _moving_velocity_normal_x = luaL_checknumber(L, 6);
+  float _moving_velocity_normal_y = luaL_checknumber(L, 7);
+
+  unsigned int _nodeCount=0;
+  pair<bool, int> _result = checkTreeName(_name);
+
+  if( _result.first ) {
+
+   AABB _moving_aabb = internalGetAABB(_name, _moving_id);
+   AABB _static_aabb = internalGetAABB(_name, _static_id);
+/*
+   vector<double> _position;
+    _position.push_back(x);
+    _position.push_back(y);
+*/
+   vector<float> _moving_velocity ;
+   _moving_velocity.push_back(_moving_velocity_x);
+   _moving_velocity.push_back(_moving_velocity_y);
+   float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
+
+   lua_pushnumber(L, _result);
+   lua_pushnumber(L, _normalx);
+   lua_pushnumber(L, _normaly);
+   assert(top + 3 == lua_gettop(L));
+   return 3;
+ }
+
+  //lua_pushinteger(L, _nodeCount);
+  //assert(top + 1 == lua_gettop(L));
+ return 0;
+}
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
+
+  {"checkSweptCollision", checkSweptCollision},
+  {"getAABB", getAABB},
   {"rebuildTree", rebuildTree},
   {"validateTree", validateTree},
   {"queryAABB", queryAABB},

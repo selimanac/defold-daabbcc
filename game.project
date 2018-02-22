@@ -3,7 +3,7 @@ title = DAABBCC
 version = 0.6
 
 [bootstrap]
-main_collection = /tests/main/bounce/bounce.collectionc
+main_collection = /tests/main/SweptAABB/sweptaabb.collectionc
 
 [input]
 game_binding = /input/game.input_bindingc
@@ -27,6 +27,8 @@ max_instances = 2024
 [display]
 variable_dt = 0
 update_frequency = 60
+width = 960
+height = 640
 
 [library]
 include_dirs = daabbcc
