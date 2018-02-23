@@ -3,6 +3,8 @@ local ctr = require "tests.controller"
 -- Walls
 local bwall = hash("/bwall")
 local twall = hash("/twall") 
+local lwall = hash("/lwall") 
+local rwall = hash("/rwall") 
 local hero = hash("/hero")
 
 local vdown = vmath.vector3(0, -1, 0)
@@ -11,7 +13,7 @@ local vright = vmath.vector3(1, 0, 0)
 local vup = vmath.vector3(0, 1, 0)
 local normal = vdown
 
-local speed = 766
+local speed = 0.2
 local velocity = vmath.vector3(0,0,0)
 
 local normal_velocity = vmath.vector3()
@@ -29,20 +31,29 @@ local acceleration = vmath.vector3(1,1,0)
 local walls ={}
 local swidth = tonumber(sys.get_config("display.width"))
 local sheight = tonumber(sys.get_config("display.height"))
+local mathabs = math.abs
+
+local tvel = vmath.vector3()
+local w_id = 0 
+local collisionTime = 0.0
+local _nx = 0.0
+local _ny = 0.0
+local remainingTime = 0.0
+local _dt = 0.0
 function init(self)
 
   msg.post("@system:", "toggle_profile")
 
 
   daabbcc.createTree("world", 2, 0, 4)
-  daabbcc.createTree("walls", 2, 0, 4)
+  --daabbcc.createTree("walls", 2, 0, 4)
 
   --Left Wall: 0
   local _pos = go.get_position(bwall)
   local _sprite =  msg.url("default", bwall, "sprite")
   local _spriteSize = go.get(_sprite, "size")
   wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
- wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+ --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
  table.insert( walls, #walls+1, wall_id )
 
@@ -50,36 +61,44 @@ function init(self)
  _sprite =  msg.url("default", twall, "sprite")
  _spriteSize = go.get(_sprite, "size")
   wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
-  wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+  --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+
+  table.insert( walls, #walls+1, wall_id )
+
+
+  _pos = go.get_position(lwall)
+  _sprite =  msg.url("default", lwall, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+  --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+
+  table.insert( walls, #walls+1, wall_id )
+
+  _pos = go.get_position(rwall)
+  _sprite =  msg.url("default", rwall, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+  --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
   table.insert( walls, #walls+1, wall_id )
   
 
-  --local x,y,w,h = daabbcc.getAABB("world", wall_id)
-  --print( x,y,w,h )
+
 
   _pos = go.get_position(hero)
   _sprite =  msg.url("default", hero, "sprite")
   heroSize = go.get(_sprite, "size")
-   hero_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+   hero_id = ctr.addRect("world", heroSize, _pos, 0, 0, 0) -- Insert wall
 
    local x,y,w,h = daabbcc.getAABB("world", hero_id)
    print( x,y,w,h )
 
-  -- checkSweptCollision(tree_name,_hero_id, _wall_id, hero_velocity.x, _wall_id, hero_velocity.y , normalx, normaly )
-   --loat SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float& normaly)
-   local hero_velocity = vmath.vector3(0.25, -0.25,0.25)
-
-   --local test = daabbcc.checkSweptCollision("world", _hero_id, _wall_id,hero_velocity.x,hero_velocity.y,0.0, 0.0)
-
-
-
-   velocity.x = 0
+   velocity.x = -speed
    velocity.y = -speed
 
    tempPos = _pos
-   pprint(velocity)
-   pprint(walls)
+
+
  end
 
 
@@ -91,58 +110,112 @@ function init(self)
 
  function update(self, dt)
 
-  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
-  local tvel = velocity*dt
+  --[[
+  Move template
+  x = x + (targetDestination - currentposition) * 0.1/dt
+  ]]--
 
+  local targetDestination = tempPos + velocity
+ tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+ tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+
+daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+   local count, depth, normal, contact_points = daabbcc.checkManifold("world",hero_id, 0)
+pprint(count)
+pprint(depth)
+pprint(normal)
+pprint(contact_points)
+
+
+
+--[[
+
+ -- AABB Query
+  -- Can't handle bullet
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x,heroSize.y)
+
+  if wall_results[2] ~= nil then
+    velocity.y = 0
+     velocity.x = 0
+  end 
+
+  local targetDestination = tempPos + velocity
+ tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+ tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+ ]]--
+
+
+--[[
+
+  -- Simple Hit from tinyc2 
+  -- Can't handle bullet
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x+50,heroSize.y+50)
+  if wall_results[2] ~= nil then
+    w_id  =  wall_results[2]
+    local hit =   daabbcc.checkHit("world",hero_id,  w_id)
+
+    if hit==1 then
+     velocity.y = 0
+     velocity.x = 0
+
+   end 
+ end 
+
+ local targetDestination = tempPos + velocity
+ tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+ tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+
+ ]]--
+
+--[[
+
+  -- Swept check
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  tvel = velocity*dt
 
   wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x+30,heroSize.y+30)
 
-  if wall_results[2] ~= nil then
 
-    pprint(wall_results)
-    local w_id  =  wall_results[2]
-    local collisionTime, _nx, _ny = daabbcc.checkSweptCollision("world", hero_id, w_id, tvel.x, tvel.y, normal.x, normal.y)
+  if wall_results[2] ~= nil then
+    w_id  =  wall_results[2]
+    collisionTime, _nx, _ny = daabbcc.checkSweptCollision("world", hero_id, w_id, tvel.x, tvel.y, normal.x, normal.y)
     normal.x = _nx
     normal.y = _ny
-    local remainingTime = 1.0 - collisionTime;
+    remainingTime = 1.0 - collisionTime;
 
     if (remainingTime >= 0.0) then
 
-      if  math.abs( normal.x ) > 0.0001 then
-
-     velocity.x = velocity.x * -1
+      if mathabs( normal.x ) > 0.0001 then
+       velocity.x = velocity.x * -1
      end
 
-     if  math.abs( normal.y ) > 0.0001 then
-
-    velocity.y = velocity.y * -1
+     if mathabs( normal.y ) > 0.0001 then
+      velocity.y = velocity.y * -1
     end
 
-    local _dt = collisionTime*dt
-    --velocity = velocity +  acceleration * _dt;
+    _dt = collisionTime*dt 
     tempPos = tempPos+ (velocity * _dt);
-
-  
-
     _dt = remainingTime*dt
-
-  
-
   else 
-    --velocity = velocity  * dt;
     tempPos = tempPos+ (velocity * dt);
-    
-
   end
 
 else 
   tempPos = tempPos+ (velocity * dt);
-
- 
-
 end 
+]]--
 
- go.set_position(tempPos, hero)
+
+go.set_position(tempPos, hero)
 
 
 end

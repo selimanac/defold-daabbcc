@@ -7,6 +7,9 @@
 #include <math.h>
 #include <aabb/AABB.h>
 
+#define TINYC2_IMPLEMENTATION
+#include "aabb/tinyc2.h"
+
 using namespace std;
 using namespace aabb;
 
@@ -284,17 +287,14 @@ static int getAABB(lua_State* L){
   return 0;
 }
 
-
-AABB internalGetAABB(string _name, int _id){
+//Internal
+AABB _getAABB(string _name, int _id){
   AABB aabb;
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first ) {
-    aabb = treeArr[_result.second]->getAABB(_id);
-  }
-  else{
-    cout << _name << " not found.\n";
-  }
-  return aabb;
+   aabb = treeArr[_result.second]->getAABB(_id);
+ }
+ return aabb;
 }
 
 
@@ -305,24 +305,18 @@ float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float&
   float xDistanceEntry, yDistanceEntry;
   float xDistanceExit, yDistanceExit;
 
-  if (vel1[0] > 0.0f)
-  {
+  if (vel1[0] > 0.0f) {
     xDistanceEntry = (box2).lowerBound[0] - (box1).upperBound[0];
     xDistanceExit = (box2).upperBound[0] - (box1).lowerBound[0];
-  }
-  else
-  {
+  } else {
     xDistanceEntry = (box2).upperBound[0] - (box1).lowerBound[0];
     xDistanceExit = (box2).lowerBound[0] - (box1).upperBound[0];
   }
 
-  if (vel1[1] > 0.0f)
-  {
+  if (vel1[1] > 0.0f) {
     yDistanceEntry = (box2).lowerBound[1] - (box1).upperBound[1];
     yDistanceExit = (box2).upperBound[1] - (box1).lowerBound[1];
-  }
-  else
-  {
+  } else {
     yDistanceEntry = (box2).upperBound[1] - (box1).lowerBound[1];
     yDistanceExit = (box2).lowerBound[1] - (box1).upperBound[1];
   }
@@ -330,89 +324,56 @@ float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float&
   
   float xEntryTime, yEntryTime;
   float xExitTime, yExitTime;
-
   
-  if (vel1[0] == 0.0f)
-  {
-   if (max(fabsf(xDistanceEntry), fabsf(xDistanceExit)) > (((box1).upperBound[0] - (box1).lowerBound[0]) + ((box2).upperBound[0] - (box2).lowerBound[0])))
-   {
-
+  if (vel1[0] == 0.0f)  {
+   if (max(fabsf(xDistanceEntry), fabsf(xDistanceExit)) > (((box1).upperBound[0] - (box1).lowerBound[0]) + ((box2).upperBound[0] - (box2).lowerBound[0]))){
     xEntryTime = 2.0f;
-  }
-  else
-  {  
+  } else {  
     xEntryTime = -numeric_limits<float>::infinity();
   }
 
   xExitTime = numeric_limits<float>::infinity();
-}
-else
-{
+
+} else {
  xEntryTime = xDistanceEntry / vel1[0];
  xExitTime = xDistanceExit / vel1[0];
 }
 
-if (vel1[1] == 0.0f)
-{
-  if (max(fabsf(yDistanceEntry), fabsf(yDistanceExit)) > (((box1).upperBound[1] - (box1).lowerBound[1]) + ((box2).upperBound[1] - (box2).lowerBound[1])))
-  {
+if (vel1[1] == 0.0f){
+  if (max(fabsf(yDistanceEntry), fabsf(yDistanceExit)) > (((box1).upperBound[1] - (box1).lowerBound[1]) + ((box2).upperBound[1] - (box2).lowerBound[1]))){
     yEntryTime = 2.0f;
-  }
-  else
-  {
+  } else {
     yEntryTime = -std::numeric_limits<float>::infinity();
   }
 
   yExitTime = std::numeric_limits<float>::infinity();
 }
-else
-{
+else {
   yEntryTime = yDistanceEntry / vel1[1];
   yExitTime = yDistanceExit / vel1[1];
 }
 
-
-
 float entryTime = max(xEntryTime, yEntryTime);
-
-
 float exitTime = min(xExitTime, yExitTime);
 
-
-if (entryTime > exitTime || (xEntryTime < 0.0f && yEntryTime < 0.0f)  || xEntryTime > 1.0f || yEntryTime > 1.0f)
-{
-
+if (entryTime > exitTime || (xEntryTime < 0.0f && yEntryTime < 0.0f)  || xEntryTime > 1.0f || yEntryTime > 1.0f){
   normalx = 0.0f;
   normaly = 0.0f;
-
-
   return 2.0f;
-}
-else 
-{
-
-  if (xEntryTime > yEntryTime) 
-  {
-    if (xDistanceEntry < 0.0f) 
-    {
+} else {
+  if (xEntryTime > yEntryTime) {
+    if (xDistanceEntry < 0.0f) {
       normalx = 1.0f;
       normaly = 0.0f;
-    }
-    else
-    {
+    } else {
       normalx = -1.0f;
       normaly = 0.0f;
     }
-  }
-  else if (yEntryTime > xEntryTime)
-  {
-    if (yDistanceEntry < 0.0f)
-    {
+  } else if (yEntryTime > xEntryTime) {
+    if (yDistanceEntry < 0.0f) {
       normalx = 0.0f;
       normaly = 1.0f;
-    }
-    else
-    {
+    } else {
       normalx = 0.0f;
       normaly = -1.0f;
     }
@@ -422,6 +383,126 @@ else
   _normaly = normaly;
   return entryTime;
 }
+}
+
+//Manifold
+static int checkManifold(lua_State* L){
+  int top = lua_gettop(L);
+
+  string _name = luaL_checkstring(L, 1);
+  int _moving_id = luaL_checkint(L, 2);
+  int _other_id = luaL_checkint(L, 3);
+  
+
+  unsigned int _nodeCount=0;
+  pair<bool, int> _result = checkTreeName(_name);
+
+  if( _result.first ) {
+
+   AABB box1 = _getAABB(_name, _moving_id);
+   AABB box2  = _getAABB(_name, _other_id);
+
+   c2AABB aabb;
+   /* aabb.min.x =  box1.lowerBound[0];
+     aabb.min.y = box1.lowerBound[1];
+    aabb.max.x = box1.upperBound[0];
+    aabb.max.y =  box1.upperBound[1];
+    */
+   aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
+   aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
+
+
+   c2AABB aabb2;
+   /* aabb2.min.x =  box2.lowerBound[0];
+    aabb2.min.y = box2.lowerBound[1];
+    aabb2.max.x = box2.upperBound[0];
+    aabb2.max.y =  box2.upperBound[1];
+   */
+   aabb2.min = c2V(box2.lowerBound[0], box2.lowerBound[1]);
+   aabb2.max = c2V(box2.upperBound[0], box2.upperBound[1]);
+   
+   c2Manifold manifold;
+   c2AABBtoAABBManifold(aabb, aabb2, &manifold);
+
+   if (manifold.count > 0) {
+    cout << manifold.normal.x << " - " << manifold.normal.y  << "\n";
+     cout << manifold.contact_points[0].x << " - " << manifold.contact_points[0].y  << "\n";
+      
+
+    lua_pushinteger(L, manifold.count); // manifold.count; 
+    lua_pushnumber(L, manifold.depths[0]);
+
+    lua_createtable(L, 2, 0);
+
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, manifold.normal.x);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, manifold.normal.y);
+    lua_settable(L, -3);
+
+
+
+    lua_createtable(L, 2, 0);
+   
+    lua_pushstring(L, "x");
+    lua_pushnumber(L, manifold.contact_points[0].x);
+    lua_settable(L, -3);
+
+    lua_pushstring(L, "y");
+    lua_pushnumber(L, manifold.contact_points[0].y);
+    lua_settable(L, -3);
+
+      /*
+        
+       
+         manifold.contact_points; // 0.x 0.y , 1.x 1.y
+       
+        
+         */
+    assert(top + 4 == lua_gettop(L));
+    return 4;
+
+  }
+  
+}
+return 0;
+}
+
+// Check simple hit.
+static int checkHit(lua_State* L){
+  int top = lua_gettop(L);
+
+  string _name = luaL_checkstring(L, 1);
+  int _moving_id = luaL_checkint(L, 2);
+  int _other_id = luaL_checkint(L, 3);
+
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+
+   AABB box1 = _getAABB(_name, _moving_id);
+   AABB box2  = _getAABB(_name, _other_id);
+
+   c2AABB aabb;
+   aabb.min.x =  box1.lowerBound[0];
+   aabb.min.y = box1.lowerBound[1];
+   aabb.max.x = box1.upperBound[0];
+   aabb.max.y =  box1.upperBound[1];
+
+   c2AABB aabb2;
+   aabb2.min.x =  box2.lowerBound[0];
+   aabb2.min.y = box2.lowerBound[1];
+   aabb2.max.x = box2.upperBound[0];
+   aabb2.max.y =  box2.upperBound[1];
+   
+   int hit =  c2AABBtoAABB(aabb, aabb2);
+   
+   lua_pushinteger(L, hit);
+   assert(top + 1 == lua_gettop(L));
+   return 1;
+ }
+ return 0;
 }
 
 static int checkSweptCollision(lua_State* L){
@@ -440,8 +521,8 @@ static int checkSweptCollision(lua_State* L){
 
   if( _result.first ) {
 
-   AABB _moving_aabb = internalGetAABB(_name, _moving_id);
-   AABB _static_aabb = internalGetAABB(_name, _static_id);
+   AABB _moving_aabb = _getAABB(_name, _moving_id);
+   AABB _static_aabb = _getAABB(_name, _static_id);
 /*
    vector<double> _position;
     _position.push_back(x);
@@ -467,6 +548,8 @@ static int checkSweptCollision(lua_State* L){
 static const luaL_reg Module_methods[] =
 {
 
+  {"checkManifold", checkManifold},
+  {"checkHit", checkHit},
   {"checkSweptCollision", checkSweptCollision},
   {"getAABB", getAABB},
   {"rebuildTree", rebuildTree},
