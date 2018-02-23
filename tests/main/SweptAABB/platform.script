@@ -1,5 +1,11 @@
+go.property("target", -450)
+go.property("speed", 1.5)
+go.property("delay", 0)
+go.property("id", 4)
 function init(self)
-	go.animate(".", "position.y", go.PLAYBACK_LOOP_PINGPONG, 550, go.EASING_LINEAR, 1.5)
+self.pos = go.get_position()
+self.targerpos = self.pos.x + self.target
+	go.animate(".", "position.x", go.PLAYBACK_LOOP_PINGPONG, self.targerpos , go.EASING_LINEAR, self.speed, self.delay)
 end
 
 function final(self)
@@ -10,7 +16,7 @@ end
 function update(self, dt)
 	local getpos = go.get_position()
 
-	daabbcc.updateRect("world",1,getpos.x, getpos.y,1300, 50 )
+	 daabbcc.updateRect("world",self.id,getpos.x, getpos.y,1300, 50 )
  
 end
 

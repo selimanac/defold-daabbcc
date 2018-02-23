@@ -33,3 +33,6 @@ height = 640
 [library]
 include_dirs = daabbcc
 
+[native_extension]
+app_manifest = /release-nophysic.appmanifest
+

@@ -4,6 +4,8 @@ local ctr = require "tests.controller"
 local bwall = hash("/bwall")
 local twall = hash("/twall") 
 local lwall = hash("/lwall") 
+local twall1 = hash("/twall1") 
+local twall2 = hash("/twall2") 
 local rwall = hash("/rwall") 
 local hero = hash("/hero")
 
@@ -13,7 +15,7 @@ local vright = vmath.vector3(1, 0, 0)
 local vup = vmath.vector3(0, 1, 0)
 local normal = vdown
 
-local speed = 0.2
+local speed = 3.2
 local velocity = vmath.vector3(0,0,0)
 
 local normal_velocity = vmath.vector3()
@@ -42,13 +44,13 @@ local remainingTime = 0.0
 local _dt = 0.0
 function init(self)
 
-  msg.post("@system:", "toggle_profile")
+  --msg.post("@system:", "toggle_profile")
 
 
   daabbcc.createTree("world", 2, 0, 4)
   --daabbcc.createTree("walls", 2, 0, 4)
 
-  --Left Wall: 0
+  --bwall: 0
   local _pos = go.get_position(bwall)
   local _sprite =  msg.url("default", bwall, "sprite")
   local _spriteSize = go.get(_sprite, "size")
@@ -57,6 +59,7 @@ function init(self)
 
  table.insert( walls, #walls+1, wall_id )
 
+ --twall: 1
  _pos = go.get_position(twall)
  _sprite =  msg.url("default", twall, "sprite")
  _spriteSize = go.get(_sprite, "size")
@@ -65,33 +68,52 @@ function init(self)
 
   table.insert( walls, #walls+1, wall_id )
 
-
-  _pos = go.get_position(lwall)
-  _sprite =  msg.url("default", lwall, "sprite")
-  _spriteSize = go.get(_sprite, "size")
+ --lwall: 2
+ _pos = go.get_position(lwall)
+ _sprite =  msg.url("default", lwall, "sprite")
+ _spriteSize = go.get(_sprite, "size")
   wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
   --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
   table.insert( walls, #walls+1, wall_id )
 
-  _pos = go.get_position(rwall)
-  _sprite =  msg.url("default", rwall, "sprite")
-  _spriteSize = go.get(_sprite, "size")
+ --rwall: 3
+ _pos = go.get_position(rwall)
+ _sprite =  msg.url("default", rwall, "sprite")
+ _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+  --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+
+  table.insert( walls, #walls+1, wall_id )
+
+
+   --twall1: 4
+ _pos = go.get_position(twall1)
+ _sprite =  msg.url("default", twall1, "sprite")
+ _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+  --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
+
+  table.insert( walls, #walls+1, wall_id )
+
+
+     --twall1: 5
+ _pos = go.get_position(twall2)
+ _sprite =  msg.url("default", twall2, "sprite")
+ _spriteSize = go.get(_sprite, "size")
   wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) -- Insert wall
   --wall_id = ctr.addRect("walls", _spriteSize, _pos, 0, 0, 0) -- Insert wall
 
   table.insert( walls, #walls+1, wall_id )
   
 
-
-
   _pos = go.get_position(hero)
   _sprite =  msg.url("default", hero, "sprite")
   heroSize = go.get(_sprite, "size")
    hero_id = ctr.addRect("world", heroSize, _pos, 0, 0, 0) -- Insert wall
 
-   local x,y,w,h = daabbcc.getAABB("world", hero_id)
-   print( x,y,w,h )
+   --local x,y,w,h = daabbcc.getAABB("world", hero_id)
+   --print( x,y,w,h )
 
    velocity.x = -speed
    velocity.y = -speed
@@ -115,23 +137,52 @@ function init(self)
   x = x + (targetDestination - currentposition) * 0.1/dt
   ]]--
 
+
+
   local targetDestination = tempPos + velocity
- tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
- tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+  tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+  tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
 
-daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
 
-   local count, depth, normal, contact_points = daabbcc.checkManifold("world",hero_id, 0)
-pprint(count)
-pprint(depth)
-pprint(normal)
-pprint(contact_points)
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x+50,heroSize.y+50)
+
+  if wall_results[2] ~= nil then
+    for i = 2, #wall_results do
+      w_id  =  wall_results[i]
+      local count, depth, normal, contact_points = daabbcc.checkManifold("world",hero_id, w_id)
+
+      if count ~= nil then 
+
+       if normal.y ~=0 then
+         tempPos.y = tempPos.y -(depth*normal.y)
+       end
+
+       if normal.x ~=0 then
+         tempPos.x = tempPos.x -(depth*normal.x)
+       end
+
+       if mathabs( normal.x ) > 0.0001 then
+         velocity.x = velocity.x * -1
+       end
+
+       if mathabs( normal.y ) > 0.0001 then
+        velocity.y = velocity.y * -1
+      end
+
+    end
+  end
+
+
+
+end
 
 
 
 --[[
 
- -- AABB Query
+ -- Simple AABB Query
   -- Can't handle bullet
 
   daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
@@ -177,6 +228,7 @@ pprint(contact_points)
 --[[
 
   -- Swept check
+  -- Need muck more work on that
 
   daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
 
@@ -213,7 +265,7 @@ else
   tempPos = tempPos+ (velocity * dt);
 end 
 ]]--
-
+--daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
 
 go.set_position(tempPos, hero)
 

@@ -425,10 +425,6 @@ static int checkManifold(lua_State* L){
    c2AABBtoAABBManifold(aabb, aabb2, &manifold);
 
    if (manifold.count > 0) {
-    cout << manifold.normal.x << " - " << manifold.normal.y  << "\n";
-     cout << manifold.contact_points[0].x << " - " << manifold.contact_points[0].y  << "\n";
-      
-
     lua_pushinteger(L, manifold.count); // manifold.count; 
     lua_pushnumber(L, manifold.depths[0]);
 
@@ -442,8 +438,6 @@ static int checkManifold(lua_State* L){
     lua_pushnumber(L, manifold.normal.y);
     lua_settable(L, -3);
 
-
-
     lua_createtable(L, 2, 0);
    
     lua_pushstring(L, "x");
@@ -454,13 +448,6 @@ static int checkManifold(lua_State* L){
     lua_pushnumber(L, manifold.contact_points[0].y);
     lua_settable(L, -3);
 
-      /*
-        
-       
-         manifold.contact_points; // 0.x 0.y , 1.x 1.y
-       
-        
-         */
     assert(top + 4 == lua_gettop(L));
     return 4;
 
