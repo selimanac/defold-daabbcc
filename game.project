@@ -3,7 +3,7 @@ title = DAABBCC
 version = 0.6
 
 [bootstrap]
-main_collection = /tests/main/SweptAABB/sweptaabb.collectionc
+main_collection = /tests/main/ManifoldAABB/manifoldaabb.collectionc
 
 [input]
 game_binding = /input/game.input_bindingc
@@ -34,5 +34,5 @@ height = 640
 include_dirs = daabbcc
 
 [native_extension]
-app_manifest = /release-nophysic.appmanifest
+app_manifest = 
 

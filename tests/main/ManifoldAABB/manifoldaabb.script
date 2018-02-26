@@ -1,0 +1,198 @@
+local ctr = require "tests.controller"
+
+-- Walls
+local bwall = hash("/bwall")
+local twall = hash("/twall") 
+local lwall = hash("/lwall") 
+local twall1 = hash("/twall1") 
+local twall2 = hash("/twall2") 
+local rwall = hash("/rwall") 
+local hero = hash("/hero")
+
+local vdown = vmath.vector3(0, -1, 0)
+local vleft = vmath.vector3(-1, 0, 0)
+local vright = vmath.vector3(1, 0, 0)
+local vup = vmath.vector3(0, 1, 0)
+local normal = vdown
+
+local speed = 3.2
+local velocity = vmath.vector3(0,0,0)
+
+local normal_velocity = vmath.vector3()
+local tangent_velocity  = vmath.vector3()
+local setposition = go.set_position
+local wall_results = {}
+
+
+local tempPos = vmath.vector3()
+local hero_id
+local wall_id
+local heroSize
+local acceleration = vmath.vector3(1,1,0)
+
+local walls ={}
+local swidth = tonumber(sys.get_config("display.width"))
+local sheight = tonumber(sys.get_config("display.height"))
+local mathabs = math.abs
+
+local tvel = vmath.vector3()
+local w_id = 0 
+local collisionTime = 0.0
+local _nx = 0.0
+local _ny = 0.0
+local remainingTime = 0.0
+local _dt = 0.0
+function init(self)
+
+ msg.post("@system:", "toggle_profile")
+
+ daabbcc.createTree("world", 2, 0, 4)
+
+  --bwall: 0
+  local _pos = go.get_position(bwall)
+  local _sprite =  msg.url("default", bwall, "sprite")
+  local _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  table.insert( walls, #walls+1, wall_id )
+
+ --twall: 1
+ _pos = go.get_position(twall)
+ _sprite =  msg.url("default", twall, "sprite")
+ _spriteSize = go.get(_sprite, "size")
+ wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ table.insert( walls, #walls+1, wall_id )
+
+ --lwall: 2
+ _pos = go.get_position(lwall)
+ _sprite =  msg.url("default", lwall, "sprite")
+ _spriteSize = go.get(_sprite, "size")
+ wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ table.insert( walls, #walls+1, wall_id )
+
+ --rwall: 3
+ _pos = go.get_position(rwall)
+ _sprite =  msg.url("default", rwall, "sprite")
+ _spriteSize = go.get(_sprite, "size")
+ wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ table.insert( walls, #walls+1, wall_id )
+
+  --twall1: 4
+  _pos = go.get_position(twall1)
+  _sprite =  msg.url("default", twall1, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  table.insert( walls, #walls+1, wall_id )
+
+--twall1: 5
+  _pos = go.get_position(twall2)
+  _sprite =  msg.url("default", twall2, "sprite")
+  _spriteSize = go.get(_sprite, "size")
+  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  table.insert( walls, #walls+1, wall_id )
+
+  _pos = go.get_position(hero)
+  _sprite =  msg.url("default", hero, "sprite")
+  heroSize = go.get(_sprite, "size")
+  hero_id = ctr.addRect("world", heroSize, _pos, 0, 0, 0) 
+
+  velocity.x = -speed
+  velocity.y = -speed
+
+  tempPos = _pos
+end
+
+
+
+function update(self, dt)
+
+  -- Hit with manifold from tinyc2 
+
+
+  local targetDestination = tempPos + velocity
+  tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+  tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x+50,heroSize.y+50)
+
+  if wall_results[2] ~= nil then
+    for i = 2, #wall_results do
+      w_id  =  wall_results[i]
+      local count, depth, normal, contact_points = daabbcc.checkManifold("world",hero_id, w_id)
+
+      if count ~= nil then 
+
+       if normal.y ~=0 then
+         tempPos.y = tempPos.y -(depth*normal.y)
+       end
+
+       if normal.x ~=0 then
+         tempPos.x = tempPos.x -(depth*normal.x)
+       end
+
+       if mathabs( normal.x ) > 0.0001 then
+         velocity.x = velocity.x * -1
+       end
+
+       if mathabs( normal.y ) > 0.0001 then
+        velocity.y = velocity.y * -1
+      end
+
+    end
+  end
+end
+
+
+
+--[[
+
+  -- Simple AABB Query
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x,heroSize.y)
+
+  if wall_results[2] ~= nil then
+    velocity.y = 0
+     velocity.x = 0
+  end 
+
+  local targetDestination = tempPos + velocity
+ tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+ tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+ ]]--
+
+
+--[[
+
+  -- Simple Hit from tinyc2 
+
+  daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+
+  wall_results= daabbcc.queryAABB("world",tempPos.x,tempPos.y,heroSize.x+50,heroSize.y+50)
+  if wall_results[2] ~= nil then
+    w_id  =  wall_results[2]
+    local hit =   daabbcc.checkHit("world",hero_id,  w_id)
+
+    if hit==1 then
+     velocity.y = 0
+     velocity.x = 0
+
+   end 
+ end 
+
+ local targetDestination = tempPos + velocity
+ tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
+ tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt
+
+ ]]--
+
+
+ daabbcc.updateRect("world",hero_id,tempPos.x, tempPos.y,heroSize.x, heroSize.y )
+ go.set_position(tempPos, hero)
+
+
+end
+
+

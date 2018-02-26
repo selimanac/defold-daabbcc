@@ -1,0 +1,36 @@
+go.property("target", -450)
+go.property("speed", 1.5)
+go.property("delay", 0)
+go.property("id", 4)
+function init(self)
+self.pos = go.get_position()
+self.targerpos = self.pos.x + self.target
+	go.animate(".", "position.x", go.PLAYBACK_LOOP_PINGPONG, self.targerpos , go.EASING_LINEAR, self.speed, self.delay)
+end
+
+function final(self)
+	-- Add finalization code here
+	-- Remove this function if not needed
+end
+
+function update(self, dt)
+	local getpos = go.get_position()
+
+	 daabbcc.updateRect("world",self.id,getpos.x, getpos.y,1300, 50 )
+ 
+end
+
+function on_message(self, message_id, message, sender)
+	-- Add message-handling code here
+	-- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+	-- Add input-handling code here
+	-- Remove this function if not needed
+end
+
+function on_reload(self)
+	-- Add reload-handling code here
+	-- Remove this function if not needed
+end

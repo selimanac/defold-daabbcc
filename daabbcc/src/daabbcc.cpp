@@ -403,21 +403,11 @@ static int checkManifold(lua_State* L){
    AABB box2  = _getAABB(_name, _other_id);
 
    c2AABB aabb;
-   /* aabb.min.x =  box1.lowerBound[0];
-     aabb.min.y = box1.lowerBound[1];
-    aabb.max.x = box1.upperBound[0];
-    aabb.max.y =  box1.upperBound[1];
-    */
    aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
    aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
 
 
    c2AABB aabb2;
-   /* aabb2.min.x =  box2.lowerBound[0];
-    aabb2.min.y = box2.lowerBound[1];
-    aabb2.max.x = box2.upperBound[0];
-    aabb2.max.y =  box2.upperBound[1];
-   */
    aabb2.min = c2V(box2.lowerBound[0], box2.lowerBound[1]);
    aabb2.max = c2V(box2.upperBound[0], box2.upperBound[1]);
    
@@ -425,7 +415,7 @@ static int checkManifold(lua_State* L){
    c2AABBtoAABBManifold(aabb, aabb2, &manifold);
 
    if (manifold.count > 0) {
-    lua_pushinteger(L, manifold.count); // manifold.count; 
+    lua_pushinteger(L, manifold.count); 
     lua_pushnumber(L, manifold.depths[0]);
 
     lua_createtable(L, 2, 0);
@@ -439,7 +429,7 @@ static int checkManifold(lua_State* L){
     lua_settable(L, -3);
 
     lua_createtable(L, 2, 0);
-   
+
     lua_pushstring(L, "x");
     lua_pushnumber(L, manifold.contact_points[0].x);
     lua_settable(L, -3);
@@ -450,9 +440,7 @@ static int checkManifold(lua_State* L){
 
     assert(top + 4 == lua_gettop(L));
     return 4;
-
-  }
-  
+  } 
 }
 return 0;
 }
