@@ -19,6 +19,9 @@ Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
 vector<string> treeTxtArr; // Tree name array for name conversation
 
+unsigned int rayID = 0; // Particle IDs
+vector<c2Ray> rays;
+
 float _normalx;
 float _normaly;
 
@@ -287,7 +290,9 @@ static int getAABB(lua_State* L){
   return 0;
 }
 
-//Internal
+/*------------------------------------------------------
+**** INTERNALS ****
+------------------------------------------------------*/
 AABB _getAABB(string _name, int _id){
   AABB aabb;
   pair<bool, int> _result = checkTreeName(_name);
@@ -298,7 +303,9 @@ AABB _getAABB(string _name, int _id){
 }
 
 
-
+/*---------------------------------------
+**** Experimental Swept algorithm  ****
+----------------------------------------*/
 float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float& normaly)
 {
 
@@ -321,7 +328,6 @@ float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float&
     yDistanceExit = (box2).lowerBound[1] - (box1).upperBound[1];
   }
 
-  
   float xEntryTime, yEntryTime;
   float xExitTime, yExitTime;
   
@@ -385,7 +391,48 @@ if (entryTime > exitTime || (xEntryTime < 0.0f && yEntryTime < 0.0f)  || xEntryT
 }
 }
 
-//Manifold
+
+static int checkSweptCollision(lua_State* L){
+  int top = lua_gettop(L);
+
+  string _name = luaL_checkstring(L, 1);
+  int _moving_id = luaL_checkint(L, 2);
+  int _static_id = luaL_checkint(L, 3);
+  float _moving_velocity_x = luaL_checknumber(L, 4);
+  float _moving_velocity_y = luaL_checknumber(L, 5);
+  float _moving_velocity_normal_x = luaL_checknumber(L, 6);
+  float _moving_velocity_normal_y = luaL_checknumber(L, 7);
+
+  unsigned int _nodeCount=0;
+  pair<bool, int> _result = checkTreeName(_name);
+
+  if( _result.first ) {
+
+   AABB _moving_aabb = _getAABB(_name, _moving_id);
+   AABB _static_aabb = _getAABB(_name, _static_id);
+
+   vector<float> _moving_velocity ;
+   _moving_velocity.push_back(_moving_velocity_x);
+   _moving_velocity.push_back(_moving_velocity_y);
+   float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
+
+   lua_pushnumber(L, _result);
+   lua_pushnumber(L, _normalx);
+   lua_pushnumber(L, _normaly);
+   assert(top + 3 == lua_gettop(L));
+   return 3;
+ }
+ return 0;
+}
+
+/*---------------------------------------
+****              tinyc2             ****
+----------------------------------------*/
+
+/*---------------------------------------
+**** Manifold generation from tinyc2  ****
+----------------------------------------*/
+
 static int checkManifold(lua_State* L){
   int top = lua_gettop(L);
 
@@ -393,10 +440,8 @@ static int checkManifold(lua_State* L){
   int _moving_id = luaL_checkint(L, 2);
   int _other_id = luaL_checkint(L, 3);
   
-
   unsigned int _nodeCount=0;
   pair<bool, int> _result = checkTreeName(_name);
-
   if( _result.first ) {
 
    AABB box1 = _getAABB(_name, _moving_id);
@@ -405,7 +450,6 @@ static int checkManifold(lua_State* L){
    c2AABB aabb;
    aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
    aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
-
 
    c2AABB aabb2;
    aabb2.min = c2V(box2.lowerBound[0], box2.lowerBound[1]);
@@ -445,7 +489,7 @@ static int checkManifold(lua_State* L){
 return 0;
 }
 
-// Check simple hit.
+// Simple AABB from tinyc2
 static int checkHit(lua_State* L){
   int top = lua_gettop(L);
 
@@ -460,16 +504,12 @@ static int checkHit(lua_State* L){
    AABB box2  = _getAABB(_name, _other_id);
 
    c2AABB aabb;
-   aabb.min.x =  box1.lowerBound[0];
-   aabb.min.y = box1.lowerBound[1];
-   aabb.max.x = box1.upperBound[0];
-   aabb.max.y =  box1.upperBound[1];
+   aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
+   aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
 
    c2AABB aabb2;
-   aabb2.min.x =  box2.lowerBound[0];
-   aabb2.min.y = box2.lowerBound[1];
-   aabb2.max.x = box2.upperBound[0];
-   aabb2.max.y =  box2.upperBound[1];
+   aabb2.min = c2V(box2.lowerBound[0], box2.lowerBound[1]);
+   aabb2.max = c2V(box2.upperBound[0], box2.upperBound[1]);
    
    int hit =  c2AABBtoAABB(aabb, aabb2);
    
@@ -480,49 +520,111 @@ static int checkHit(lua_State* L){
  return 0;
 }
 
-static int checkSweptCollision(lua_State* L){
+static int createRay(lua_State* L){
   int top = lua_gettop(L);
 
+  float _p_x = luaL_checknumber(L, 1);
+  float _p_y = luaL_checknumber(L, 2);
+  float _d_x = luaL_checknumber(L, 3);
+  float _d_y = luaL_checknumber(L, 4);
+  float _t = luaL_checknumber(L, 5);
+
+  c2Ray ray;
+  ray.p = c2V(_p_x, _p_y);
+  ray.d = c2Norm(c2V(_d_x,_d_y));
+  ray.t = _t;
+
+  rays.push_back(ray);
+
+  lua_pushinteger(L, rayID);
+  assert(top + 1 == lua_gettop(L));
+  rayID++;
+  return 1;
+}
+
+static int updateRay(lua_State* L){
+  int top = lua_gettop(L);
+
+  int _ray_id = luaL_checkint(L, 1);
+
+  float _p_x = luaL_checknumber(L, 2);
+  float _p_y = luaL_checknumber(L, 3);
+  float _d_x = luaL_checknumber(L, 4);
+  float _d_y = luaL_checknumber(L, 5);
+  float _t = luaL_checknumber(L, 6);
+
+ 
+  rays[_ray_id].p = c2V(_p_x, _p_y);
+  rays[_ray_id].d = c2Norm(c2V(_d_x,_d_y));
+  rays[_ray_id].t = _t;
+
+  return 0;
+}
+
+static int rayCast(lua_State* L){
+  int top = lua_gettop(L);
+
+
   string _name = luaL_checkstring(L, 1);
-  int _moving_id = luaL_checkint(L, 2);
-  int _static_id = luaL_checkint(L, 3);
-  float _moving_velocity_x = luaL_checknumber(L, 4);
-  float _moving_velocity_y = luaL_checknumber(L, 5);
-  float _moving_velocity_normal_x = luaL_checknumber(L, 6);
-  float _moving_velocity_normal_y = luaL_checknumber(L, 7);
+  int _ray_id = luaL_checkint(L, 2);
+  int _other_id = luaL_checkint(L, 3);
 
-  unsigned int _nodeCount=0;
   pair<bool, int> _result = checkTreeName(_name);
-
   if( _result.first ) {
 
-   AABB _moving_aabb = _getAABB(_name, _moving_id);
-   AABB _static_aabb = _getAABB(_name, _static_id);
-/*
-   vector<double> _position;
-    _position.push_back(x);
-    _position.push_back(y);
-*/
-   vector<float> _moving_velocity ;
-   _moving_velocity.push_back(_moving_velocity_x);
-   _moving_velocity.push_back(_moving_velocity_y);
-   float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
+    AABB box1 = _getAABB(_name, _other_id);
 
-   lua_pushnumber(L, _result);
-   lua_pushnumber(L, _normalx);
-   lua_pushnumber(L, _normaly);
-   assert(top + 3 == lua_gettop(L));
-   return 3;
- }
+    c2AABB aabb;
+    aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
+    aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
+    c2Raycast cast;
+    int hit = c2RaytoAABB(rays[_ray_id], aabb, &cast);
+    c2v impact = c2Impact( rays[_ray_id], rays[_ray_id].t );
+    c2v end = c2Add( impact, c2Mulvs( cast.n, 1.0f ) );
+    cout << "Hit: " << hit << "\n" ;
+    if(hit == 1){
+      lua_pushinteger(L, hit);
 
-  //lua_pushinteger(L, _nodeCount);
-  //assert(top + 1 == lua_gettop(L));
- return 0;
+      lua_createtable(L, 2, 0);
+
+      lua_pushstring(L, "x");
+      lua_pushnumber(L, impact.x);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "y");
+      lua_pushnumber(L, impact.y);
+      lua_settable(L, -3);
+
+      lua_createtable(L, 2, 0);
+
+      lua_pushstring(L, "x");
+      lua_pushnumber(L, end.x);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "y");
+      lua_pushnumber(L, end.y);
+      lua_settable(L, -3);
+
+      assert(top + 3 == lua_gettop(L));
+      return 3;
+
+    } else {
+      lua_pushinteger(L, hit);
+      assert(top + 1 == lua_gettop(L));
+      return 1;
+
+    }
+  }
+  return 0;
 }
+
+
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
-
+  {"updateRay", updateRay},
+  {"createRay", createRay},
+  {"rayCast", rayCast},
   {"checkManifold", checkManifold},
   {"checkHit", checkHit},
   {"checkSweptCollision", checkSweptCollision},
