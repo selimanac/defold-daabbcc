@@ -175,7 +175,7 @@ local tree_name = "particles" -- Name of your tree
 daabbcc.getNodeCount(tree_name)
 ```
 #### - getAABB
-Return's postion and size of bounding box.
+Returns postion and size of bounding box.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
