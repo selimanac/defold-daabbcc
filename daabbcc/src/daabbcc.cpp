@@ -318,7 +318,6 @@ AABB _getAABB(string _name, int _id){
 //Constructor (non-periodic)
 void _createTree()
 {
-
   string _name =  "World";
   unsigned int _dimension =  2;
   double _skinThickness = 0.1;
@@ -427,7 +426,9 @@ static int checkManifold(lua_State* L){
 return 0;
 }
 
-// Simple AABB from tinyc2
+/*---------------------------------------
+**** Simple AABB from tinyc2  ****
+----------------------------------------*/
 static int checkHit(lua_State* L){
   int top = lua_gettop(L);
 
@@ -457,6 +458,10 @@ static int checkHit(lua_State* L){
  }
  return 0;
 }
+
+/*---------------------------------------
+**** RAYS from tinyc2  ****
+----------------------------------------*/
 
 static int createRay(lua_State* L){
   int top = lua_gettop(L);
@@ -642,6 +647,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
+  printf("Default -- World --  tree generated\n", MODULE_NAME);
   return dmExtension::RESULT_OK;
 }
 
