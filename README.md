@@ -27,7 +27,7 @@ You can use this lib for culling offscreen objects, raycasting through the tree 
 
 You can use this native extension by simply calling 'daabbcc'. 
 
-Default "**World**" tree will be created on init.
+Default "**World**" tree will be created on init with 0.1 tickness and 100 count.
 
 **Caution**: Scaling may break your collision. You should recalculate the size manually.
 
