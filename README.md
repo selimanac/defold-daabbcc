@@ -25,7 +25,9 @@ You can use this lib for culling offscreen objects, raycasting through the tree 
 
 ## Usage in Defold
 
-You can use this native extension by simply calling 'daabbcc'. Default "**World**" tree will be created on init.
+You can use this native extension by simply calling 'daabbcc'. 
+
+Default "**World**" tree will be created on init.
 
 **Caution**: Scaling may break your collision. You should recalculate the size manually.
 
@@ -36,9 +38,9 @@ You can use this native extension by simply calling 'daabbcc'. Default "**World*
 local tree_name = "particles" -- Name of your tree
 local dimension = 2 -- 2D. Original library works with 2D and 3D. Only 2D is implemented   
 local thickness = 0.1 -- Thickness of bounding boxes.
-local number = 4 -- Number of object/bounding boxes
+local number = 4 -- Number of aabbs/bounding boxes. Optional but recommended.  
 
-daabbcc.createTree(tree_name, dimension, thickness, number)
+daabbcc.createTree(tree_name, dimension, thickness, [number])
 ```
 You can create as many as trees according to your needs.
 Pseudo example for a platformer:
@@ -119,7 +121,7 @@ daabbcc.removeAABB(tree_name,id)
 You can query a tree by id or with AABB for possible overlaps. 
 Query returns a lua table of object IDs.
 
-**Caution**: You can't cross query. 
+**Caution**: You can't cross query between different trees. 
 
 #### - queryID
 ```lua
@@ -198,7 +200,7 @@ local normal = vmath.vector3(1, 0, 0) -- Direction of your moving object
 local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_name, moving_bb_id, static_bb_id, target_velocity.x,target_velocity.y, normal.x, normal.y)
 ```
 
-### - [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h)
+### - [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) lib
 
 #### - checkHit
 Simple aabb to aabb collision check. Returns integer.
@@ -296,11 +298,11 @@ My test platform is:
 
 ## Examples
 
-Since I am a lazy developer, you can find my terrible tests files in the source.Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
+Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
 
-I need help for building AABB.cc library on Windows. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
+I need help for building AABB.cc library for Windows and maybe for js. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
 
 I removed unnecessary stuff like python wrapper and docs for Doxygen. Here is my build/make files: https://github.com/selimanac/aabbcc/tree/defoldWrapper
 
