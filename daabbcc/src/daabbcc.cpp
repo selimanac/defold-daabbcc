@@ -15,12 +15,17 @@ using namespace std;
 using namespace aabb;
 
 /*TODO: Camera update. */
-Swept sw;
+Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
 vector<string> treeTxtArr; // Tree name array for name conversation
 
-unsigned int rayID = 0; // Particle IDs
+unsigned int particleCount = 0; // Particle IDs
+
+// Ray IDs
+unsigned int rayID = 0; 
+
+// Rays
 struct rays_t
 {
   int rayID;
@@ -34,8 +39,6 @@ struct rays_t
 
 vector<rays_t> raylist;
 
-
-unsigned int particleCount = 0; // Particle IDs
 
 //Debug vector values
 void pprint (const vector<unsigned int>& v){
@@ -312,7 +315,18 @@ AABB _getAABB(string _name, int _id){
  return aabb;
 }
 
+//Constructor (non-periodic)
+void _createTree()
+{
 
+  string _name =  "World";
+  unsigned int _dimension =  2;
+  double _skinThickness = 0.1;
+  treeObjectPointer = new Tree(_dimension, _skinThickness);
+  treeArr.push_back (treeObjectPointer);
+  treeTxtArr.push_back(_name);
+ 
+}
 
 static int checkSweptCollision(lua_State* L){
   int top = lua_gettop(L);
@@ -477,7 +491,6 @@ static int removeRay(lua_State* L){
 
   struct rays_t search_id  ;
   search_id.rayID = _ray_id;
-
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
     cout << "WARNING!! : Ray " << _ray_id << " not found. \n";
@@ -497,7 +510,6 @@ static int updateRay(lua_State* L){
 
   struct rays_t search_id  ;
   search_id.rayID = _ray_id;
-
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
     cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
@@ -514,27 +526,22 @@ static int updateRay(lua_State* L){
   it[0].ray.p = c2V(_p_x, _p_y);
   it[0].ray.d = c2Norm(c2V(_d_x,_d_y));
   it[0].ray.t = _t;
-  
-
   return 0;
 }
 
 static int rayCastToAABB(lua_State* L){
   int top = lua_gettop(L);
 
-
   string _name = luaL_checkstring(L, 1);
   int _ray_id = luaL_checkint(L, 2);
 
   struct rays_t search_id  ;
   search_id.rayID = _ray_id;
-
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
     cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
     return 0;
   }
-
 
   int _other_id = luaL_checkint(L, 3);
 
@@ -551,11 +558,10 @@ static int rayCastToAABB(lua_State* L){
 
     auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
 
-
     int hit = c2RaytoAABB(it[0].ray, aabb, &cast);
     c2v impact = c2Impact(it[0].ray, it[0].ray.t );
     c2v end = c2Add( impact, c2Mulvs( cast.n, 1.0f ) );
-    cout << "Hit: " << hit << "\n" ;
+   
     if(hit == 1){
       lua_pushinteger(L, hit);
 
@@ -581,12 +587,10 @@ static int rayCastToAABB(lua_State* L){
 
       assert(top + 3 == lua_gettop(L));
       return 3;
-
     } else {
       lua_pushinteger(L, hit);
       assert(top + 1 == lua_gettop(L));
       return 1;
-
     }
   }
   return 0;
@@ -637,6 +641,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
 {
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
+  _createTree();
   return dmExtension::RESULT_OK;
 }
 
