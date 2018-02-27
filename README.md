@@ -35,7 +35,7 @@ Default "**World**" tree will be created on init.
 
 #### - createTree
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local dimension = 2 -- 2D. Original library works with 2D and 3D. Only 2D is implemented   
 local thickness = 0.1 -- Thickness of bounding boxes.
 local number = 4 -- Number of aabbs/bounding boxes. Optional but recommended.  
@@ -62,7 +62,7 @@ insertCircle, returns the ID of the inserted AABB. You should probably keep trac
 **Caution**: IDs starts with '0'
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local radius = 10 -- radius of the circle. It is basically:  width/2 
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 
@@ -78,7 +78,7 @@ insertRect, returns the ID of the inserted AABB. You should probably keep track 
 **Caution**: IDs starts with '0'
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
 
@@ -91,7 +91,7 @@ If your game object(s) are not static, you should update their position and size
 #### - updateCircle
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 local radius = 10 -- radius of the circle. It is basically:  width/2
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
@@ -101,7 +101,7 @@ daabbcc.updateCircle(tree_name, id, radius, position.x, position.y)
 
 #### - updateRect
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 local position = vmath.vector3(x,y,z) -- Position of your game object / go.get_position()
 local size = vmath.vector3(x,y,z) -- Size of your game object or sprite / go.get("#sprite", "size")
@@ -112,7 +112,7 @@ daabbcc.updateRect(tree_name, id, position.x, position.y, size.x, size.y)
 
 #### - removeAABB
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 
 daabbcc.removeAABB(tree_name,id)
@@ -125,7 +125,7 @@ Query returns a lua table of object IDs.
 
 #### - queryID
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 
 local _result = daabbcc.queryID(tree_name, id)
@@ -133,7 +133,7 @@ local _result = daabbcc.queryID(tree_name, id)
 
 #### - queryAABB
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local position = go.get_position() -- Position of your object
 local size = go.get("#sprite", "size")
 
@@ -146,7 +146,7 @@ local _result = daabbcc.queryAABB(tree_name,position.x,position.y,size.x,size.y)
 Validate the tree. (Not documented)
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 
 daabbcc.validateTree(tree_name)
 ```
@@ -154,7 +154,7 @@ daabbcc.validateTree(tree_name)
 Rebuild an optimal tree. (Not documented)
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 
 daabbcc.rebuildTree(tree_name)
 ```
@@ -162,7 +162,7 @@ daabbcc.rebuildTree(tree_name)
 Get the height of the tree.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 
 daabbcc.getHeight(tree_name)
 ```
@@ -170,7 +170,7 @@ daabbcc.getHeight(tree_name)
 Get the number of nodes in the tree.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 
 daabbcc.getNodeCount(tree_name)
 ```
@@ -178,7 +178,7 @@ daabbcc.getNodeCount(tree_name)
 Returns postion and size of bounding box.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 
 local x,y,w,h = daabbcc.getAABB(tree_name, id)
@@ -191,7 +191,7 @@ local x,y,w,h = daabbcc.getAABB(tree_name, id)
 Collision detection for a moving objects against static objects. Returns impact time and collision normal.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local moving_bb_id = 0 -- ID of your moving object
 local static_bb_id = 1 -- ID of your static object
 local target_velocity = vmath.vector3(25, 25, 0) -- target velocity of your moving object
@@ -206,7 +206,7 @@ local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_
 Simple aabb to aabb collision check. Returns integer.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 local other_id = 1 -- ID of your other object
 
@@ -218,7 +218,7 @@ local hit =   daabbcc.checkHit(tree_name,id,  other_id)
 Manifold generation for colliding objects. Returns count, depth, normal and contact points.
 
 ```lua
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 local other_id = 1 -- ID of your other object
 
@@ -265,7 +265,7 @@ Casts a ray to AABB. Returns hit, impact and end point(-1).
 ```lua
 local ray_id = 0 -- ID of your ray
 local other_id = 1 -- ID of you object
-local tree_name = "particles" -- Name of your tree
+local tree_name = "World" -- Name of your tree
 
 local hit, impact, end_point = daabbcc.rayCastToAABB(tree_name, id, other_id)
 ```
