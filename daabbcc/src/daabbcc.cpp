@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <math.h>
 #include <aabb/AABB.h>
+#include "Swept.hpp"
 
 #define TINYC2_IMPLEMENTATION
 #include "aabb/tinyc2.h"
@@ -14,16 +15,25 @@ using namespace std;
 using namespace aabb;
 
 /*TODO: Camera update. */
-
+Swept sw;
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
 vector<string> treeTxtArr; // Tree name array for name conversation
 
 unsigned int rayID = 0; // Particle IDs
-vector<c2Ray> rays;
+struct rays_t
+{
+  int rayID;
+  c2Ray ray;
 
-float _normalx;
-float _normaly;
+  bool operator<(const rays_t & other) const
+  {
+    return rayID < other.rayID ;
+  }
+};
+
+vector<rays_t> raylist;
+
 
 unsigned int particleCount = 0; // Particle IDs
 
@@ -303,94 +313,6 @@ AABB _getAABB(string _name, int _id){
 }
 
 
-/*---------------------------------------
-**** Experimental Swept algorithm  ****
-----------------------------------------*/
-float SweptAABB(AABB box1, AABB box2, vector<float> vel1, float& normalx, float& normaly)
-{
-
-  float xDistanceEntry, yDistanceEntry;
-  float xDistanceExit, yDistanceExit;
-
-  if (vel1[0] > 0.0f) {
-    xDistanceEntry = (box2).lowerBound[0] - (box1).upperBound[0];
-    xDistanceExit = (box2).upperBound[0] - (box1).lowerBound[0];
-  } else {
-    xDistanceEntry = (box2).upperBound[0] - (box1).lowerBound[0];
-    xDistanceExit = (box2).lowerBound[0] - (box1).upperBound[0];
-  }
-
-  if (vel1[1] > 0.0f) {
-    yDistanceEntry = (box2).lowerBound[1] - (box1).upperBound[1];
-    yDistanceExit = (box2).upperBound[1] - (box1).lowerBound[1];
-  } else {
-    yDistanceEntry = (box2).upperBound[1] - (box1).lowerBound[1];
-    yDistanceExit = (box2).lowerBound[1] - (box1).upperBound[1];
-  }
-
-  float xEntryTime, yEntryTime;
-  float xExitTime, yExitTime;
-  
-  if (vel1[0] == 0.0f)  {
-   if (max(fabsf(xDistanceEntry), fabsf(xDistanceExit)) > (((box1).upperBound[0] - (box1).lowerBound[0]) + ((box2).upperBound[0] - (box2).lowerBound[0]))){
-    xEntryTime = 2.0f;
-  } else {  
-    xEntryTime = -numeric_limits<float>::infinity();
-  }
-
-  xExitTime = numeric_limits<float>::infinity();
-
-} else {
- xEntryTime = xDistanceEntry / vel1[0];
- xExitTime = xDistanceExit / vel1[0];
-}
-
-if (vel1[1] == 0.0f){
-  if (max(fabsf(yDistanceEntry), fabsf(yDistanceExit)) > (((box1).upperBound[1] - (box1).lowerBound[1]) + ((box2).upperBound[1] - (box2).lowerBound[1]))){
-    yEntryTime = 2.0f;
-  } else {
-    yEntryTime = -std::numeric_limits<float>::infinity();
-  }
-
-  yExitTime = std::numeric_limits<float>::infinity();
-}
-else {
-  yEntryTime = yDistanceEntry / vel1[1];
-  yExitTime = yDistanceExit / vel1[1];
-}
-
-float entryTime = max(xEntryTime, yEntryTime);
-float exitTime = min(xExitTime, yExitTime);
-
-if (entryTime > exitTime || (xEntryTime < 0.0f && yEntryTime < 0.0f)  || xEntryTime > 1.0f || yEntryTime > 1.0f){
-  normalx = 0.0f;
-  normaly = 0.0f;
-  return 2.0f;
-} else {
-  if (xEntryTime > yEntryTime) {
-    if (xDistanceEntry < 0.0f) {
-      normalx = 1.0f;
-      normaly = 0.0f;
-    } else {
-      normalx = -1.0f;
-      normaly = 0.0f;
-    }
-  } else if (yEntryTime > xEntryTime) {
-    if (yDistanceEntry < 0.0f) {
-      normalx = 0.0f;
-      normaly = 1.0f;
-    } else {
-      normalx = 0.0f;
-      normaly = -1.0f;
-    }
-  }
-
-  _normalx = normalx;
-  _normaly = normaly;
-  return entryTime;
-}
-}
-
 
 static int checkSweptCollision(lua_State* L){
   int top = lua_gettop(L);
@@ -414,11 +336,13 @@ static int checkSweptCollision(lua_State* L){
    vector<float> _moving_velocity ;
    _moving_velocity.push_back(_moving_velocity_x);
    _moving_velocity.push_back(_moving_velocity_y);
-   float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
+   float _result =  sw.SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
+
+ //  float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
 
    lua_pushnumber(L, _result);
-   lua_pushnumber(L, _normalx);
-   lua_pushnumber(L, _normaly);
+   lua_pushnumber(L, sw._normalx);
+   lua_pushnumber(L, sw._normaly);
    assert(top + 3 == lua_gettop(L));
    return 3;
  }
@@ -534,7 +458,11 @@ static int createRay(lua_State* L){
   ray.d = c2Norm(c2V(_d_x,_d_y));
   ray.t = _t;
 
-  rays.push_back(ray);
+  struct rays_t new_ray  ;
+  new_ray.rayID = rayID;
+  new_ray.ray = ray;
+
+  raylist.push_back(new_ray);
 
   lua_pushinteger(L, rayID);
   assert(top + 1 == lua_gettop(L));
@@ -542,10 +470,39 @@ static int createRay(lua_State* L){
   return 1;
 }
 
+static int removeRay(lua_State* L){
+  int top = lua_gettop(L);
+
+  int _ray_id = luaL_checkint(L, 1);
+
+  struct rays_t search_id  ;
+  search_id.rayID = _ray_id;
+
+  bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
+  if (yes== false){
+    cout << "WARNING!! : Ray " << _ray_id << " not found. \n";
+    return 0;
+  }
+
+  auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
+  raylist.erase(it);
+
+  return 0;
+}
+
 static int updateRay(lua_State* L){
   int top = lua_gettop(L);
 
   int _ray_id = luaL_checkint(L, 1);
+
+  struct rays_t search_id  ;
+  search_id.rayID = _ray_id;
+
+  bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
+  if (yes== false){
+    cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
+    return 0;
+  }
 
   float _p_x = luaL_checknumber(L, 2);
   float _p_y = luaL_checknumber(L, 3);
@@ -553,20 +510,32 @@ static int updateRay(lua_State* L){
   float _d_y = luaL_checknumber(L, 5);
   float _t = luaL_checknumber(L, 6);
 
- 
-  rays[_ray_id].p = c2V(_p_x, _p_y);
-  rays[_ray_id].d = c2Norm(c2V(_d_x,_d_y));
-  rays[_ray_id].t = _t;
+  auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
+  it[0].ray.p = c2V(_p_x, _p_y);
+  it[0].ray.d = c2Norm(c2V(_d_x,_d_y));
+  it[0].ray.t = _t;
+  
 
   return 0;
 }
 
-static int rayCast(lua_State* L){
+static int rayCastToAABB(lua_State* L){
   int top = lua_gettop(L);
 
 
   string _name = luaL_checkstring(L, 1);
   int _ray_id = luaL_checkint(L, 2);
+
+  struct rays_t search_id  ;
+  search_id.rayID = _ray_id;
+
+  bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
+  if (yes== false){
+    cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
+    return 0;
+  }
+
+
   int _other_id = luaL_checkint(L, 3);
 
   pair<bool, int> _result = checkTreeName(_name);
@@ -577,9 +546,14 @@ static int rayCast(lua_State* L){
     c2AABB aabb;
     aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
     aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
+
     c2Raycast cast;
-    int hit = c2RaytoAABB(rays[_ray_id], aabb, &cast);
-    c2v impact = c2Impact( rays[_ray_id], rays[_ray_id].t );
+
+    auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
+
+
+    int hit = c2RaytoAABB(it[0].ray, aabb, &cast);
+    c2v impact = c2Impact(it[0].ray, it[0].ray.t );
     c2v end = c2Add( impact, c2Mulvs( cast.n, 1.0f ) );
     cout << "Hit: " << hit << "\n" ;
     if(hit == 1){
@@ -622,9 +596,11 @@ static int rayCast(lua_State* L){
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] =
 {
+
+  {"removeRay", removeRay},
   {"updateRay", updateRay},
   {"createRay", createRay},
-  {"rayCast", rayCast},
+  {"rayCastToAABB", rayCastToAABB},
   {"checkManifold", checkManifold},
   {"checkHit", checkHit},
   {"checkSweptCollision", checkSweptCollision},

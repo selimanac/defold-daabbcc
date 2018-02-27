@@ -112,11 +112,13 @@ function init(self)
 
 
   daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
-    local hit, impact, end_point = daabbcc.rayCast("world", ray_id, hero_id)
+    local hit, impact, end_point = daabbcc.rayCastToAABB("world", ray_id, hero_id)
   pprint(hit)
   pprint(impact)
   pprint(end_point)
 
+  daabbcc.removeRay(ray_id)
+  daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
 end
 
 
