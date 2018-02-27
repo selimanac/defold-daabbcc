@@ -25,7 +25,7 @@ You can use this lib for culling offscreen objects, raycasting through the tree 
 
 ## Usage in Defold
 
-You can use this native extension by simply calling 'daabbcc'.
+You can use this native extension by simply calling 'daabbcc'. Default "**World**" tree will be created on init.
 
 **Caution**: Scaling may break your collision. You should recalculate the size manually.
 
@@ -182,11 +182,11 @@ local id = 0 -- ID of your object
 local x,y,w,h = daabbcc.getAABB(tree_name, id)
 ```
 
-### Experimental Narrow Phase Collision Detection
+## Experimental Narrow Phase Collision Detection
 
 #### - [Swept AABB Collision Detection](https://www.gamedev.net/articles/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/)
 
-Collision detection for a moving against static objects. Return's impact time and collision normal.
+Collision detection for a moving objects against static objects. Returns impact time and collision normal.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
@@ -196,7 +196,77 @@ local target_velocity = vmath.vector3(25, 25, 0) -- target velocity of your movi
 local normal = vmath.vector3(1, 0, 0) -- Direction of your moving object
 
 local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_name, moving_bb_id, static_bb_id, target_velocity.x,target_velocity.y, normal.x, normal.y)
-```     
+```
+
+### - [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h)
+
+#### - checkHit
+Simple aabb to aabb collision check. Returns integer.
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local id = 0 -- ID of your object
+local other_id = 1 -- ID of your other object
+
+local hit =   daabbcc.checkHit(tree_name,id,  other_id)
+
+```
+
+#### - checkManifold
+Manifold generation for collided objects. Returns count, depth, normal and contact points.
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local id = 0 -- ID of your object
+local other_id = 1 -- ID of your other object
+
+local count, depth, normal, contact_points = daabbcc.checkManifold(tree_name,id, other_id)
+
+```
+
+#### - createRay
+Creates a ray and returns it is ID. You should probably keep track of those IDs in a lua table.
+
+```lua
+local position = vmath.vector3(0, 0, 0) -- ray start position
+local direction = vmath.vector3(1, 0, 0) -- ray direction
+local distance = 20 -- ray distance
+
+local ray_id = daabbcc.createRay(position.x,position.y, direction.x, direction.y, distance)
+
+```
+
+#### - updateRay
+Updates current Ray.
+
+```lua
+local id = 0 -- ID of your ray
+local position = vmath.vector3(0, 0, 0) -- ray start position
+local direction = vmath.vector3(1, 0, 0) -- ray direction
+local distance = 20 -- ray distance
+
+daabbcc.updateRay(id, position.x,position.y, direction.x, direction.y, distance)
+```
+
+#### - removeRay
+Removes a Ray.
+
+```lua
+local id = 0 -- ID of your ray
+
+daabbcc.removeRay(ray_id)
+```
+
+#### - rayCastToAABB
+Casts a ray to AABB. Returns hit, impact and end point(-1).
+
+```lua
+local ray_id = 0 -- ID of your ray
+local other_id = 1 -- ID of you object
+local tree_name = "particles" -- Name of your tree
+
+local hit, impact, end_point = daabbcc.rayCastToAABB(tree_name, id, other_id)
+```
 
 # Performance and Notes
 
