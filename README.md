@@ -2,7 +2,13 @@
 DAABBCC is a terrible name for the AABB Tree native extension implementation on [Defold Engine](https://www.defold.com/)
 
 ## About
-DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) lib for  [Defold Engine](https://www.defold.com/). [AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
+DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) libs for  [Defold Engine](https://www.defold.com/). 
+
+[AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. 
+
+[tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h)  is developed by [Randy Gaul](https://twitter.com/RandyPGaul) and released under the [Zlib](http://zlib.net/zlib_license.html) license.
+
+DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
 
 DAABBCC is a C++ implementation of a dynamic bounding volume hierarchy ([BVH](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy)) using axis-aligned bounding boxes ([AABBs](https://en.wikipedia.org/wiki/Minimum_bounding_box)).
 The data structure provides an efficient way of detecting potential overlap between objects of arbitrary shape and size and is commonly used in computer games engines for collision detection and ray tracing.
@@ -167,16 +173,30 @@ local tree_name = "particles" -- Name of your tree
 daabbcc.getNodeCount(tree_name)
 ```
 #### - getAABB
-Returns x,y, width, height
+Return's postion and size of bounding box.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
 local id = 0 -- ID of your object
 
-local x,y,w,h = daabbcc.getAABB("particles", id)
+local x,y,w,h = daabbcc.getAABB(tree_name, id)
 ```
 
----
+### Experimental Narrow Phase Collision Detection
+
+#### - [Swept AABB Collision Detection](https://www.gamedev.net/articles/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/)
+
+Collision detection for a moving against static objects. Return's impact time and collision normal.
+
+```lua
+local tree_name = "particles" -- Name of your tree
+local moving_bb_id = 0 -- ID of your moving object
+local static_bb_id = 1 -- ID of your static object
+local target_velocity = vmath.vector3(25, 25, 0) -- target velocity of your moving object
+local normal = vmath.vector3(1, 0, 0) -- Direction of your moving object
+
+local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_name, moving_bb_id, static_bb_id, target_velocity.x,target_velocity.y, normal.x, normal.y)
+```     
 
 # Performance and Notes
 
