@@ -296,7 +296,7 @@ My test platform is:
 
 ## Examples
 
-Since I am a lazy developer, you can find my terrible tests in the source.
+Since I am a lazy developer, you can find my terrible tests files in the source.Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
 
 ## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
 
