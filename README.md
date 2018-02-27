@@ -1,5 +1,5 @@
 # DAABBCC
-DAABBCC is a terrible name for the AABB Tree native extension implementation on [Defold Engine](https://www.defold.com/)
+DAABBCC is a terrible name of the AABB Tree + Experimental Collision Detection native extension library implementation for [Defold Engine](https://www.defold.com/)
 
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) libs for  [Defold Engine](https://www.defold.com/). 
@@ -8,7 +8,7 @@ DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [t
 
 [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h)  is developed by [Randy Gaul](https://twitter.com/RandyPGaul) and released under the [Zlib](http://zlib.net/zlib_license.html) license.
 
-DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac)
+DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac) and released under the [Zlib](http://zlib.net/zlib_license.html) license.
 
 DAABBCC is a C++ implementation of a dynamic bounding volume hierarchy ([BVH](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy)) using axis-aligned bounding boxes ([AABBs](https://en.wikipedia.org/wiki/Minimum_bounding_box)).
 The data structure provides an efficient way of detecting potential overlap between objects of arbitrary shape and size and is commonly used in computer games engines for collision detection and ray tracing.
@@ -20,8 +20,8 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
   
 ## What is this for?
 
-First of all, **this is not a complete collision library/solution**. It is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef like using Swept AABB. 
-You can use it for culling offscreen objects, raycasting through the tree or for puzzle game logics. 
+First of all, **this is not a complete collision library/solution**. Basically it is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef. This library contains experimental narrow phase collision detection functionalty.
+You can use this lib for culling offscreen objects, raycasting through the tree or for puzzle game logics... 
 
 ## Usage in Defold
 
