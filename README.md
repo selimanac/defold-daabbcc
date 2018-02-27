@@ -260,7 +260,7 @@ daabbcc.removeRay(ray_id)
 ```
 
 #### - rayCastToAABB
-Casts a ray to AABB. Returns hit, impact and end point(-1).
+Cast a ray to AABB. Returns hit, impact and end point(-1).
 
 ```lua
 local ray_id = 0 -- ID of your ray
