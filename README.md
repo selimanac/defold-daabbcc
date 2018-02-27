@@ -215,7 +215,7 @@ local hit =   daabbcc.checkHit(tree_name,id,  other_id)
 ```
 
 #### - checkManifold
-Manifold generation for collided objects. Returns count, depth, normal and contact points.
+Manifold generation for colliding objects. Returns count, depth, normal and contact points.
 
 ```lua
 local tree_name = "particles" -- Name of your tree
