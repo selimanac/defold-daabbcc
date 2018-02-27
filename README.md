@@ -1,5 +1,5 @@
 # DAABBCC
-DAABBCC is a terrible name of the AABB Tree + Experimental Collision Detection native extension library implementation for [Defold Engine](https://www.defold.com/)
+DAABBCC is a terrible name of the AABB Tree + Experimental Collision Detection native extension for [Defold Engine](https://www.defold.com/)
 
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) libs for  [Defold Engine](https://www.defold.com/). 
