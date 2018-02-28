@@ -17,6 +17,10 @@ The data structure provides an efficient way of detecting potential overlap betw
 You can use DAABBCC in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/). Open your game.project file and in the dependencies field under project add:
 
 	https://github.com/selimanac/DAABBCC/archive/master.zip
+	
+## Platforms
+
+Supported platforms: Web, Win 64, MacOS 64, Linux 64. 
   
 ## What is this for?
 
