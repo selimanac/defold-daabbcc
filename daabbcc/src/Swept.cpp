@@ -1,10 +1,3 @@
-//
-//  Swept.cpp
-//  DAABBCC
-//
-//  Created by selimanac on 27.02.2018.
-//  Copyright © 2018 Selim Anac. All rights reserved.
-//
 #include <iostream>
 #include "Swept.hpp"
 

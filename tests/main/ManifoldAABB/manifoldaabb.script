@@ -104,10 +104,7 @@ end
 
 
 function update(self, dt)
-
-  -- Hit with manifold from tinyc2 
-
-
+  
   local targetDestination = tempPos + velocity
   tempPos.x = tempPos.x + (targetDestination.x-tempPos.x) * 0.1/dt
   tempPos.y = tempPos.y + (targetDestination.y-tempPos.y) * 0.1/dt

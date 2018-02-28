@@ -11,6 +11,12 @@
 #define TINYC2_IMPLEMENTATION
 #include "aabb/tinyc2.h"
 
+#if defined(DM_PLATFORM_HTML5)
+
+#include <emscripten.h>
+
+#endif
+
 using namespace std;
 using namespace aabb;
 
@@ -321,7 +327,8 @@ void _createTree()
   string _name =  "World";
   unsigned int _dimension =  2;
   double _skinThickness = 0.1;
-  treeObjectPointer = new Tree(_dimension, _skinThickness);
+  unsigned int _nParticles = 100;
+  treeObjectPointer = new Tree(_dimension, _skinThickness,_nParticles);
   treeArr.push_back (treeObjectPointer);
   treeTxtArr.push_back(_name);
  
@@ -647,7 +654,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
-  printf("Default -- World --  tree generated\n", MODULE_NAME);
+  printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n", MODULE_NAME);
   return dmExtension::RESULT_OK;
 }
 

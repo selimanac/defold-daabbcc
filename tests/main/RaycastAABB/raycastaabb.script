@@ -46,54 +46,54 @@ function init(self)
 
  msg.post("@system:", "toggle_profile")
 
- daabbcc.createTree("world", 2, 0, 4)
+ --daabbcc.createTree("World", 2, 0, 4)
 
   --bwall: 0
   local _pos = go.get_position(bwall)
   local _sprite =  msg.url("default", bwall, "sprite")
   local _spriteSize = go.get(_sprite, "size")
-  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
   table.insert( walls, #walls+1, wall_id )
 
  --twall: 1
  _pos = go.get_position(twall)
  _sprite =  msg.url("default", twall, "sprite")
  _spriteSize = go.get(_sprite, "size")
- wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
  table.insert( walls, #walls+1, wall_id )
 
  --lwall: 2
  _pos = go.get_position(lwall)
  _sprite =  msg.url("default", lwall, "sprite")
  _spriteSize = go.get(_sprite, "size")
- wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
  table.insert( walls, #walls+1, wall_id )
 
  --rwall: 3
  _pos = go.get_position(rwall)
  _sprite =  msg.url("default", rwall, "sprite")
  _spriteSize = go.get(_sprite, "size")
- wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+ wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
  table.insert( walls, #walls+1, wall_id )
 
   --twall1: 4
   _pos = go.get_position(twall1)
   _sprite =  msg.url("default", twall1, "sprite")
   _spriteSize = go.get(_sprite, "size")
-  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
   table.insert( walls, #walls+1, wall_id )
 
 --twall1: 5
   _pos = go.get_position(twall2)
   _sprite =  msg.url("default", twall2, "sprite")
   _spriteSize = go.get(_sprite, "size")
-  wall_id = ctr.addRect("world", _spriteSize, _pos, 0, 0, 0) 
+  wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
   table.insert( walls, #walls+1, wall_id )
 
   _pos = go.get_position(hero)
   _sprite =  msg.url("default", hero, "sprite")
   heroSize = go.get(_sprite, "size")
-  hero_id = ctr.addRect("world", heroSize, _pos, 0, 0, 0) 
+  hero_id = ctr.addRect("World", heroSize, _pos, 0, 0, 0) 
 
   velocity.x = -speed
   velocity.y = -speed
@@ -112,7 +112,7 @@ function init(self)
 
 
   daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
-    local hit, impact, end_point = daabbcc.rayCastToAABB("world", ray_id, hero_id)
+    local hit, impact, end_point = daabbcc.rayCastToAABB("World", ray_id, hero_id)
   pprint(hit)
   pprint(impact)
   pprint(end_point)

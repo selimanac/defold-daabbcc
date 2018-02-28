@@ -1,11 +1,3 @@
-//
-//  Swept.hpp
-//  DAABBCC
-//
-//  Created by selimanac on 27.02.2018.
-//  Copyright © 2018 Selim Anac. All rights reserved.
-//
-
 #ifndef Swept_hpp
 #define Swept_hpp
 
