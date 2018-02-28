@@ -55,7 +55,7 @@ void pprint (const vector<unsigned int>& v){
 }
 
 void warning(string _name){
-  cout << "WARNING!! : " << _name << " tree not found. Check your tree name. \n";
+ // cout << "WARNING!! : " << _name << " tree not found. Check your tree name. \n";
 }
 
 //Tree name conversation
@@ -654,7 +654,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
-  printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n", MODULE_NAME);
+  printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n");
   return dmExtension::RESULT_OK;
 }
 
