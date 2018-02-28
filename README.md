@@ -280,6 +280,8 @@ If you know what you are doing, lib is very performant. But that doesn't mean it
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because of the screen video recording cause a memory leap. I believe they can be more optimised.
 
+Keep in mind: This lib is not battle tested. 
+
 - [Need more performance testing ](https://github.com/selimanac/DAABBCC/issues/2)
 
 My test platform is:
