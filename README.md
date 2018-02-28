@@ -300,17 +300,6 @@ My test platform is:
 
 Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
 
-## Building [AABB.cc](https://github.com/lohedges/aabbcc) lib
-
-I need help for building AABB.cc library for Windows and maybe for js. I manage to build it for MacOS and Linux. But unfortunately, I don't have a "Windoz" box.
-
-I removed unnecessary stuff like python wrapper and docs for Doxygen. Here is my build/make files: https://github.com/selimanac/aabbcc/tree/defoldWrapper
-
-```bash
-make release 
-make build
-make PREFIX=MY_INSTALL_DIR install
-```
 
 ## [AABB.cc](https://github.com/lohedges/aabbcc) Docs
 
