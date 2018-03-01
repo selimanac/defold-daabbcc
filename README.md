@@ -25,7 +25,7 @@ Supported platforms: Web, Win 64, MacOS 64, Linux 64.
 ## What is this for?
 
 First of all, **this is not a complete collision library/solution**. Basically it is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef. This library contains experimental narrow phase collision detection functionalty.
-You can use this lib for culling offscreen objects, raycasting through the tree or for puzzle game logics... 
+You can use this lib for culling offscreen objects, raycasting through the tree, tile based fog of war or for puzzle game logics... 
 
 ## Usage in Defold
 
