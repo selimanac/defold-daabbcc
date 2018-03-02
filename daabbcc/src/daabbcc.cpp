@@ -11,16 +11,13 @@
 #define TINYC2_IMPLEMENTATION
 #include "aabb/tinyc2.h"
 
-#if defined(DM_PLATFORM_HTML5)
 
-#include <emscripten.h>
-
-#endif
 
 using namespace std;
 using namespace aabb;
 
-/*TODO: Camera update. */
+/*TODO: Camera update.... sdf*/
+
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
@@ -55,7 +52,7 @@ void pprint (const vector<unsigned int>& v){
 }
 
 void warning(string _name){
- // cout << "WARNING!! : " << _name << " tree not found. Check your tree name. \n";
+  printf("WARNING!!: - %s - tree not found. Check your tree name.\n", _name.c_str());
 }
 
 //Tree name conversation
@@ -655,6 +652,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
   printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n");
+
   return dmExtension::RESULT_OK;
 }
 
