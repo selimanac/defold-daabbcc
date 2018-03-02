@@ -20,7 +20,7 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
 	
 ## Platforms
 
-Supported platforms: Web, Win 64, MacOS 64, Linux 64. 
+Supported platforms: Web, MacOS and Linux (64bit). 
   
 ## What is this for?
 
