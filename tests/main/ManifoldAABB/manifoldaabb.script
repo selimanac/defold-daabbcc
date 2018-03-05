@@ -15,7 +15,7 @@ local vright = vmath.vector3(1, 0, 0)
 local vup = vmath.vector3(0, 1, 0)
 local normal = vdown
 
-local speed = 3.2
+local speed = 2.2
 local velocity = vmath.vector3(0,0,0)
 
 local normal_velocity = vmath.vector3()

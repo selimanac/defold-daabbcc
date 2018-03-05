@@ -42,6 +42,9 @@ local _nx = 0.0
 local _ny = 0.0
 local remainingTime = 0.0
 local _dt = 0.0
+local ray_pos 
+
+
 function init(self)
 
  msg.post("@system:", "toggle_profile")
@@ -55,6 +58,7 @@ function init(self)
   wall_id = ctr.addRect("World", _spriteSize, _pos, 0, 0, 0) 
   table.insert( walls, #walls+1, wall_id )
 
+  local bpos = _pos
  --twall: 1
  _pos = go.get_position(twall)
  _sprite =  msg.url("default", twall, "sprite")
@@ -102,28 +106,30 @@ function init(self)
 
 
 
-  local ray_pos = vmath.vector3(0,100,0)
-  local ray_direction =vmath.vector3(1,0,0)
-  local ray_distance = 66
+   ray_pos = tempPos
+  local ray_direction = ray_pos
+  local ray_distance = 199
+
 
   local ray_id = daabbcc.createRay(ray_pos.x,ray_pos.y, ray_direction.x, ray_direction.y, ray_distance)
-  pprint(ray_id)
+  --pprint(ray_id)
 
 
 
-  daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
-    local hit, impact, end_point = daabbcc.rayCastToAABB("World", ray_id, hero_id)
+  --daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
+    local hit, impact, end_point = daabbcc.rayCastToAABB("World", ray_id, 0)
   pprint(hit)
   pprint(impact)
   pprint(end_point)
-
-  daabbcc.removeRay(ray_id)
-  daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
+ -- msg.post("@render:", "draw_line", { start_point =ray_pos, end_point = vmath.vector3(ray_pos.x, ray_pos.y-50, 0), color = vmath.vector4(1, 1, 1, 1) } )
+--  daabbcc.removeRay(ray_id)
+ -- daabbcc.updateRay(ray_id, ray_pos.x+3,ray_pos.y+3, ray_direction.x, ray_direction.y, ray_distance+1)
 end
 
 
 
 function update(self, dt)
+--msg.post("@render:", "draw_line", { start_point =ray_pos, end_point = vmath.vector3(0,50, 0), color = vmath.vector4(1, 1, 1, 1) } )
 
   -- Hit with manifold from tinyc2 
 

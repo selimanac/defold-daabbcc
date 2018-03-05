@@ -16,7 +16,7 @@
 using namespace std;
 using namespace aabb;
 
-/*TODO: Camera update.... sdf*/
+/*TODO: Camera update. */
 
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
@@ -53,6 +53,7 @@ void pprint (const vector<unsigned int>& v){
 
 void warning(string _name){
   printf("WARNING!!: - %s - tree not found. Check your tree name.\n", _name.c_str());
+
 }
 
 //Tree name conversation
@@ -502,7 +503,7 @@ static int removeRay(lua_State* L){
   search_id.rayID = _ray_id;
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
-    cout << "WARNING!! : Ray " << _ray_id << " not found. \n";
+    printf("WARNING!! : Ray - %d - not found. \n", _ray_id); 
     return 0;
   }
 
@@ -521,7 +522,7 @@ static int updateRay(lua_State* L){
   search_id.rayID = _ray_id;
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
-    cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
+    printf("WARNING!! : Ray - %d - not found. \n", _ray_id); 
     return 0;
   }
 
@@ -548,7 +549,7 @@ static int rayCastToAABB(lua_State* L){
   search_id.rayID = _ray_id;
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
-    cout << "WARNING!! : Ray" << _ray_id << " not found. \n";
+    printf("WARNING!! : Ray - %d - not found. \n", _ray_id); 
     return 0;
   }
 
@@ -652,7 +653,8 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
   printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n");
-
+  
+  /**/
   return dmExtension::RESULT_OK;
 }
 
