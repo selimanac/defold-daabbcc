@@ -8,8 +8,6 @@ DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [t
 
 [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h)  is developed by [Randy Gaul](https://twitter.com/RandyPGaul) and released under the [Zlib](http://zlib.net/zlib_license.html) license.
 
-DAABBCC is a native wrapper developed by [Selim Anaç](https://twitter.com/selimanac) and released under the [Zlib](http://zlib.net/zlib_license.html) license.
-
 DAABBCC is a C++ implementation of a dynamic bounding volume hierarchy ([BVH](https://en.wikipedia.org/wiki/Bounding_volume_hierarchy)) using axis-aligned bounding boxes ([AABBs](https://en.wikipedia.org/wiki/Minimum_bounding_box)).
 The data structure provides an efficient way of detecting potential overlap between objects of arbitrary shape and size and is commonly used in computer games engines for collision detection and ray tracing.
 
