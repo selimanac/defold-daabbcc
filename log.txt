@@ -2,19 +2,5 @@ INFO:DLIB: Writing log to: ./log.txt
 INFO:ENGINE: Loading data from: build/default
 INFO:ENGINE: Initialised sound device 'default'
 
-DEBUG:SCRIPT: 0
-DEBUG:SCRIPT: 1
-DEBUG:SCRIPT: 
-{
-  y = 103,
-  x = 70,
-}
-
-DEBUG:SCRIPT: 
-{
-  y = 103,
-  x = 69,
-}
-
 INFO:DLIB: SSDP: Started on address 192.168.1.8
 INFO:DLIB: SSDP: Done on address 192.168.1.8

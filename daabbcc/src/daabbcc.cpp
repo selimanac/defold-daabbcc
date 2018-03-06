@@ -16,7 +16,7 @@
 using namespace std;
 using namespace aabb;
 
-/*TODO: Camera update.wef */
+/*TODO: Camera update. sdf */
 
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
