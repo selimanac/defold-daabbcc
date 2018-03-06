@@ -16,8 +16,8 @@
 using namespace std;
 using namespace aabb;
 
-/*TODO: Camera update. */
-/*TODO: Camera update.sdf */
+/*TODO: Camera update.wef */
+
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
@@ -123,6 +123,7 @@ static int queryAABB(lua_State* L){
   double y = luaL_checknumber(L, 3);
   double w = luaL_checknumber(L, 4);
   double h = luaL_checknumber(L, 5);
+
   vector<unsigned int> particles;
   pair<bool, int> _result = checkTreeName(_name);
   if( _result.first) {
