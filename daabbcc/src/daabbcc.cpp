@@ -11,8 +11,6 @@
 #define TINYC2_IMPLEMENTATION
 #include "aabb/tinyc2.h"
 
-
-
 using namespace std;
 using namespace aabb;
 
@@ -357,8 +355,6 @@ static int checkSweptCollision(lua_State* L){
    _moving_velocity.push_back(_moving_velocity_y);
    float _result =  sw.SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
 
- //  float _result = SweptAABB(_moving_aabb,_static_aabb, _moving_velocity, _moving_velocity_normal_x, _moving_velocity_normal_y );
-
    lua_pushnumber(L, _result);
    lua_pushnumber(L, sw._normalx);
    lua_pushnumber(L, sw._normaly);
@@ -483,8 +479,6 @@ static int createRay(lua_State* L){
   ray.d = c2Norm(c2V(_d_x,_d_y));
   ray.t = _t;
 
-
-
   struct rays_t new_ray  ;
   new_ray.rayID = rayID;
   new_ray.ray = ray;
@@ -563,59 +557,46 @@ static int rayCastToAABB(lua_State* L){
   if( _result.first ) {
 
     AABB box1 = _getAABB(_name, _other_id);
-
     c2AABB aabb;
     aabb.min = c2V(box1.lowerBound[0], box1.lowerBound[1]);
     aabb.max = c2V(box1.upperBound[0], box1.upperBound[1]);
 
     c2Raycast cast;
-
     auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
-
     int hit = c2RaytoAABB(it[0].ray, aabb, &cast);
     c2v impact = c2Impact(it[0].ray, cast.t );
     c2v raynormal = cast.n;
     c2v end = c2Add(it[0].ray.p, c2Mulvs( it[0].ray.d, it[0].ray.t ) );
-
    
     if(hit == 1){
       lua_pushinteger(L, hit);
 
       //Ray End
       lua_createtable(L, 2, 0);
-
       lua_pushstring(L, "x");
       lua_pushnumber(L, end.x);
       lua_settable(L, -3);
-
       lua_pushstring(L, "y");
       lua_pushnumber(L, end.y);
       lua_settable(L, -3);
 
-
       //Impact  
       lua_createtable(L, 2, 0);
-
       lua_pushstring(L, "x");
       lua_pushnumber(L, impact.x);
       lua_settable(L, -3);
-
       lua_pushstring(L, "y");
       lua_pushnumber(L, impact.y);
       lua_settable(L, -3);
 
       //Normal
       lua_createtable(L, 2, 0);
-
       lua_pushstring(L, "x");
       lua_pushnumber(L, raynormal.x);
       lua_settable(L, -3);
-
       lua_pushstring(L, "y");
       lua_pushnumber(L, raynormal.y);
       lua_settable(L, -3);
-
-      
 
       assert(top + 4 == lua_gettop(L));
       return 4;
@@ -624,15 +605,12 @@ static int rayCastToAABB(lua_State* L){
 
       //Ray End
       lua_createtable(L, 2, 0);
-
       lua_pushstring(L, "x");
       lua_pushnumber(L, end.x);
       lua_settable(L, -3);
-
       lua_pushstring(L, "y");
       lua_pushnumber(L, end.y);
       lua_settable(L, -3);
-
 
       assert(top + 2 == lua_gettop(L));
       return 2;
