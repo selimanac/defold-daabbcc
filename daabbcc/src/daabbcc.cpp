@@ -323,7 +323,7 @@ void _createTree()
 {
   string _name =  "World";
   unsigned int _dimension =  2;
-  double _skinThickness = 0.1;
+  double _skinThickness = 0.0;
   unsigned int _nParticles = 100;
   treeObjectPointer = new Tree(_dimension, _skinThickness,_nParticles);
   treeArr.push_back (treeObjectPointer);
@@ -665,7 +665,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
-  printf("Default -- World -- tree has been generated with 0.1 thickness and 100 count \n");
+  printf("Default -- World -- tree has been generated with 0.0 thickness and 100 count \n");
   
   /**/
   return dmExtension::RESULT_OK;
