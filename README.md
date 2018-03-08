@@ -1,6 +1,8 @@
 # DAABBCC
 DAABBCC is a terrible name of the [AABB Tree](https://github.com/selimanac/DAABBCC#creating-a-new-aabb-tree) + [Experimental Collision Detection](https://github.com/selimanac/DAABBCC#experimental-narrow-phase-collision-detection) native extension for [Defold Engine](https://www.defold.com/)
 
+**Caution**: This library is not battle tested (yet). It may contain memory leaks, performance drops...
+
 ## About
 DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) libs for  [Defold Engine](https://www.defold.com/). 
 
@@ -18,12 +20,13 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
 	
 ## Platforms
 
-Supported platforms: Web, MacOS and Linux (64bit). 
+Supported platforms: **Web, MacOS and Linux (64bit)**. (Windoz version is coming soon) 
+
+There is a problem about the compiling lib for Windoz on Defold. More info can be found [here](https://forum.defold.com/t/compiling-native-extension-lib-for-windows/17377).
   
 ## What is this for?
 
 First of all, **this is not a complete collision library/solution**. Basically it is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef. This library contains experimental narrow phase collision detection functionalty.
-You can use this lib for culling offscreen objects, raycasting through the tree, tile based fog of war or for puzzle game logics... 
 
 ## Usage in Defold
 
@@ -188,7 +191,7 @@ local x,y,w,h = daabbcc.getAABB(tree_name, id)
 
 ## Experimental Narrow Phase Collision Detection
 
-#### - [Swept AABB Collision Detection](https://www.gamedev.net/articles/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/)
+### [Swept AABB Collision Detection](https://www.gamedev.net/articles/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/)
 
 Collision detection for a moving objects against static objects. Returns impact time and collision normal.
 
@@ -202,7 +205,7 @@ local normal = vmath.vector3(1, 0, 0) -- Direction of your moving object
 local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_name, moving_bb_id, static_bb_id, target_velocity.x,target_velocity.y, normal.x, normal.y)
 ```
 
-### - [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) lib
+### [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) lib
 
 #### - checkHit
 Simple aabb to aabb collision check. Returns integer.
@@ -262,19 +265,23 @@ daabbcc.removeRay(ray_id)
 ```
 
 #### - rayCastToAABB
-Cast a ray to AABB. Returns hit, impact and end point(-1).
+Cast a ray to AABB. Returns hit, impact and end poin.
 
 ```lua
 local ray_id = 0 -- ID of your ray
 local other_id = 1 -- ID of you object
 local tree_name = "World" -- Name of your tree
 
-local hit, impact, end_point = daabbcc.rayCastToAABB(tree_name, id, other_id)
+local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, other_id)
+--hit: 0-1
+--ray_end: End point of the ray
+-- impact: If there is a hit retuns impact point of the ray
+-- ray_normal: If there is a hit returns impact point normal
 ```
 
 # Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops and logics. Maybe lots of them. This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops and logics. Maybe lots of them.This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because of the screen video recording cause a memory leap. I believe they can be more optimised.
 
