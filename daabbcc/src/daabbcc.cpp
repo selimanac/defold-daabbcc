@@ -16,7 +16,7 @@
 using namespace std;
 using namespace aabb;
 
-/*TODO: Camera update. sdf */
+/*TODO: Camera update. */
 
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
@@ -483,6 +483,8 @@ static int createRay(lua_State* L){
   ray.d = c2Norm(c2V(_d_x,_d_y));
   ray.t = _t;
 
+
+
   struct rays_t new_ray  ;
   new_ray.rayID = rayID;
   new_ray.ray = ray;
@@ -548,6 +550,7 @@ static int rayCastToAABB(lua_State* L){
 
   struct rays_t search_id  ;
   search_id.rayID = _ray_id;
+
   bool yes = binary_search( raylist.begin(), raylist.end(), search_id ) ;
   if (yes== false){
     printf("WARNING!! : Ray - %d - not found. \n", _ray_id); 
@@ -570,22 +573,15 @@ static int rayCastToAABB(lua_State* L){
     auto it = lower_bound(raylist.begin(), raylist.end(), search_id);
 
     int hit = c2RaytoAABB(it[0].ray, aabb, &cast);
-    c2v impact = c2Impact(it[0].ray, it[0].ray.t );
-    c2v end = c2Add( impact, c2Mulvs( cast.n, 1.0f ) );
+    c2v impact = c2Impact(it[0].ray, cast.t );
+    c2v raynormal = cast.n;
+    c2v end = c2Add(it[0].ray.p, c2Mulvs( it[0].ray.d, it[0].ray.t ) );
+
    
     if(hit == 1){
       lua_pushinteger(L, hit);
 
-      lua_createtable(L, 2, 0);
-
-      lua_pushstring(L, "x");
-      lua_pushnumber(L, impact.x);
-      lua_settable(L, -3);
-
-      lua_pushstring(L, "y");
-      lua_pushnumber(L, impact.y);
-      lua_settable(L, -3);
-
+      //Ray End
       lua_createtable(L, 2, 0);
 
       lua_pushstring(L, "x");
@@ -596,12 +592,50 @@ static int rayCastToAABB(lua_State* L){
       lua_pushnumber(L, end.y);
       lua_settable(L, -3);
 
-      assert(top + 3 == lua_gettop(L));
-      return 3;
+
+      //Impact  
+      lua_createtable(L, 2, 0);
+
+      lua_pushstring(L, "x");
+      lua_pushnumber(L, impact.x);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "y");
+      lua_pushnumber(L, impact.y);
+      lua_settable(L, -3);
+
+      //Normal
+      lua_createtable(L, 2, 0);
+
+      lua_pushstring(L, "x");
+      lua_pushnumber(L, raynormal.x);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "y");
+      lua_pushnumber(L, raynormal.y);
+      lua_settable(L, -3);
+
+      
+
+      assert(top + 4 == lua_gettop(L));
+      return 4;
     } else {
       lua_pushinteger(L, hit);
-      assert(top + 1 == lua_gettop(L));
-      return 1;
+
+      //Ray End
+      lua_createtable(L, 2, 0);
+
+      lua_pushstring(L, "x");
+      lua_pushnumber(L, end.x);
+      lua_settable(L, -3);
+
+      lua_pushstring(L, "y");
+      lua_pushnumber(L, end.y);
+      lua_settable(L, -3);
+
+
+      assert(top + 2 == lua_gettop(L));
+      return 2;
     }
   }
   return 0;

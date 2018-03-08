@@ -4,7 +4,7 @@ version = 0.6
 write_log = 1
 
 [bootstrap]
-main_collection = /tests/main/ManifoldAABB/manifoldaabb.collectionc
+main_collection = /tests/main/RaycastAABB/raycastaabb.collectionc
 
 [input]
 game_binding = /input/game.input_bindingc
