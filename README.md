@@ -273,10 +273,10 @@ local other_id = 1 -- ID of you object
 local tree_name = "World" -- Name of your tree
 
 local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, other_id)
---hit: 0-1
---ray_end: End point of the ray
--- impact: If there is a hit retuns impact point of the ray
--- ray_normal: If there is a hit returns impact point normal
+-- hit: 0-1
+-- ray_end: End point of the ray
+-- impact: If there is a hit, returns impact point of the ray
+-- ray_normal: If there is a hit returns normal
 ```
 
 # Performance and Notes
