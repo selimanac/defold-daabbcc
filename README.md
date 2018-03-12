@@ -281,7 +281,7 @@ local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, oth
 
 # Performance and Notes
 
-If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in physic. It is not. First of all; you should handle collisions yourself. Which means you need loops and logics. Maybe lots of them.This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
+If you know what you are doing, lib is very performant. But that doesn't mean it is a competitor to build in collision with physics. It is not. First of all; you should handle collisions yourself. Which means you need loops and logics. Maybe lots of them.This approach is very CPU intensive and results may differ according to CPU performance. Also, resolution may affect the performance.
 
 I made some stress tests just for fun. Those number are not acceptable in real game. Maybe(just maybe) you can use less than half of the numbers. Dt is fixed to 60, not variable. Also I drop down the item numbers and their speed. Because of the screen video recording cause a memory leap. I believe they can be more optimised.
 
