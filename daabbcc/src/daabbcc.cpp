@@ -55,11 +55,14 @@ void warning(string _name){
 }
 
 //Tree name conversation
-pair<bool, int> checkTreeName(string _name)
+pair<bool, int> checkTreeName(string _name, bool test = true)
 {
   long pos = find(treeTxtArr.begin(), treeTxtArr.end(), _name) - treeTxtArr.begin();
   if( pos < treeTxtArr.size() ) return std::make_pair(true, pos);
-  warning(_name);
+  if (test) {
+    warning(_name);
+  }
+  
   return std::make_pair(false, 0);
 }
 
@@ -85,9 +88,11 @@ static int createTree(lua_State* L)
   int top = lua_gettop(L);
   string _name =  luaL_checkstring(L, 1);
 
-  pair<bool, int> _result = checkTreeName(_name);
+  pair<bool, int> _result = checkTreeName(_name,false);
   if( _result.first ) {
-    unsigned int _dimension =  luaL_checknumber(L, 2);
+     printf(" -- %s -- Tree already avaible\n", _name.c_str());
+  } else {
+     unsigned int _dimension =  luaL_checknumber(L, 2);
     double _skinThickness = luaL_checknumber(L, 3);
     unsigned int _nParticles = luaL_checknumber(L, 4);
     treeObjectPointer = new Tree(_dimension, _skinThickness, _nParticles);
@@ -327,17 +332,18 @@ void _createTree()
 {
   string _name =  "World";
 
-  pair<bool, int> _result = checkTreeName(_name);
+  pair<bool, int> _result = checkTreeName(_name,false);
   if( _result.first ) {
-    unsigned int _dimension =  2;
+    printf("Default -- World -- tree already avaible with 0.0 thickness and 100 count \n");
+  } else {
+     unsigned int _dimension =  2;
     double _skinThickness = 0.0;
     unsigned int _nParticles = 100;
     treeObjectPointer = new Tree(_dimension, _skinThickness,_nParticles);
     treeArr.push_back (treeObjectPointer);
     treeTxtArr.push_back(_name);
     printf("Default -- World -- tree has been generated with 0.0 thickness and 100 count \n");
-  } else {
-    printf("Default -- World -- tree already avaible with 0.0 thickness and 100 count \n");
+   
   }
 
 }
