@@ -84,12 +84,16 @@ static int createTree(lua_State* L)
 {
   int top = lua_gettop(L);
   string _name =  luaL_checkstring(L, 1);
-  unsigned int _dimension =  luaL_checknumber(L, 2);
-  double _skinThickness = luaL_checknumber(L, 3);
-  unsigned int _nParticles = luaL_checknumber(L, 4);
-  treeObjectPointer = new Tree(_dimension, _skinThickness, _nParticles);
-  treeArr.push_back (treeObjectPointer);
-  treeTxtArr.push_back(_name);
+
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    unsigned int _dimension =  luaL_checknumber(L, 2);
+    double _skinThickness = luaL_checknumber(L, 3);
+    unsigned int _nParticles = luaL_checknumber(L, 4);
+    treeObjectPointer = new Tree(_dimension, _skinThickness, _nParticles);
+    treeArr.push_back (treeObjectPointer);
+    treeTxtArr.push_back(_name);
+  }
   return 0;
 }
 
@@ -322,13 +326,20 @@ AABB _getAABB(string _name, int _id){
 void _createTree()
 {
   string _name =  "World";
-  unsigned int _dimension =  2;
-  double _skinThickness = 0.0;
-  unsigned int _nParticles = 100;
-  treeObjectPointer = new Tree(_dimension, _skinThickness,_nParticles);
-  treeArr.push_back (treeObjectPointer);
-  treeTxtArr.push_back(_name);
- 
+
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    unsigned int _dimension =  2;
+    double _skinThickness = 0.0;
+    unsigned int _nParticles = 100;
+    treeObjectPointer = new Tree(_dimension, _skinThickness,_nParticles);
+    treeArr.push_back (treeObjectPointer);
+    treeTxtArr.push_back(_name);
+    printf("Default -- World -- tree has been generated with 0.0 thickness and 100 count \n");
+  } else {
+    printf("Default -- World -- tree already avaible with 0.0 thickness and 100 count \n");
+  }
+
 }
 
 static int checkSweptCollision(lua_State* L){
@@ -665,7 +676,7 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
   LuaInit(params->m_L);
   printf("Registered %s Extension\n", MODULE_NAME);
   _createTree();
-  printf("Default -- World -- tree has been generated with 0.0 thickness and 100 count \n");
+  
   
   /**/
   return dmExtension::RESULT_OK;
