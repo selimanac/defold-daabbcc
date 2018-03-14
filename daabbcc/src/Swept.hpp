@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <math.h>
-#include <aabb/AABB.h>
+#include "AABB.h"
 
 using namespace std;
 using namespace aabb;

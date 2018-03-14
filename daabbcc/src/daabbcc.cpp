@@ -5,17 +5,17 @@
 #include <iostream>
 #include <algorithm>
 #include <math.h>
-#include <aabb/AABB.h>
+#include "AABB.h"
 #include "Swept.hpp"
 
 #define TINYC2_IMPLEMENTATION
-#include "aabb/tinyc2.h"
+#include "tinyc2.h"
 
 using namespace std;
 using namespace aabb;
 
 /*TODO: Camera update. */
-
+/*TODO: Camera update.asdasd  */
 Swept sw; // Experimental Swept Collision
 Tree  * treeObjectPointer; // Tree Pointer
 vector<Tree  *> treeArr; // Tree Array
