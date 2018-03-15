@@ -20,10 +20,8 @@ You can use DAABBCC in your own project by adding this project as a [Defold libr
 	
 ## Platforms
 
-Supported platforms: **Web, MacOS and Linux (64bit)**. (Windoz version is coming soon) 
+Supported platforms: **Web, Windows, MacOS and Linux (64bit)**. It is also available for mobile but I couldn't test it yet.
 
-There is a problem about the compiling lib for Windoz on Defold. More info can be found [here](https://forum.defold.com/t/compiling-native-extension-lib-for-windows/17377).
-  
 ## What is this for?
 
 First of all, **this is not a complete collision library/solution**. Basically it is a Broad Phase collision for fast overlap checking. You have to handle precise collision yoursef. This library contains experimental narrow phase collision detection functionalty.
