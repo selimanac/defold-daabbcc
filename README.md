@@ -311,7 +311,7 @@ Since I am a lazy developer, you can find my terrible test files in the source. 
 
 ## Size Comparison
 
-Default project html build js size comparison
+Default project html build js size comparison. (Defold v1.2.123)
 
 Default | Sizes 
 --- | --- 
