@@ -276,6 +276,42 @@ local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, oth
 -- impact: If there is a hit, returns impact point of the ray
 -- ray_normal: If there is a hit returns normal
 ```
+## Examples
+
+Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
+
+[![DAABBCC-Platformer](https://raw.githubusercontent.com/selimanac/DAABBCC-Platformer/master/Screen%20Shot%202018-03-16%20at%2017.46.33.png)](https://github.com/selimanac/DAABBCC-Platformer)
+
+
+
+## Size Comparison
+
+Default project html build js size comparison. (Defold v1.2.123)
+
+Default | Sizes 
+--- | --- 
+Without manifest | 5.092.579 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.183.078 bytes  
+Exclude: Record, Profiler, Facebook | 5.048.428 bytes  
+
+DAABBCC included | Sizes 
+--- | --- 
+Without manifest | 6.130.055 bytes 
+Exclude: Physics, Record, Profiler, Facebook | 4.533.029 bytes
+Exclude: Record, Profiler, Facebook | 5.396.846 bytes 
+
+DAABBCC without swept | Sizes 
+--- | --- 
+Without manifest | 6.125.678 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.528.604 bytes
+Exclude: Record, Profiler, Facebook | 5.392.367 bytes 
+
+DAABBCC without swept + tinyc2 | Sizes 
+--- | --- 
+Without manifest | 6.113.874 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.516.716 bytes 
+Exclude: Record, Profiler, Facebook | 5.380.689 bytes
+
 
 # Performance and Notes
 
@@ -305,37 +341,6 @@ My test platform is:
 
 [![Crazy 700 sprites goes into the black hole with Defold Engine](http://img.youtube.com/vi/1APPkiQ3Hag/0.jpg)](https://www.youtube.com/watch?v=1APPkiQ3Hag)
 
-## Examples
-
-Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
-
-## Size Comparison
-
-Default project html build js size comparison. (Defold v1.2.123)
-
-Default | Sizes 
---- | --- 
-Without manifest | 5.092.579 bytes
-Exclude: Physics, Record, Profiler, Facebook | 4.183.078 bytes  
-Exclude: Record, Profiler, Facebook | 5.048.428 bytes  
-
-DAABBCC included | Sizes 
---- | --- 
-Without manifest | 6.130.055 bytes 
-Exclude: Physics, Record, Profiler, Facebook | 4.533.029 bytes
-Exclude: Record, Profiler, Facebook | 5.396.846 bytes 
-
-DAABBCC without swept | Sizes 
---- | --- 
-Without manifest | 6.125.678 bytes
-Exclude: Physics, Record, Profiler, Facebook | 4.528.604 bytes
-Exclude: Record, Profiler, Facebook | 5.392.367 bytes 
-
-DAABBCC without swept + tinyc2 | Sizes 
---- | --- 
-Without manifest | 6.113.874 bytes
-Exclude: Physics, Record, Profiler, Facebook | 4.516.716 bytes 
-Exclude: Record, Profiler, Facebook | 5.380.689 bytes
 
 
 ## [AABB.cc](https://github.com/lohedges/aabbcc) Docs
