@@ -30,7 +30,7 @@ First of all, **this is not a complete collision library/solution**. Basically i
 
 You can use this native extension by simply calling 'daabbcc'. 
 
-Default "**World**" tree will be created on init with 0.1 tickness and 100 count.
+Default "**World**" tree will be created on init with 0.0 tickness and 100 count.
 
 **Caution**: Scaling may break your collision. You should recalculate the size manually.
 
@@ -191,7 +191,7 @@ local x,y,w,h = daabbcc.getAABB(tree_name, id)
 
 ### [Swept AABB Collision Detection](https://www.gamedev.net/articles/programming/general-and-gameplay-programming/swept-aabb-collision-detection-and-response-r3084/)
 
-Collision detection for a moving objects against static objects. Returns impact time and collision normal.
+Collision detection for a moving object against static object. Returns impact time and collision normal.
 
 ```lua
 local tree_name = "World" -- Name of your tree
