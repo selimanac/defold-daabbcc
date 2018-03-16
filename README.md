@@ -309,6 +309,34 @@ My test platform is:
 
 Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
 
+## Size Comparison
+
+Default project html build js size comparison
+
+Default | Sizes 
+--- | --- 
+Without manifest | 5.092.579 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.183.078 bytes  
+Exclude: Record, Profiler, Facebook | 5.048.428 bytes  
+
+DAABBCC included | Sizes 
+--- | --- 
+Without manifest | 6.130.055 bytes 
+Exclude: Physics, Record, Profiler, Facebook | 4.533.029 bytes
+Exclude: Record, Profiler, Facebook | 5.396.846 bytes 
+
+DAABBCC without swept | Sizes 
+--- | --- 
+Without manifest | 6.125.678 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.528.604 bytes
+Exclude: Record, Profiler, Facebook | 5.392.367 bytes 
+
+DAABBCC without swept + tinyc2 | Sizes 
+--- | --- 
+Without manifest | 6.113.874 bytes
+Exclude: Physics, Record, Profiler, Facebook | 4.516.716 bytes 
+Exclude: Record, Profiler, Facebook | 5.380.689 bytes
+
 
 ## [AABB.cc](https://github.com/lohedges/aabbcc) Docs
 
