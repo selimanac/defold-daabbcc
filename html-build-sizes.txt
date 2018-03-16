@@ -1,0 +1,20 @@
+Html build sizes
+
+Release - Default (without manifest): 5.092.579 bytes 
+Release - Exclude: Physics, Record, Profiler, Facebook: 4.183.078 bytes 
+Release - Exclude: Record, Profiler, Facebook: 5.048.428 bytes 
+
+DAABBCC included
+Release - Default (without manifest): 6.130.055 bytes 
+Release - Exclude: Physics, Record, Profiler, Facebook: 4.533.029 bytes
+Release - Exclude: Record, Profiler, Facebook: 5.396.846 bytes 
+
+DAABBCC without swept
+Release - Default (without manifest): 6.125.678 bytes
+Release - Exclude: Physics, Record, Profiler, Facebook: 4.528.604 bytes
+Release - Exclude: Record, Profiler, Facebook: 5.392.367 bytes 
+
+DAABBCC without swept + tinyc2
+Release - Default (without manifest): 6.113.874 bytes
+Release - Exclude: Physics, Record, Profiler, Facebook: 4.516.716 bytes 
+Release - Exclude: Record, Profiler, Facebook: 5.380.689 bytes
