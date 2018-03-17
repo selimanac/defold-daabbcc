@@ -280,7 +280,7 @@ local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, oth
 
 Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
 
-[![DAABBCC-Platformer](https://raw.githubusercontent.com/selimanac/DAABBCC-Platformer/master/Screen%20Shot%202018-03-16%20at%2017.46.33.png)](https://github.com/selimanac/DAABBCC-Platformer)
+[![DAABBCC-Platformer](https://s9.postimg.org/h4546szvz/screen-shot.png)](https://github.com/selimanac/DAABBCC-Platformer)
 
 
 ## Size Comparison
