@@ -214,7 +214,7 @@ namespace aabb
             \param nParticles
                 The number of particles (for fixed particle number systems).
          */
-       // Tree(unsigned int, double, const std::vector<bool>&, const std::vector<double>&, unsigned int nParticles = 16);
+        Tree(unsigned int, double, const std::vector<bool>&, const std::vector<double>&, unsigned int nParticles = 16);
 
         //! Set the periodicity of the simulation box.
         /*! \param periodicity_

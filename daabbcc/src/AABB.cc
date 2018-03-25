@@ -1,3 +1,29 @@
+/*
+  Copyright (c) 2009 Erin Catto http://www.box2d.org
+  Copyright (c) 2016-2017 Lester Hedges <lester.hedges+aabbcc@gmail.com>
+
+  This software is provided 'as-is', without any express or implied
+  warranty. In no event will the authors be held liable for any damages
+  arising from the use of this software.
+
+  Permission is granted to anyone to use this software for any purpose,
+  including commercial applications, and to alter it and redistribute it
+  freely, subject to the following restrictions:
+
+  1. The origin of this software must not be misrepresented; you must not
+     claim that you wrote the original software. If you use this software
+     in a product, an acknowledgment in the product documentation would be
+     appreciated but is not required.
+
+  2. Altered source versions must be plainly marked as such, and must not be
+     misrepresented as being the original software.
+
+  3. This notice may not be removed or altered from any source distribution.
+
+  This code was adapted from parts of the Box2D Physics Engine,
+  http://www.box2d.org
+*/
+
 #include "AABB.h"
 
 namespace aabb
@@ -70,8 +96,8 @@ namespace aabb
 
         for (unsigned int i=0;i<lowerBound.size();i++)
         {
-            if (lowerBound[i] < aabb.lowerBound[i]) return false;
-            if (upperBound[i] > aabb.upperBound[i]) return false;
+            if (aabb.lowerBound[i] < lowerBound[i]) return false;
+            if (aabb.upperBound[i] > upperBound[i]) return false;
         }
 
         return true;
@@ -162,7 +188,7 @@ namespace aabb
         // Assign the index of the first free node.
         freeList = 0;
     }
-	/*
+
     Tree::Tree(unsigned int dimension_,
                double skinThickness_,
                const std::vector<bool>& periodicity_,
@@ -214,7 +240,7 @@ namespace aabb
             if (periodicity[i])
                 isPeriodic = true;
         }
-    } 
+    }
 
     void Tree::setPeriodicity(const std::vector<bool>& periodicity_)
     {
@@ -224,7 +250,7 @@ namespace aabb
     void Tree::setBoxSize(const std::vector<double>& boxSize_)
     {
         boxSize = boxSize_;
-    } */
+    }
 
     unsigned int Tree::allocateNode()
     {
@@ -294,7 +320,8 @@ namespace aabb
         unsigned int node = allocateNode();
 
         // AABB size in each dimension.
-        double size[2];
+       	double size[2];
+		
 
         // Compute the AABB limits.
         for (unsigned i=0;i<dimension;i++)
@@ -975,14 +1002,13 @@ namespace aabb
         assert((nodeCount + freeCount) == nodeCapacity);
 #endif
     }
-	
+
     void Tree::rebuild()
     {
-		
-      //  unsigned int nodeIndices[nodeCount];
-		unsigned int* nodeIndices = new unsigned int[nodeCount];
-		//std::vector<int> nodeIndices(nodeCount);
-		unsigned int count = 0;
+       // unsigned int nodeIndices[nodeCount];
+		 unsigned int* nodeIndices = new unsigned int[nodeCount];
+		 
+        unsigned int count = 0;
 
         for (unsigned int i=0;i<nodeCapacity;i++)
         {
@@ -1044,10 +1070,8 @@ namespace aabb
         root = nodeIndices[0];
 
         validate();
-    
-	
-	}
-	
+    }
+
     void Tree::validateStructure(unsigned int node) const
     {
         if (node == NULL_NODE) return;

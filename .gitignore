@@ -3,6 +3,7 @@
 .DS_Store
 .lock-wscript
 build
+lib-src
 *.pyc
 .project
 .cproject
@@ -12,3 +13,5 @@ builtins
 log.txt
 
 log.txt
+
+lib-src/AABB.cc
