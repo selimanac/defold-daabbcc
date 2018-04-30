@@ -116,12 +116,27 @@ daabbcc.updateRect(tree_name, id, position.x, position.y, size.x, size.y)
 ### Removing AABBs from Tree
 
 #### - removeAABB
+
+Remove AABB using ID
+
 ```lua
 local tree_name = "World" -- Name of your tree
 local id = 0 -- ID of your object
 
 daabbcc.removeAABB(tree_name,id)
 ```
+
+#### - removeAll
+
+Remove all AABBs from a tree
+
+```lua
+local tree_name = "World" -- Name of your tree
+
+daabbcc.removeAll(tree_name)
+```
+
+
 ### Queries
 You can query a tree by id or with AABB for possible overlaps. 
 Query returns a lua table of object IDs.
