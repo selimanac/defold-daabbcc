@@ -320,8 +320,7 @@ namespace aabb
         unsigned int node = allocateNode();
 
         // AABB size in each dimension.
-       	double size[2];
-		
+        double size[2];
 
         // Compute the AABB limits.
         for (unsigned i=0;i<dimension;i++)
@@ -412,6 +411,11 @@ namespace aabb
         nodes[node].particle = particle;
     }
 
+    unsigned int Tree::nParticles()
+    {
+        return particleMap.size();
+    }
+
     void Tree::removeParticle(unsigned int particle)
     {
         // Map iterator.
@@ -438,6 +442,30 @@ namespace aabb
 
         removeLeaf(node);
         freeNode(node);
+    }
+
+    void Tree::removeAll()
+    {
+        // Iterator pointing to the start of the particle map.
+        std::map<unsigned int, unsigned int>::iterator it = particleMap.begin();
+
+        // Iterate over the map.
+        while (it != particleMap.end())
+        {
+            // Extract the node index.
+            unsigned int node = it->second;
+
+            assert(0 <= node && node < nodeCapacity);
+            assert(nodes[node].isLeaf());
+
+            removeLeaf(node);
+            freeNode(node);
+
+            it++;
+        }
+
+        // Clear the particle map.
+        particleMap.clear();
     }
 
     bool Tree::updateParticle(unsigned int particle, std::vector<double>& position, double radius)
@@ -1006,8 +1034,8 @@ namespace aabb
     void Tree::rebuild()
     {
        // unsigned int nodeIndices[nodeCount];
-		 unsigned int* nodeIndices = new unsigned int[nodeCount];
-		 
+        unsigned int* nodeIndices = new unsigned int[nodeCount];
+        
         unsigned int count = 0;
 
         for (unsigned int i=0;i<nodeCapacity;i++)

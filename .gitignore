@@ -15,3 +15,5 @@ log.txt
 log.txt
 
 lib-src/AABB.cc
+
+lib-src/build-mac-linux.sh

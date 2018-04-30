@@ -201,6 +201,17 @@ static int removeAABB(lua_State* L){
   return 0;
 }
 
+//Remove a particle from the tree.
+static int removeAll(lua_State* L){
+  int top = lua_gettop(L);
+  string _name = luaL_checkstring(L, 1);
+  pair<bool, int> _result = checkTreeName(_name);
+  if( _result.first ) {
+    treeArr[_result.second]->removeAll();
+  }
+  return 0;
+}
+
 //Update the tree if a particle moves outside its fattened AABB.
 static int updateCircle(lua_State* L){
   int top = lua_gettop(L);
@@ -656,7 +667,8 @@ static const luaL_reg Module_methods[] =
   {"updateRect", updateRect},
   {"updateCircle", updateCircle},
   {"getNodeCount", getNodeCount},
-  {"getHeight", getHeight},
+  {"getHeight", getHeight},  
+  {"removeAll", removeAll},
   {"removeAABB", removeAABB},
   {"insertCircle", insertCircle},
   {"insertRect", insertRect},

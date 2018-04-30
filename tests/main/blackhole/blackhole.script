@@ -106,7 +106,7 @@ function init(self)
   v_y = viewport_pos.y
   v_w = viewport_size.x
   v_h = viewport_size.y
-
+ 
   setAnimate()
 end
 
