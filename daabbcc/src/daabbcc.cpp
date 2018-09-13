@@ -1,6 +1,9 @@
 #define LIB_NAME "DAABBCC"
 #define MODULE_NAME "daabbcc"
 
+#define DLIB_LOG_DOMAIN "DAABBCC"
+#include <dmsdk/dlib/log.h>
+
 #include <dmsdk/sdk.h>
 #include <iostream>
 #include <algorithm>
@@ -8,8 +11,12 @@
 #include "AABB.h"
 #include "Swept.hpp"
 
-#define TINYC2_IMPLEMENTATION
-#include "tinyc2.h"
+//#define TINYC2_IMPLEMENTATION
+//#include "tinyc2.h"
+
+
+#define CUTE_C2_IMPLEMENTATION
+#include "cute_c2.h"
 
 using namespace std;
 using namespace aabb;
@@ -432,11 +439,11 @@ static int checkManifold(lua_State* L){
     lua_createtable(L, 2, 0);
 
     lua_pushstring(L, "x");
-    lua_pushnumber(L, manifold.normal.x);
+    lua_pushnumber(L, manifold.n.x);
     lua_settable(L, -3);
 
     lua_pushstring(L, "y");
-    lua_pushnumber(L, manifold.normal.y);
+    lua_pushnumber(L, manifold.n.y);
     lua_settable(L, -3);
 
     lua_createtable(L, 2, 0);

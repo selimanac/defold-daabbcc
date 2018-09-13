@@ -19,7 +19,7 @@ local tangent_velocity  = vmath.vector3()
 local setposition = go.set_position
 local wall_results = {}
 
-local  balls_count = 100 -- Number of balls
+local  balls_count = 300 -- Number of balls
 local ball_speed = 650 -- Speed of balls
 
 -- Balls

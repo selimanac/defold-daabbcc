@@ -1,6 +1,6 @@
 [project]
 title = DAABBCC
-version = 0.6
+version = 0.7
 write_log = 1
 
 [bootstrap]

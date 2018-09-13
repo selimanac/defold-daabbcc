@@ -6,7 +6,7 @@ DAABBCC is a terrible name of the [AABB Tree](https://github.com/selimanac/DAABB
 **Caution**: This library is not battle tested (yet). It may contain memory leaks, performance drops...
 
 ## About
-DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) libs for  [Defold Engine](https://www.defold.com/). 
+DAABBCC is a C++ wrapper of [AABB.cc](https://github.com/lohedges/aabbcc) and [cute_c2](https://github.com/RandyGaul/cute_headers/blob/master/cute_c2.h) libs for  [Defold Engine](https://www.defold.com/). 
 
 [AABB.cc](https://github.com/lohedges/aabbcc) is developed by [Lester Hedges](http://lesterhedges.net) and released under the [Zlib](http://zlib.net/zlib_license.html) license. The code in [AABB.cc](https://github.com/lohedges/aabbcc) library was adapted from parts of the [Box2D](http://www.box2d.org) physics engine. 
 
@@ -220,7 +220,7 @@ local normal = vmath.vector3(1, 0, 0) -- Direction of your moving object
 local collisionTime, c_normal_x,  c_normal_y = daabbcc.checkSweptCollision(tree_name, moving_bb_id, static_bb_id, target_velocity.x,target_velocity.y, normal.x, normal.y)
 ```
 
-### [tinyc2](https://github.com/RandyGaul/tinyheaders/blob/master/tinyc2.h) lib
+### [cute_c2](https://github.com/RandyGaul/cute_headers/blob/master/cute_c2.h) lib
 
 #### - checkHit
 Simple aabb to aabb collision check. Returns integer.
@@ -296,8 +296,6 @@ local hit,ray_end, impact, ray_normal = daabbcc.rayCastToAABB(tree_name, id, oth
 ## Examples
 
 Since I am a lazy developer, you can find my terrible test files in the source. Also I am working on a simple platformer for testing this library: https://github.com/selimanac/DAABBCC-Platformer
-
-[![DAABBCC-Platformer](https://s9.postimg.org/h4546szvz/screen-shot.png)](https://github.com/selimanac/DAABBCC-Platformer)
 
 
 ## Size Comparison
