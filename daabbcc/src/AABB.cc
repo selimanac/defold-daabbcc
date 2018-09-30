@@ -46,19 +46,18 @@ namespace aabb
         // Validate the dimensionality of the bounds vectors.
         if (lowerBound.size() != upperBound.size())
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
-             assert("[ERROR]: Dimensionality mismatch!");
-             
+            
+            assert("[ERROR]: Dimensionality mismatch!");
         }
 
         // Validate that the upper bounds exceed the lower bounds.
         for (unsigned int i=0;i<lowerBound.size();i++)
         {
             // Validate the bound.
-            if (lowerBound[i] >= upperBound[i])
+            if (lowerBound[i] > upperBound[i])
             {
-                //throw std::invalid_argument("[ERROR]: AABB lower bound is greater than the upper bound!");
-                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
+               
+                assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
         }
 
@@ -68,14 +67,14 @@ namespace aabb
 
     double AABB::computeSurfaceArea() const
     {
-        // Sum of volumes of all the sides.
+        // Sum of "area" of all the sides.
         double sum = 0;
 
         // General formula for one side: hold one dimension constant
         // and multiply by all the other ones.
         for (unsigned int d1 = 0; d1 < lowerBound.size(); d1++)
         {
-            // Volume of current side.
+            // "Area" of current side.
             double product = 1;
 
             for (unsigned int d2 = 0; d2 < lowerBound.size(); d2++)
@@ -86,6 +85,9 @@ namespace aabb
                 double dx = upperBound[d2] - lowerBound[d2];
                 product *= dx;
             }
+
+            // Update the sum.
+            sum += product;
         }
 
         return 2.0 * sum;
@@ -196,7 +198,7 @@ namespace aabb
         // Validate the dimensionality.
         if ((dimension < 2))
         {
-            //throw std::invalid_argument("[ERROR]: Invalid dimensionality!");
+          
             assert("[ERROR]: Invalid dimensionality!");
         }
 
@@ -236,15 +238,15 @@ namespace aabb
         // Validate the dimensionality.
         if (dimension < 2)
         {
-            //throw std::invalid_argument("[ERROR]: Invalid dimensionality!");
-            assert("[ERROR]: Invalid dimensionality!");
+          
+             assert("[ERROR]: Invalid dimensionality!");
         }
 
         // Validate the dimensionality of the vectors.
         if ((periodicity.size() != dimension) || (boxSize.size() != dimension))
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
-            assert("[ERROR]: Dimensionality mismatch!");
+           
+             assert("[ERROR]: Dimensionality mismatch!");
         }
 
         // Initialise the tree.
@@ -343,14 +345,14 @@ namespace aabb
         // Make sure the particle doesn't already exist.
         if (particleMap.count(particle) != 0)
         {
-            //throw std::invalid_argument("[ERROR]: Particle already exists in tree!");
-            assert("[ERROR]: Particle already exists in tree!");
+         
+           assert("[ERROR]: Particle already exists in tree!");
         }
 
         // Validate the dimensionality of the position vector.
         if (position.size() != dimension)
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
+           
             assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -358,7 +360,7 @@ namespace aabb
         unsigned int node = allocateNode();
 
         // AABB size in each dimension.
-        double size[dimension];
+        std::vector<double> size(dimension);
 
         // Compute the AABB limits.
         for (unsigned int i=0;i<dimension;i++)
@@ -395,14 +397,14 @@ namespace aabb
         // Make sure the particle doesn't already exist.
         if (particleMap.count(particle) != 0)
         {
-            //throw std::invalid_argument("[ERROR]: Particle already exists in tree!");
-            assert("[ERROR]: Particle already exists in tree!");
+           
+             assert("[ERROR]: Particle already exists in tree!");
         }
 
         // Validate the dimensionality of the bounds vectors.
         if ((lowerBound.size() != dimension) || (upperBound.size() != dimension))
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
+           
              assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -416,10 +418,10 @@ namespace aabb
         for (unsigned int i=0;i<dimension;i++)
         {
             // Validate the bound.
-            if (lowerBound[i] >= upperBound[i])
+            if (lowerBound[i] > upperBound[i])
             {
-                //throw std::invalid_argument("[ERROR]: AABB lower bound is greater than the upper bound!");
-                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
+            
+                assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
 
             nodes[node].aabb.lowerBound[i] = lowerBound[i];
@@ -465,8 +467,7 @@ namespace aabb
         // The particle doesn't exist.
         if (it == particleMap.end())
         {
-            //throw std::invalid_argument("[ERROR]: Invalid particle index!");
-
+           
             assert("[ERROR]: Invalid particle index!");
         }
 
@@ -513,8 +514,8 @@ namespace aabb
         // Validate the dimensionality of the position vector.
         if (position.size() != dimension)
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
-             assert("[ERROR]: Dimensionality mismatch!");
+            
+            assert("[ERROR]: Dimensionality mismatch!");
         }
 
         // AABB bounds vectors.
@@ -538,7 +539,7 @@ namespace aabb
         // Validate the dimensionality of the bounds vectors.
         if ((lowerBound.size() != dimension) && (upperBound.size() != dimension))
         {
-            //throw std::invalid_argument("[ERROR]: Dimensionality mismatch!");
+            
             assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -551,7 +552,7 @@ namespace aabb
         // The particle doesn't exist.
         if (it == particleMap.end())
         {
-            //throw std::invalid_argument("[ERROR]: Invalid particle index!");
+           
             assert("[ERROR]: Invalid particle index!");
         }
 
@@ -568,9 +569,9 @@ namespace aabb
         for (unsigned int i=0;i<dimension;i++)
         {
             // Validate the bound.
-            if (lowerBound[i] >= upperBound[i])
+            if (lowerBound[i] > upperBound[i])
             {
-                //throw std::invalid_argument("[ERROR]: AABB lower bound is greater than the upper bound!");
+               
                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
 
@@ -612,7 +613,7 @@ namespace aabb
         // Make sure that this is a valid particle.
         if (particleMap.count(particle) == 0)
         {
-            //throw std::invalid_argument("[ERROR]: Invalid particle index!");
+           
             assert("[ERROR]: Invalid particle index!");
         }
 
