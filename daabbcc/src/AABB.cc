@@ -56,7 +56,6 @@ namespace aabb
             // Validate the bound.
             if (lowerBound[i] > upperBound[i])
             {
-               
                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
         }
@@ -198,7 +197,6 @@ namespace aabb
         // Validate the dimensionality.
         if ((dimension < 2))
         {
-          
             assert("[ERROR]: Invalid dimensionality!");
         }
 
@@ -238,15 +236,13 @@ namespace aabb
         // Validate the dimensionality.
         if (dimension < 2)
         {
-          
-             assert("[ERROR]: Invalid dimensionality!");
+            assert("[ERROR]: Invalid dimensionality!");
         }
 
         // Validate the dimensionality of the vectors.
         if ((periodicity.size() != dimension) || (boxSize.size() != dimension))
         {
-           
-             assert("[ERROR]: Dimensionality mismatch!");
+            assert("[ERROR]: Dimensionality mismatch!");
         }
 
         // Initialise the tree.
@@ -345,14 +341,12 @@ namespace aabb
         // Make sure the particle doesn't already exist.
         if (particleMap.count(particle) != 0)
         {
-         
-           assert("[ERROR]: Particle already exists in tree!");
+            assert("[ERROR]: Particle already exists in tree!");
         }
 
         // Validate the dimensionality of the position vector.
         if (position.size() != dimension)
         {
-           
             assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -397,15 +391,13 @@ namespace aabb
         // Make sure the particle doesn't already exist.
         if (particleMap.count(particle) != 0)
         {
-           
-             assert("[ERROR]: Particle already exists in tree!");
+            assert("[ERROR]: Particle already exists in tree!");
         }
 
         // Validate the dimensionality of the bounds vectors.
         if ((lowerBound.size() != dimension) || (upperBound.size() != dimension))
         {
-           
-             assert("[ERROR]: Dimensionality mismatch!");
+            assert("[ERROR]: Dimensionality mismatch!");
         }
 
         // Allocate a new node for the particle.
@@ -420,7 +412,6 @@ namespace aabb
             // Validate the bound.
             if (lowerBound[i] > upperBound[i])
             {
-            
                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
 
@@ -467,7 +458,6 @@ namespace aabb
         // The particle doesn't exist.
         if (it == particleMap.end())
         {
-           
             assert("[ERROR]: Invalid particle index!");
         }
 
@@ -514,7 +504,6 @@ namespace aabb
         // Validate the dimensionality of the position vector.
         if (position.size() != dimension)
         {
-            
             assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -539,7 +528,6 @@ namespace aabb
         // Validate the dimensionality of the bounds vectors.
         if ((lowerBound.size() != dimension) && (upperBound.size() != dimension))
         {
-            
             assert("[ERROR]: Dimensionality mismatch!");
         }
 
@@ -552,7 +540,6 @@ namespace aabb
         // The particle doesn't exist.
         if (it == particleMap.end())
         {
-           
             assert("[ERROR]: Invalid particle index!");
         }
 
@@ -571,7 +558,6 @@ namespace aabb
             // Validate the bound.
             if (lowerBound[i] > upperBound[i])
             {
-               
                 assert("[ERROR]: AABB lower bound is greater than the upper bound!");
             }
 
@@ -580,7 +566,6 @@ namespace aabb
 
         // Create the new AABB.
         AABB aabb(lowerBound, upperBound);
-
 
         // No need to update if the particle is still within its fattened AABB.
         if (!alwaysReinsert && nodes[node].aabb.contains(aabb)) return false;
@@ -613,7 +598,6 @@ namespace aabb
         // Make sure that this is a valid particle.
         if (particleMap.count(particle) == 0)
         {
-           
             assert("[ERROR]: Invalid particle index!");
         }
 

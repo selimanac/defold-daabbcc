@@ -18,3 +18,4 @@ lib-src/AABB.cc
 
 lib-src/build-mac-linux.sh
 .vscode/settings.json
+bookmarks.json

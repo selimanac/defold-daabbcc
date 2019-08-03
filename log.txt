@@ -1,9 +1,0 @@
-INFO:DLIB: Writing log to: ./log.txt
-INFO:ENGINE: Loading data from: build/default
-INFO:ENGINE: Initialised sound device 'default'
-
-DEBUG:SCRIPT: vmath.vector3(629, 650, 0)
-DEBUG:SCRIPT: vmath.vector3(1300, 50, 1)
-DEBUG:SCRIPT: 629	650	1300	50
-INFO:DLIB: SSDP: Started on address 192.168.1.3
-INFO:DLIB: SSDP: Done on address 192.168.1.3

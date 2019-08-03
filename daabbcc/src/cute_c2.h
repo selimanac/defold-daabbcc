@@ -3,7 +3,7 @@
 		Licensing information can be found at the end of the file.
 	------------------------------------------------------------------------------
 
-	cute_c2.h - v1.04
+	cute_c2.h - v1.05
 
 	To create implementation (the function definitions)
 		#define CUTE_C2_IMPLEMENTATION
@@ -25,6 +25,7 @@
 		1.02 (03/21/2017) compile fixes for c on more compilers
 		1.03 (09/15/2017) various bugfixes and quality of life changes to manifolds
 		1.04 (03/25/2018) fixed manifold bug in c2CircletoAABBManifold
+		1.05 (11/01/2018) added c2TOI (time of impact) for shape cast/sweep test
 */
 
 /*
@@ -54,6 +55,8 @@
 	* c2***to***Manifold - construct manifold to describe how shapes hit
 	* c2GJK              - runs GJK algorithm to find closest point pair
 	                       between two shapes
+	* c2TOI              - computes the time of impact between two shapes, useful for
+	                       sweeping shapes, or doing shape casts
 	* c2MakePoly         - Runs convex hull algorithm and computes normals on input point-set
 	* c2Collided         - generic version of c2***to*** funcs
 	* c2Collide          - generic version of c2***to***Manifold funcs
@@ -115,6 +118,7 @@
 	* Fast boolean only result functions (hit yes/no)
 	* Slghtly slower manifold generation for collision normals + depths +points
 	* GJK implementation (finds closest points for disjoint pairs of shapes)
+	* Shape casts/sweeps with c2TOI function (time of impact)
 	* Robust 2D convex hull generator
 	* Lots of correctly implemented and tested 2D math routines
 	* Implemented in portable C, and is readily portable to other languages
@@ -289,12 +293,38 @@ typedef enum
 	C2_POLY
 } C2_TYPE;
 
+// This struct is only for advanced usage of the c2GJK function. See comments inside of the
+// c2GJK function for more details.
+typedef struct
+{
+	float metric;
+	int count;
+	int iA[3];
+	int iB[3];
+	float div;
+} c2GJKCache;
+
 // Runs the GJK algorithm to find closest points, returns distance between closest points.
 // outA and outB can be NULL, in this case only distance is returned. ax_ptr and bx_ptr
 // can be NULL, and represent local to world transformations for shapes A and B respectively.
 // use_radius will apply radii for capsules and circles (if set to false, spheres are
-// treated as points and capsules are treated as line segments i.e. rays).
-float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius);
+// treated as points and capsules are treated as line segments i.e. rays). The cache parameter
+// should be NULL, as it is only for advanced usage (unless you know what you're doing, then
+// go ahead and use it). iterations is an optional parameter.
+float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache);
+
+// Computes the time of impact from shape A and shape B. The velocity of each shape is provided
+// by vA and vB respectively. The shapes are *not* allowed to rotate over time. The velocity is
+// assumed to represent the change in motion from time 0 to time 1, and so the return value will
+// be a number from 0 to 1. To move each shape to the colliding configuration, multiply vA and vB
+// each by the return value. ax_ptr and bx_ptr are optional parameters to transforms for each shape,
+// and are typically used for polygon shapes to transform from model to world space. Set these to
+// NULL to represent identity transforms. The out_normal for non-colliding configurations (or in
+// other words, when the return value is 1) is just the direction pointing along the closest points
+// from shape A to shape B. out_normal can be NULL. iterations is an optional parameter. use_radius
+// will apply radii for capsules and circles (if set to false, spheres are treated as points and
+// capsules are treated as line segments i.e. rays).
+float c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v vB, int use_radius, c2v* out_normal, c2v* out_contact_point, int* iterations);
 
 // Computes 2D convex hull. Will not do anything if less than two verts supplied. If
 // more than C2_MAX_POLYGON_VERTS are supplied extras are ignored.
@@ -360,6 +390,7 @@ C2_INLINE float c2Hmin(c2v a) { return c2Min(a.x, a.y); }
 C2_INLINE float c2Hmax(c2v a) { return c2Max(a.x, a.y); }
 C2_INLINE float c2Len(c2v a) { return c2Sqrt(c2Dot(a, a)); }
 C2_INLINE c2v c2Norm(c2v a) { return c2Div(a, c2Len(a)); }
+C2_INLINE c2v c2SafeNorm(c2v a) { float sq = c2Dot(a, a); return sq ? c2Div(a, c2Len(a)) : c2V(0, 0); }
 C2_INLINE c2v c2Neg(c2v a) { return c2V(-a.x, -a.y); }
 C2_INLINE c2v c2Lerp(c2v a, c2v b, float t) { return c2Add(a, c2Mulvs(c2Sub(b, a), t)); }
 C2_INLINE int c2Parallel(c2v a, c2v b, float kTol)
@@ -768,15 +799,27 @@ static C2_INLINE void c23(c2Simplex* s)
 
 #include <float.h>
 
+static C2_INLINE float c2GJKSimplexMetric(c2Simplex* s)
+{
+	switch (s->count)
+	{
+	default: // fall through
+	case 1:  return 0;
+	case 2:  return c2Len(c2Sub(s->b.p, s->a.p));
+	case 3:  return c2Det2(c2Sub(s->b.p, s->a.p), c2Sub(s->c.p, s->a.p));
+	}
+}
+
 // Please see http://box2d.org/downloads/ under GDC 2010 for Erin's demo code
-// and PDF slides for documentation on the GJK algorithm.
-float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius)
+// and PDF slides for documentation on the GJK algorithm. This function is mostly
+// from Erin's version from his online resources.
+float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v* outA, c2v* outB, int use_radius, int* iterations, c2GJKCache* cache)
 {
 	c2x ax;
 	c2x bx;
-	if (typeA != C2_POLY || !ax_ptr) ax = c2xIdentity();
+	if (!ax_ptr) ax = c2xIdentity();
 	else ax = *ax_ptr;
-	if (typeB != C2_POLY || !bx_ptr) bx = c2xIdentity();
+	if (!bx_ptr) bx = c2xIdentity();
 	else bx = *bx_ptr;
 
 	c2Proxy pA;
@@ -785,16 +828,59 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 	c2MakeProxy(B, typeB, &pB);
 
 	c2Simplex s;
-	s.a.iA = 0;
-	s.a.iB = 0;
-	s.a.sA = c2Mulxv(ax, pA.verts[0]);
-	s.a.sB = c2Mulxv(bx, pB.verts[0]);
-	s.a.p = c2Sub(s.a.sB, s.a.sA);
-	s.a.u = 1.0f;
-	s.div = 1.0f;
-	s.count = 1;
-
 	c2sv* verts = &s.a;
+
+	// Metric and caching system as designed by E. Catto in Box2D for his conservative advancment/bilateral
+	// advancement algorithim implementations. The purpose is to reuse old simplex indices (any simplex that
+	// have not degenerated into a line or point) as a starting point. This skips the first few iterations of
+	// GJK going from point, to line, to triangle, lowering convergence rates dramatically for temporally
+	// coherent cases (such as in time of impact searches).
+	int cache_was_read = 0;
+	if (cache)
+	{
+		int cache_was_good = !!cache->count;
+
+		if (cache_was_good)
+		{
+			for (int i = 0; i < cache->count; ++i)
+			{
+				int iA = cache->iA[i];
+				int iB = cache->iB[i];
+				c2v sA = c2Mulxv(ax, pA.verts[iA]);
+				c2v sB = c2Mulxv(bx, pB.verts[iB]);
+				c2sv* v = verts + i;
+				v->iA = iA;
+				v->sA = sA;
+				v->iB = iB;
+				v->sB = sB;
+				v->p = c2Sub(v->sB, v->sA);
+				v->u = 0;
+			}
+			s.count = cache->count;
+			s.div = cache->div;
+
+			float metric_old = cache->metric;
+			float metric = c2GJKSimplexMetric(&s);
+
+			float min_metric = metric < metric_old ? metric : metric_old;
+			float max_metric = metric > metric_old ? metric : metric_old;
+
+			if (!(min_metric < max_metric * 2.0f && metric < -1.0e8f)) cache_was_read = 1;
+		}
+	}
+
+	if (!cache_was_read)
+	{
+		s.a.iA = 0;
+		s.a.iB = 0;
+		s.a.sA = c2Mulxv(ax, pA.verts[0]);
+		s.a.sB = c2Mulxv(bx, pB.verts[0]);
+		s.a.p = c2Sub(s.a.sB, s.a.sA);
+		s.a.u = 1.0f;
+		s.div = 1.0f;
+		s.count = 1;
+	}
+
 	int saveA[3], saveB[3];
 	int save_count = 0;
 	float d0 = FLT_MAX;
@@ -837,7 +923,12 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 		int iB = c2Support(pB.verts, pB.count, c2MulrvT(bx.r, d));
 		c2v sB = c2Mulxv(bx, pB.verts[iB]);
 
-		++iter;
+		c2sv* v = verts + s.count;
+		v->iA = iA;
+		v->sA = sA;
+		v->iB = iB;
+		v->sB = sB;
+		v->p = c2Sub(v->sB, v->sA);
 
 		int dup = 0;
 		for (int i = 0; i < save_count; ++i)
@@ -850,13 +941,8 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 		}
 		if (dup) break;
 
-		c2sv* v = verts + s.count;
-		v->iA = iA;
-		v->sA = sA;
-		v->iB = iB;
-		v->sB = sB;
-		v->p = c2Sub(v->sB, v->sA);
 		++s.count;
+		++iter;
 	}
 
 	c2v a, b;
@@ -880,6 +966,7 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 			c2v n = c2Norm(c2Sub(b, a));
 			a = c2Add(a, c2Mulvs(n, rA));
 			b = c2Sub(b, c2Mulvs(n, rB));
+			if (a.x == b.x && a.y == b.y) dist = 0;
 		}
 
 		else
@@ -891,9 +978,74 @@ float c2GJK(const void* A, C2_TYPE typeA, const c2x* ax_ptr, const void* B, C2_T
 		}
 	}
 
+	if (cache)
+	{
+		cache->metric = c2GJKSimplexMetric(&s);
+		cache->count = s.count;
+		for (int i = 0; i < s.count; ++i)
+		{
+			c2sv* v = verts + i;
+			cache->iA[i] = v->iA;
+			cache->iB[i] = v->iB;
+		}
+		cache->div = s.div;
+	}
+
 	if (outA) *outA = a;
 	if (outB) *outB = b;
+	if (iterations) *iterations = iter;
 	return dist;
+}
+
+static C2_INLINE float c2Step(float t, const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, c2v* a, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v vB, c2v* b, int use_radius, c2GJKCache* cache)
+{
+	c2x ax = *ax_ptr;
+	c2x bx = *bx_ptr;
+	ax.p = c2Add(ax.p, c2Mulvs(vA, t));
+	bx.p = c2Add(bx.p, c2Mulvs(vB, t));
+	float d = c2GJK(A, typeA, &ax, B, typeB, &bx, a, b, use_radius, NULL, cache);
+	return d;
+}
+
+float c2TOI(const void* A, C2_TYPE typeA, const c2x* ax_ptr, c2v vA, const void* B, C2_TYPE typeB, const c2x* bx_ptr, c2v vB, int use_radius, c2v* out_normal, c2v* out_contact_point, int* iterations)
+{
+	float t = 0;
+	c2x ax;
+	c2x bx;
+	if (!ax_ptr) ax = c2xIdentity();
+	else ax = *ax_ptr;
+	if (!bx_ptr) bx = c2xIdentity();
+	else bx = *bx_ptr;
+	c2v a, b, n;
+	c2GJKCache cache;
+	cache.count = 0;
+	float d = c2Step(t, A, typeA, &ax, vA, &a, B, typeB, &bx, vB, &b, use_radius, &cache);
+	c2v v = c2Sub(vB, vA);
+	n = c2SafeNorm(c2Sub(b, a));
+
+	int iter = 0;
+	while (d > 1.0e-5f && t < 1)
+	{
+		++iter;
+		float velocity_bound = c2Abs(c2Dot(c2Norm(c2Sub(b, a)), v));
+		if (!velocity_bound) return 1;
+		float delta = d / velocity_bound;
+		t += delta;
+		c2v a0, b0;
+		d = c2Step(t, A, typeA, &ax, vA, &a0, B, typeB, &bx, vB, &b0, use_radius, &cache);
+		if (d)
+		{
+			a = a0;
+			b = b0;
+			n = c2Sub(b, a);
+		}
+		else break;
+	}
+
+	if (out_normal) *out_normal = c2SafeNorm(n);
+	if (out_contact_point) *out_contact_point = c2Mulvs(c2Add(a, b), 0.5f);
+	if (iterations) *iterations = iter;
+	return t >= 1 ? 1 : t;
 }
 
 int c2Hull(c2v* verts, int count)
@@ -1025,37 +1177,37 @@ int c2CircletoCapsule(c2Circle A, c2Capsule B)
 
 int c2AABBtoCapsule(c2AABB A, c2Capsule B)
 {
-	if (c2GJK(&A, C2_AABB, 0, &B, C2_CAPSULE, 0, 0, 0, 1)) return 0;
+	if (c2GJK(&A, C2_AABB, 0, &B, C2_CAPSULE, 0, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
 int c2CapsuletoCapsule(c2Capsule A, c2Capsule B)
 {
-	if (c2GJK(&A, C2_CAPSULE, 0, &B, C2_CAPSULE, 0, 0, 0, 1)) return 0;
+	if (c2GJK(&A, C2_CAPSULE, 0, &B, C2_CAPSULE, 0, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
 int c2CircletoPoly(c2Circle A, const c2Poly* B, const c2x* bx)
 {
-	if (c2GJK(&A, C2_CIRCLE, 0, B, C2_POLY, bx, 0, 0, 1)) return 0;
+	if (c2GJK(&A, C2_CIRCLE, 0, B, C2_POLY, bx, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
 int c2AABBtoPoly(c2AABB A, const c2Poly* B, const c2x* bx)
 {
-	if (c2GJK(&A, C2_AABB, 0, B, C2_POLY, bx, 0, 0, 1)) return 0;
+	if (c2GJK(&A, C2_AABB, 0, B, C2_POLY, bx, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
 int c2CapsuletoPoly(c2Capsule A, const c2Poly* B, const c2x* bx)
 {
-	if (c2GJK(&A, C2_CAPSULE, 0, B, C2_POLY, bx, 0, 0, 1)) return 0;
+	if (c2GJK(&A, C2_CAPSULE, 0, B, C2_POLY, bx, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
 int c2PolytoPoly(const c2Poly* A, const c2x* ax, const c2Poly* B, const c2x* bx)
 {
-	if (c2GJK(A, C2_POLY, ax, B, C2_POLY, bx, 0, 0, 1)) return 0;
+	if (c2GJK(A, C2_POLY, ax, B, C2_POLY, bx, 0, 0, 1, 0, 0)) return 0;
 	return 1;
 }
 
@@ -1268,7 +1420,7 @@ void c2CircletoCapsuleManifold(c2Circle A, c2Capsule B, c2Manifold* m)
 	m->count = 0;
 	c2v a, b;
 	float r = A.r + B.r;
-	float d = c2GJK(&A, C2_CIRCLE, 0, &B, C2_CAPSULE, 0, &a, &b, 0);
+	float d = c2GJK(&A, C2_CIRCLE, 0, &B, C2_CAPSULE, 0, &a, &b, 0, 0, 0);
 	if (d < r)
 	{
 		c2v n;
@@ -1347,6 +1499,7 @@ void c2AABBtoCapsuleManifold(c2AABB A, c2Capsule B, c2Manifold* m)
 	p.count = 4;
 	c2Norms(p.verts, p.norms, 4);
 	c2CapsuletoPolyManifold(B, &p, 0, m);
+	m->n = c2Neg(m->n);
 }
 
 void c2CapsuletoCapsuleManifold(c2Capsule A, c2Capsule B, c2Manifold* m)
@@ -1354,7 +1507,7 @@ void c2CapsuletoCapsuleManifold(c2Capsule A, c2Capsule B, c2Manifold* m)
 	m->count = 0;
 	c2v a, b;
 	float r = A.r + B.r;
-	float d = c2GJK(&A, C2_CAPSULE, 0, &B, C2_CAPSULE, 0, &a, &b, 0);
+	float d = c2GJK(&A, C2_CAPSULE, 0, &B, C2_CAPSULE, 0, &a, &b, 0, 0, 0);
 	if (d < r)
 	{
 		c2v n;
@@ -1380,7 +1533,7 @@ void c2CircletoPolyManifold(c2Circle A, const c2Poly* B, const c2x* bx_tr, c2Man
 {
 	m->count = 0;
 	c2v a, b;
-	float d = c2GJK(&A, C2_CIRCLE, 0, B, C2_POLY, bx_tr, &a, &b, 0);
+	float d = c2GJK(&A, C2_CIRCLE, 0, B, C2_POLY, bx_tr, &a, &b, 0, 0, 0);
 
 	// shallow, the circle center did not hit the polygon
 	// just use a and b from GJK to define the collision
@@ -1447,7 +1600,10 @@ static int c2Clip(c2v* seg, c2h h)
 	float d0, d1;
 	if ((d0 = c2Dist(h, seg[0])) < 0) out[sp++] = seg[0];
 	if ((d1 = c2Dist(h, seg[1])) < 0) out[sp++] = seg[1];
-	if (d0 * d1 <= 0) out[sp++] = c2Intersect(seg[0], seg[1], d0, d1);
+	if (d0 == 0 && d1 == 0) {
+		out[sp++] = seg[0];
+		out[sp++] = seg[1];
+	} else if (d0 * d1 <= 0) out[sp++] = c2Intersect(seg[0], seg[1], d0, d1);
 	seg[0] = out[0]; seg[1] = out[1];
 	return sp;
 }
@@ -1528,7 +1684,7 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 {
 	m->count = 0;
 	c2v a, b;
-	float d = c2GJK(&A, C2_CAPSULE, 0, B, C2_POLY, bx_ptr, &a, &b, 0);
+	float d = c2GJK(&A, C2_CAPSULE, 0, B, C2_POLY, bx_ptr, &a, &b, 0, 0, 0);
 
 	// deep, treat as segment to poly collision
 	if (d == 0)
@@ -1537,10 +1693,12 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 		c2v n;
 		int index;
 		c2AntinormalFace(A, B, bx, &index, &n);
-		c2v seg[2] = { c2Add(A.a, c2Mulvs(n, A.r)), c2Add(A.b, c2Mulvs(n, A.r)) };
+		c2v seg[2] = { A.a, A.b };
 		c2h h;
 		if (!c2SidePlanes(seg, bx, B, index, &h)) return;
 		c2KeepDeep(seg, h, m);
+		for (int i = 0; i < m->count; ++i) m->contact_points[i] = c2Add(m->contact_points[i], c2Mulvs(n, A.r));
+		m->n = c2Neg(m->n);
 	}
 
 	// shallow, use GJK results a and b to define manifold
@@ -1553,7 +1711,7 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 		for (int i = 0; i < B->count; ++i)
 		{
 			c2v n = c2Mulrv(bx.r, B->norms[i]);
-			if (c2Parallel(ab, n, 5.0e-3f))
+			if (c2Parallel(c2Neg(ab), n, 5.0e-3f))
 			{
 				face_case = 1;
 				break;
@@ -1563,10 +1721,11 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 		// 1 contact
 		if (!face_case)
 		{
+			one_contact:
 			m->count = 1;
-			m->contact_points[0] = b;
+			m->n = c2Norm(ab);
+			m->contact_points[0] = c2Add(a, c2Mulvs(m->n, A.r));
 			m->depths[0] = A.r - d;
-			m->n = c2Mulvs(ab, 1.0f / d);
 		}
 
 		// 2 contacts if laying on a polygon face nicely
@@ -1577,8 +1736,9 @@ void c2CapsuletoPolyManifold(c2Capsule A, const c2Poly* B, const c2x* bx_ptr, c2
 			c2AntinormalFace(A, B, bx, &index, &n);
 			c2v seg[2] = { c2Add(A.a, c2Mulvs(n, A.r)), c2Add(A.b, c2Mulvs(n, A.r)) };
 			c2h h;
-			if (!c2SidePlanes(seg, bx, B, index, &h)) return;
+			if (!c2SidePlanes(seg, bx, B, index, &h)) goto one_contact;
 			c2KeepDeep(seg, h, m);
+			m->n = c2Neg(m->n);
 		}
 	}
 }
