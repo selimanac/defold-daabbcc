@@ -1,0 +1,32 @@
+[bootstrap]
+main_collection = /main/test/bounce.collectionc
+
+[script]
+shared_state = 1
+
+[display]
+width = 1280
+height = 720
+
+[android]
+input_method = HiddenInputField
+
+[project]
+title = daabbcc
+version = 2.0
+
+[sprite]
+max_count = 6000
+
+[resource]
+max_resources = 6800
+
+[collection]
+max_instances = 6800
+
+[native_extension]
+app_manifest = 
+
+[library]
+include_dirs = daabbcc
+

@@ -1,0 +1,84 @@
+local boxes = {}
+local box_group
+
+local ray_start = vmath.vector3(0, 0, 0)
+local ray_end = vmath.vector3(365, 370, 0) -- vmath.vector3(425, 390, 0)
+
+local function add_box(box_pos)
+    local pos = vmath.vector3(box_pos.x, box_pos.y, 0)
+    local box = factory.create("/factory#box", pos)
+    local sprite = msg.url(nil, box, "sprite")
+    local boxlabel = msg.url(nil, box, "label")
+    local size = go.get(sprite, "size")
+
+    local box_proxy_id = aabb.insert(box_group, pos.x, pos.y, size.x, size.y)
+    label.set_text(boxlabel, box_proxy_id)
+    local t = {
+        pos = pos,
+        box = box,
+        sprite = sprite,
+        size = size,
+        proxy_id = box_proxy_id
+    }
+    table.insert(boxes, t)
+end
+
+function init(self)
+    msg.post(".", "acquire_input_focus")
+    box_group = aabb.new_group()
+
+    add_box(vmath.vector3(450, 350, 0))
+    add_box(vmath.vector3(350, 325, 0))
+    add_box(vmath.vector3(525, 490, 0))
+
+    boxes[2].pos.x = boxes[2].pos.x + 50
+    boxes[2].pos.y = boxes[2].pos.y + 50
+    go.set_position(boxes[2].pos, boxes[2].box)
+    aabb.update(box_group, boxes[2].proxy_id, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
+
+    local query_id_result = aabb.query_id(box_group, boxes[3].proxy_id)
+    pprint(query_id_result)
+
+    -- local query_result = aabb.query(box_group, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
+    -- pprint(query_result)
+end
+
+function final(self)
+    -- Add finalization code here
+    -- Remove this function if not needed
+end
+
+function update(self, dt)
+    msg.post("@render:", "draw_line", {start_point = ray_start, end_point = ray_end, color = vmath.vector4(1, 1, 1, 1)})
+    local ray_result = aabb.raycast(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+    if #ray_result > 0 then
+        print("Ray")
+        pprint(ray_result)
+    end
+
+    local query_id_result = aabb.query_id(box_group, boxes[3].proxy_id)
+    if #query_id_result > 0 then
+        print("Query")
+        pprint(query_id_result)
+    end
+end
+
+function on_message(self, message_id, message, sender)
+    -- Add message-handling code here
+    -- Remove this function if not needed
+end
+
+function on_input(self, action_id, action)
+    boxes[3].pos.x = action.x
+    boxes[3].pos.y = action.y
+
+    aabb.update(box_group, boxes[3].proxy_id, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
+    go.set_position(vmath.vector3(boxes[3].pos.x, boxes[3].pos.y, 0), boxes[3].box)
+
+    
+end
+
+function on_reload(self)
+    -- Add reload-handling code here
+    -- Remove this function if not needed
+end

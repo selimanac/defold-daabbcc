@@ -1,0 +1,8 @@
+key_trigger {
+  input: KEY_SPACE
+  action: "toggle"
+}
+mouse_trigger {
+  input: MOUSE_BUTTON_1
+  action: "touch"
+}

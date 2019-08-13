@@ -1,0 +1,143 @@
+-- Walls
+local lWall = hash("/left_wall")
+local rWall = hash("/right_wall")
+local tWall = hash("/ceil")
+local bWall = hash("/ground")
+local walls_tbl = {}
+
+local balls_count = 2000
+--4800 -- Number of balls
+local ball_speed = 600 -- Speed of balls
+
+local vdown = vmath.vector3(0, -1, 0)
+local vleft = vmath.vector3(-1, 0, 0)
+local vright = vmath.vector3(1, 0, 0)
+local vup = vmath.vector3(0, 1, 0)
+local _normal = vdown
+
+local current_ball
+
+local normal_velocity = vmath.vector3()
+local tangent_velocity = vmath.vector3()
+local setposition = go.set_position
+local wall_results = {}
+local walls = 0
+local balls = {}
+local balls_group = 0
+
+local is_profile = false
+local function insetParticles()
+    local _particleId
+    local _pos = vmath.vector3(math.random(100, 800), math.random(100, 600), 0)
+    local _targetId = factory.create("/factory#ball", _pos)
+    local _sprite = msg.url(nil, _targetId, "sprite")
+    local _spriteSize = go.get(_sprite, "size")
+
+    local _ballVelocity = vmath.vector3()
+    _ballVelocity.x = (math.random(5, 10) / 10) * ball_speed
+    _ballVelocity.y = (math.random(5, 10) / 10) * ball_speed
+
+    local _id = aabb.insert(balls_group, _pos.x, _pos.y, _spriteSize.x, _spriteSize.y)
+   
+
+    table.insert(
+        balls,
+        {
+            id = _targetId,
+            pos = _pos,
+            size = _spriteSize,
+            velocity = _ballVelocity,
+            proxyID = _id
+        }
+    )
+end
+
+function init(self)
+    msg.post(".", "acquire_input_focus")
+    --profiler.enable_ui(true)
+    math.randomseed(os.time())
+
+    walls = aabb.new_group()
+    balls_group = aabb.new_group()
+
+    local _pos = go.get_position(lWall)
+    local _sprite = msg.url(nil, lWall, "sprite")
+    local _spriteSize = go.get(_sprite, "size")
+    local proxyID = aabb.insert(walls, _pos.x, _pos.y, _spriteSize.x, _spriteSize.y)
+    table.insert(walls_tbl, proxyID)
+
+    print("Left: ", proxyID)
+
+    _pos = go.get_position(rWall)
+    _sprite = msg.url(nil, rWall, "sprite")
+    _spriteSize = go.get(_sprite, "size")
+    proxyID = aabb.insert(walls, _pos.x, _pos.y, _spriteSize.x, _spriteSize.y)
+    table.insert(walls_tbl, proxyID)
+    print("Right: ", proxyID)
+
+    _pos = go.get_position(tWall)
+    _sprite = msg.url(nil, tWall, "sprite")
+    _spriteSize = go.get(_sprite, "size")
+    proxyID = aabb.insert(walls, _pos.x, _pos.y, _spriteSize.x, _spriteSize.y)
+    table.insert(walls_tbl, proxyID)
+    print("Top: ", proxyID)
+
+    _pos = go.get_position(bWall)
+    _sprite = msg.url(nil, bWall, "sprite")
+    _spriteSize = go.get(_sprite, "size")
+    proxyID = aabb.insert(walls, _pos.x, _pos.y, _spriteSize.x, _spriteSize.y)
+    table.insert(walls_tbl, proxyID)
+    print("Bottom: ", proxyID)
+
+    local result = aabb.query(walls, 50, 50, 150, 150)
+    pprint(result)
+
+    -- Spawn balls from factory
+    for i = 1, balls_count do
+        insetParticles()
+    end
+end
+
+
+function update(self, dt)
+    for i = 1, balls_count do --loop all balls
+        current_ball = balls[i] -- Localise current ball
+
+        current_ball.pos = current_ball.pos + current_ball.velocity * dt -- Next Frame position
+        wall_results =
+            aabb.query(walls, current_ball.pos.x, current_ball.pos.y, current_ball.size.x, current_ball.size.y)
+       
+        local _resultCount = #wall_results
+        if _resultCount > 0 then --Ball is going to hit on next Frame
+            -- Walls: 0 LEFT, 1 RIGHT, 2 TOP, 3 BOTTOM
+            _normal = vdown -- 3 Top
+            if wall_results[1] == 1 then -- 1 RIGHT
+                _normal = vleft
+            elseif wall_results[1] == 0 then -- 0 LEFT
+                _normal = vright
+            elseif wall_results[1] == 5 then -- 5 BOTTOM
+                _normal = vup
+            end
+            --Calculate new position and velocity
+            normal_velocity = vmath.dot(_normal, current_ball.velocity) * _normal
+            tangent_velocity = current_ball.velocity - normal_velocity
+            normal_velocity = normal_velocity * -1
+            current_ball.velocity = normal_velocity + tangent_velocity
+            current_ball.pos = current_ball.pos + (_normal * 10)
+        end -- wall result
+
+        setposition(current_ball.pos, current_ball.id) -- Set new possition
+        
+    end
+end
+
+function on_input(self, action_id, action)
+    if action_id == hash("toggle") and action.pressed then
+        if is_profile == false then
+            is_profile = true
+        else
+            is_profile = false
+        end
+        profiler.enable_ui(is_profile)
+    end
+end
