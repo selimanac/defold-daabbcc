@@ -1,0 +1,3 @@
+*.script linguist-language=Lua
+*.lua linguist-language=Lua
+*.gui_script linguist-language=Lua
