@@ -10,6 +10,7 @@
 #include <jc/hashtable.h>
 #include <DynamicTree/b2DynamicTree.h>
 #include <vector>
+#include <stdlib.h>
 
 class DynamicTree
 {
