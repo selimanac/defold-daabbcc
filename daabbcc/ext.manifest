@@ -12,11 +12,7 @@ platforms:
   armv7-ios:
     context:
       flags:      ["-std=c++11"]
-
-  x86_64-win32: 
-    context:
-      flags:      ["-std=c++11","-stdlib=libc++"]
-
+      
   js-web : 
     context:
       flags:      ["-std=c++11","-stdlib=libc++"]
