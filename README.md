@@ -17,7 +17,7 @@ You can use it whenever precise collision manifold(narrow-phase) is not required
 You can use the DAABBCC in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/).  
 Open your game.project file and in the dependencies field under project add:
 
->https://github.com/selimanac/DAABBCC/archive/v2.0.zip
+>https://github.com/selimanac/DAABBCC/archive/daabbcc-v2.0.zip
 
 
 ## Release Notes
