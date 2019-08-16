@@ -1,16 +1,9 @@
-//  Created by selimanac on 04.08.2019
-
 #ifndef DynamicTree_hpp
 #define DynamicTree_hpp
 
-#define DLIB_LOG_DOMAIN "DAABBCC"
-#include <dmsdk/dlib/log.h>
-
-#include <stdio.h>
 #include <jc/hashtable.h>
+#include <jc/array.h>
 #include <DynamicTree/b2DynamicTree.h>
-#include <vector>
-#include <stdlib.h>
 
 class DynamicTree
 {
@@ -43,19 +36,19 @@ public:
     float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
 
     // RayCast to AABB
-    std::vector<int32> RayCast(int groupId,  float start_x, float start_y, float end_x, float end_y);
+    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y); //std::vector<int32> RayCast(int groupId,  float start_x, float start_y, float end_x, float end_y);
 
     // Query with AABB
-    std::vector<int32> QueryAABB(int groupId, float x, float y, int w, int h);
+    void QueryAABB(int groupId, float x, float y, int w, int h); //std::vector<int32> QueryAABB(int groupId, float x, float y, int w, int h);
 
     // Query with ID
-    std::vector<int32> QueryID(int groupId, int proxyID);
+    void QueryID(int groupId, int proxyID); //std::vector<int32> QueryID(int groupId, int proxyID);
 
     // Query result
-    std::vector<int32> result;
+    jc::Array<int32> result;
 
     // Raycast result
-    std::vector<int32> ray_result;
+    jc::Array<int32> ray_result;
 
     //Assert
     bool CheckGroup(int groupID);
@@ -84,9 +77,10 @@ private:
     b2AABB GetAABB(int groupId, int proxyID);
 
     // Query
-    std::vector<int32> Query(int groupId, b2AABB aabb);
+    void Query(int groupId, b2AABB aabb); //std::vector<int32> Query(int groupId, b2AABB aabb);
 
     int nodeProxyID;
+
     // Reset class
     void ResetTree();
 };

@@ -2,6 +2,9 @@
 
 DynamicTree::DynamicTree()
 {
+    result.SetCapacity(100);
+    ray_result.SetCapacity(100);
+
     ht.Create(numelements, htmem);
 }
 
@@ -47,8 +50,8 @@ void DynamicTree::SetGroups(uint32_t num, uint32_t load)
 {
     ResetTree();
 
-    numelements = num;  // The maximum number of entries to store
-    load_factor = load; // percent
+    numelements = num; 
+    load_factor = load; 
     tablesize = uint32_t(numelements / (load_factor / 100.0f));
     sizeneeded = hashtable_t::CalcSize(tablesize);
     htmem = malloc(sizeneeded);
@@ -84,16 +87,20 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
     bool hit = aabb.RayCast(&output, input);
     if (hit)
     {
-        ray_result.push_back(proxyId);
+        if (ray_result.Full())
+        {
+            ray_result.SetCapacity(ray_result.Capacity() + 100);
+        }
+        ray_result.Push(proxyId);
         // return output.fraction;
     }
 
     return input.maxFraction;
 }
 
-std::vector<int32> DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y)
+void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
-    ray_result.clear();
+    ray_result.SetSize(0);
 
     b2RayCastInputAABB m_rayCastInput;
     m_rayCastInput.p1.Set(start_x, start_y);
@@ -102,7 +109,7 @@ std::vector<int32> DynamicTree::RayCast(int groupId, float start_x, float start_
 
     ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
-    return ray_result;
+    //return ray_result;
 }
 
 /******************************
@@ -114,34 +121,40 @@ bool DynamicTree::QueryCallback(int32 proxyId)
 
     if (nodeProxyID == -1 || nodeProxyID != proxyId)
     {
-        result.push_back(proxyId);
+        if (result.Full())
+        {
+            result.SetCapacity(result.Capacity() + 100);
+        }
+        result.Push(proxyId);
     }
 
     return true;
 }
 
-std::vector<int32> DynamicTree::QueryID(int groupId, int proxyID)
+void DynamicTree::QueryID(int groupId, int proxyID)
 {
     nodeProxyID = proxyID;
     b2AABB aabb = GetAABB(groupId, proxyID);
-    return Query(groupId, aabb);
+    Query(groupId, aabb);
+    //  return Query(groupId, aabb);
 }
 
-std::vector<int32> DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
+void DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
 {
     nodeProxyID = -1;
     b2AABB aabb;
     aabb.lowerBound = Bound(0, x, y, w, h);
     aabb.upperBound = Bound(1, x, y, w, h);
-    return Query(groupId, aabb);
+    Query(groupId, aabb);
+    //return Query(groupId, aabb);
 }
 
-std::vector<int32> DynamicTree::Query(int groupId, b2AABB aabb)
+void DynamicTree::Query(int groupId, b2AABB aabb)
 {
-    result.clear();
+    result.SetSize(0);
 
     ht.Get(groupId)->m_tree->Query(this, aabb);
-    return result;
+    // return result;
 }
 
 void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w, int h)
@@ -152,9 +165,10 @@ void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w, i
     next_aabb.lowerBound = Bound(0, x, y, w, h);
     next_aabb.upperBound = Bound(1, x, y, w, h);
 
-    b2Vec2 displacement;// = next_aabb.GetCenter() - current_aabb.GetCenter();
-    displacement.x = 0;
-    displacement.y = 0;
+    b2Vec2 displacement; // = next_aabb.GetCenter() - current_aabb.GetCenter();
+
+    displacement.x = 0.2;
+    displacement.y = 0.2;
     ht.Get(groupId)->m_tree->MoveProxy(proxyID, next_aabb, displacement);
 }
 
@@ -186,7 +200,7 @@ b2Vec2 DynamicTree::Bound(int type, float x, float y, int w, int h)
 
 bool DynamicTree::CheckGroup(int groupID)
 {
-     if (ht.Get(groupID) == NULL)
+    if (ht.Get(groupID) == NULL)
     {
         return true;
     }

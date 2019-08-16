@@ -1,9 +1,9 @@
 
 #define LIB_NAME "DAABBCC"
 #define MODULE_NAME "aabb"
+#define DLIB_LOG_DOMAIN "DAABBCC"
 
-
-    
+#include <dmsdk/dlib/log.h>
 #include <dmsdk/sdk.h>
 #include <DynamicTree.hpp>
 
@@ -19,10 +19,11 @@ static int AddGroup(lua_State *L)
 static int RemoveGroup(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
-    
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     dynamicTree.RemoveGroup(groupID);
@@ -33,9 +34,10 @@ static int AddProxy(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     float x = luaL_checknumber(L, 2);
@@ -53,9 +55,10 @@ static int RemoveProxy(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     int proxyID = luaL_checkint(L, 2);
@@ -69,18 +72,19 @@ static int QueryID(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     int proxyID = luaL_checkint(L, 2);
 
     dynamicTree.QueryID(groupID, proxyID);
 
-    lua_createtable(L, dynamicTree.result.size(), 0);
+    lua_createtable(L, dynamicTree.result.Size(), 0);
     int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.result.size(); i++)
+    for (int i = 0; i < dynamicTree.result.Size(); i++)
     {
         lua_pushnumber(L, dynamicTree.result[i]);
         lua_rawseti(L, newTable, i + 1);
@@ -93,9 +97,10 @@ static int QueryAABB(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     float x = luaL_checknumber(L, 2);
@@ -105,9 +110,9 @@ static int QueryAABB(lua_State *L)
 
     dynamicTree.QueryAABB(groupID, x, y, w, h);
 
-    lua_createtable(L, dynamicTree.result.size(), 0);
+    lua_createtable(L, dynamicTree.result.Size(), 0);
     int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.result.size(); i++)
+    for (int i = 0; i < dynamicTree.result.Size(); i++)
     {
         lua_pushnumber(L, dynamicTree.result[i]);
         lua_rawseti(L, newTable, i + 1);
@@ -120,9 +125,10 @@ static int RayCast(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     float start_x = luaL_checknumber(L, 2);
@@ -132,9 +138,9 @@ static int RayCast(lua_State *L)
 
     dynamicTree.RayCast(groupID, start_x, start_y, end_x, end_y);
 
-    lua_createtable(L, dynamicTree.ray_result.size(), 0);
+    lua_createtable(L, dynamicTree.ray_result.Size(), 0);
     int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.ray_result.size(); i++)
+    for (int i = 0; i < dynamicTree.ray_result.Size(); i++)
     {
         lua_pushnumber(L, dynamicTree.ray_result[i]);
         lua_rawseti(L, newTable, i + 1);
@@ -147,9 +153,10 @@ static int MoveProxy(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
-    if (dynamicTree.CheckGroup(groupID)){
-         dmLogError("Group ID is invalid");
-         return 0;
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
     }
 
     int proxyID = luaL_checkint(L, 2);

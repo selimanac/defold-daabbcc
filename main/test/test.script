@@ -44,9 +44,9 @@ function init(self)
     -- Updates the AABB position and size when you change it is position or size.
     aabb.update(box_group, boxes[2].proxy_id, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
 
-    -- Query the possible overlaps using ID.
-    local query_id_result = aabb.query_id(box_group, boxes[3].proxy_id)
-    pprint(query_id_result)
+    -- Query the possible overlaps using AABB. Returns itself.
+    local query_result = aabb.query(box_group, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
+    pprint(query_result)
 end
 
 function update(self, dt)
