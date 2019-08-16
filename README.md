@@ -27,7 +27,7 @@ Open your game.project file and in the dependencies field under project add:
 This is a complete rewritten version by using Box2D’s [Dynamic Tree](https://github.com/erincatto/Box2D/blob/master/Box2D/Collision/b2DynamicTree.cpp).  
 - API revised and simplified    
 - Nearly 6x performance increment according to v1.x (4800 sprites vs 500 sprites)  
-- Low cpu usage
+- Low cpu usage  
 - Experimental narrow phase collision detections removed
 
 [1.1](https://github.com/selimanac/DAABBCC/releases/tag/v1.1)
@@ -44,7 +44,7 @@ Initial release.
 
 ### aabb.new_group()
 
-New group for AABBs.  
+New group for AABBs. Currently groups has limited to 20.  
 >Returns group id.
 
 ```lua
@@ -126,5 +126,7 @@ aabb.remove_group(enemy_group)
 ```
 
 
+## Notes
 
-
+- Currently groups has limited to 20. I have a solution for this but I don't want to expose it to API now. If you need more groups, please open an issue. I can expose it to api
+- Performance is really depend on CPU load. I manage to get 60fps with 4800 sprite on my desktop. But this doesn't mean that you can use 4800 sprites on mobile platforms. You have to do your own test.  
