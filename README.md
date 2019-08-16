@@ -45,7 +45,7 @@ Initial release.
 ### aabb.new_group()
 
 New group for AABBs.  
-**Returns group id.**
+>Returns group id.
 
 ```lua
 local enemy_group = aabb.new_group()
@@ -54,7 +54,7 @@ local enemy_group = aabb.new_group()
 ### aabb.insert(`group_id, x, y, w, h`)
 
 Insert AABB into the group.  
-**Returns aabb id.**
+>Returns aabb id.
 
 ```lua
 local x = 0
@@ -90,7 +90,7 @@ aabb.update(enemy_group, self.enemy_id, new_x, new_y, new_w, new_h)
 ### aabb.query_id(`group_id, aabb_id`)
 
 Query the possible overlaps using ID.  
-**Returns result table with ids.**
+>Returns result table with ids.
 
 ```lua
 local result = aabb.query_id(enemy_group, self.enemy_id)
@@ -99,7 +99,7 @@ local result = aabb.query_id(enemy_group, self.enemy_id)
 ### aabb.query(`group_id, x, y, w, h`)
 
 Query the possible overlaps using AABB.  
-**Returns result table with ids.**
+>Returns result table with ids.
 
 ```lua
 local result = aabb.query(enemy_group, x, y, w, h)
@@ -108,7 +108,7 @@ local result = aabb.query(enemy_group, x, y, w, h)
 ### aabb.raycast(`group_id, start_x, start_y, end_x, end_y`)
 
 Query the possible overlaps using RAYCAST.  
-**Returns result table with ids.**
+>Returns result table with ids.
 
 ```lua
 local ray_start = vmath.vector3(0, 0, 0)
