@@ -3,6 +3,7 @@
 This is a [Dynamic AABB Tree](http://box2d.org/files/GDC2019/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/). DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/Box2D/blob/master/Box2D/Collision/b2DynamicTree.cpp).
 
 Special thanks to [Randy Gaul](https://twitter.com/RandyPGaul) for [Branch and Bound](https://github.com/erincatto/Box2D/pull/548) implementation.  
+[HashTable and Array](https://github.com/JCash/containers) by [Mathias Westerdahl](https://github.com/JCash)  
 Box2D Copyright (c) 2009 Erin Catto http://www.box2d.org
 
 **What is DAABBCC?**
