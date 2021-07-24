@@ -126,6 +126,14 @@ Removes the group and cleans all AABBs
 aabb.remove_group(enemy_group)
 ```
 
+### aabb.remove(`group_id, aabb_id`)
+
+Removes the AABB from group
+
+```lua
+aabb.remove(group_id, aabb_id)
+```
+
 
 ## Notes
 
