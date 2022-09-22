@@ -5,6 +5,9 @@ DynamicTree::DynamicTree()
     result.SetCapacity(100);
     ray_result.SetCapacity(100);
 
+    orderResult.SetCapacity(100);
+ 
+
     ht.Create(numelements, htmem);
 }
 
@@ -50,8 +53,8 @@ void DynamicTree::SetGroups(uint32_t num, uint32_t load)
 {
     ResetTree();
 
-    numelements = num; 
-    load_factor = load; 
+    numelements = num;
+    load_factor = load;
     tablesize = uint32_t(numelements / (load_factor / 100.0f));
     sizeneeded = hashtable_t::CalcSize(tablesize);
     htmem = malloc(sizeneeded);
@@ -109,14 +112,14 @@ void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x
 
     ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
-    //return ray_result;
+    // return ray_result;
 }
 
 /******************************
  *          QUERY
  ******************************/
 
-bool DynamicTree::QueryCallback(int32 proxyId)
+bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
 {
 
     if (nodeProxyID == -1 || nodeProxyID != proxyId)
@@ -125,36 +128,68 @@ bool DynamicTree::QueryCallback(int32 proxyId)
         {
             result.SetCapacity(result.Capacity() + 100);
         }
+
+        if (isShorted)
+        {
+
+            if (orderResult.Full())
+            {
+                orderResult.SetCapacity(orderResult.Capacity() + 100);
+            }
+
+            targetProxyCenter = GetAABBPosition(groupId, proxyId);
+           // dmLogInfo("targetProxyCenter %f %f", targetProxyCenter.x, targetProxyCenter.y);
+            float32 distance = b2Distance(targetProxyCenter, nodeProxyCenter);
+           // dmLogInfo("distance %i - %f", proxyId, distance);
+
+            tmpOrder.proxyID = proxyId;
+            tmpOrder.distance = distance;
+            orderResult.Push(tmpOrder);
+        }
+
         result.Push(proxyId);
     }
 
     return true;
 }
 
+void DynamicTree::QueryIDShort(int groupId, int proxyID)
+{
+    isShorted = true;
+    nodeProxyID = proxyID;
+    nodeProxyCenter = GetAABBPosition(groupId, proxyID);
+   // dmLogInfo("nodeProxyCenter %f %f", nodeProxyCenter.x, nodeProxyCenter.y);
+    b2AABB aabb = GetAABB(groupId, proxyID);
+    Query(groupId, aabb);
+
+    jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult);
+}
+
 void DynamicTree::QueryID(int groupId, int proxyID)
 {
+    isShorted = false;
     nodeProxyID = proxyID;
     b2AABB aabb = GetAABB(groupId, proxyID);
     Query(groupId, aabb);
-    //  return Query(groupId, aabb);
 }
 
 void DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
 {
+    isShorted = false;
     nodeProxyID = -1;
     b2AABB aabb;
     aabb.lowerBound = Bound(0, x, y, w, h);
     aabb.upperBound = Bound(1, x, y, w, h);
     Query(groupId, aabb);
-    //return Query(groupId, aabb);
+    // return Query(groupId, aabb);
 }
 
 void DynamicTree::Query(int groupId, b2AABB aabb)
 {
+    orderResult.SetSize(0);
+    // orderResult.Empty();
     result.SetSize(0);
-
-    ht.Get(groupId)->m_tree->Query(this, aabb);
-    // return result;
+    ht.Get(groupId)->m_tree->Query(this, aabb, groupId);
 }
 
 void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w, int h)
@@ -179,6 +214,13 @@ b2AABB DynamicTree::GetAABB(int groupId, int proxyID)
     aabb.lowerBound = aabb.lowerBound + r;
     aabb.upperBound = aabb.upperBound - r;
     return aabb;
+}
+
+b2Vec2 DynamicTree::GetAABBPosition(int groupId, int proxyID)
+{
+    b2AABB aabb = GetAABB(groupId, proxyID);
+    b2Vec2 aabbCenter = aabb.GetCenter();
+    return aabbCenter;
 }
 
 b2Vec2 DynamicTree::Bound(int type, float x, float y, int w, int h)
