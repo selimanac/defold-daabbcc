@@ -95,7 +95,7 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
             ray_result.SetCapacity(ray_result.Capacity() + 100);
         }
 
-          if (isShorted)
+        if (isShorted)
         {
 
             if (orderResult.Full())
@@ -117,10 +117,12 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
             tmpOrder.distance = distance;
             orderResult.Push(tmpOrder);
             tmpOrderResult.Push(tmpOrder);
-        }else {
+        }
+        else
+        {
             ray_result.Push(proxyId);
         }
-       
+
         // return output.fraction;
     }
 
@@ -130,9 +132,9 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
 void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
 
-     isShorted = true;
+    isShorted = true;
     ray_result.SetSize(0);
-     orderResult.SetSize(0);
+    orderResult.SetSize(0);
     tmpOrderResult.SetSize(0);
 
     b2RayCastInputAABB m_rayCastInput;
@@ -143,13 +145,12 @@ void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float 
     nodeProxyCenter.y = start_y;
     ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
-     jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+    jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
 }
 
 void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
     ray_result.SetSize(0);
-    
 
     b2RayCastInputAABB m_rayCastInput;
     m_rayCastInput.p1.Set(start_x, start_y);
@@ -197,11 +198,11 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
             tmpOrder.distance = distance;
             orderResult.Push(tmpOrder);
             tmpOrderResult.Push(tmpOrder);
-        }else {
+        }
+        else
+        {
             result.Push(proxyId);
         }
-
-       
     }
 
     return true;
@@ -227,11 +228,9 @@ void DynamicTree::QueryAABBShort(int groupId, float x, float y, int w, int h)
     aabb.upperBound = Bound(1, x, y, w, h);
     nodeProxyCenter = aabb.GetCenter();
     Query(groupId, aabb);
-   
+
     jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
 }
-
-
 
 void DynamicTree::QueryID(int groupId, int proxyID)
 {

@@ -135,7 +135,6 @@ static int QueryAABBShort(lua_State *L)
     return 1;
 }
 
-
 static int RayCastShort(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -153,7 +152,7 @@ static int RayCastShort(lua_State *L)
 
     dynamicTree.RayCastShort(groupID, start_x, start_y, end_x, end_y);
 
-   lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
     int newTable = lua_gettop(L);
     for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
     {
@@ -170,7 +169,6 @@ static int RayCastShort(lua_State *L)
 
     return 1;
 }
-
 
 static int QueryID(lua_State *L)
 {
@@ -225,7 +223,6 @@ static int QueryAABB(lua_State *L)
     return 1;
 }
 
-
 static int RayCast(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -279,7 +276,7 @@ static int MoveProxy(lua_State *L)
 static const luaL_reg Module_methods[] =
     {
         {"raycast", RayCast},
-         {"raycast_short", RayCastShort},
+        {"raycast_short", RayCastShort},
         {"query_id", QueryID},
         {"query_id_short", QueryIDShort},
         {"query", QueryAABB},

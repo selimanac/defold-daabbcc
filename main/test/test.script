@@ -71,12 +71,12 @@ function update(self, dt)
     })
 
     -- Query the possible overlaps using RAYCAST.
-    local ray_result = aabb.raycast_short(box_group, ray_start.x, ray_start.y,
-                                    ray_end.x, ray_end.y)
-    if #ray_result > 0 then
-        print("raycast_short")
-        pprint(ray_result)
-    end
+    -- local ray_result = aabb.raycast_short(box_group, ray_start.x, ray_start.y,
+    --                                 ray_end.x, ray_end.y)
+    -- if #ray_result > 0 then
+    --     print("raycast_short")
+    --     pprint(ray_result)
+    -- end
 
     local p = go.get_position(boxes[5].box)
 
@@ -91,12 +91,12 @@ function update(self, dt)
         pprint(query_id_short)
     end
 
-    local query_short = aabb.query_short(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
+    -- local query_short = aabb.query_short(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
 
-    if #query_short > 1   then
-        print("Query Short")
-        pprint(query_short)
-    end
+    -- if #query_short > 1   then
+    --     print("Query Short")
+    --     pprint(query_short)
+    -- end
 
 end
 
