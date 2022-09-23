@@ -100,6 +100,78 @@ static int QueryIDShort(lua_State *L)
     return 1;
 }
 
+static int QueryAABBShort(lua_State *L)
+{
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+
+    float x = luaL_checknumber(L, 2);
+    float y = luaL_checknumber(L, 3);
+    int w = luaL_checkint(L, 4);
+    int h = luaL_checkint(L, 5);
+
+    dynamicTree.QueryAABBShort(groupID, x, y, w, h);
+
+    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+    int newTable = lua_gettop(L);
+    for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+    {
+        lua_createtable(L, 2, 0);
+        lua_pushstring(L, "id");
+        lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
+        lua_settable(L, -3);
+        lua_pushstring(L, "distance");
+        lua_pushinteger(L, dynamicTree.orderResult[i].distance);
+        lua_settable(L, -3);
+
+        lua_rawseti(L, newTable, i + 1);
+    }
+
+    return 1;
+}
+
+
+static int RayCastShort(lua_State *L)
+{
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+
+    float start_x = luaL_checknumber(L, 2);
+    float start_y = luaL_checknumber(L, 3);
+    float end_x = luaL_checknumber(L, 4);
+    float end_y = luaL_checknumber(L, 5);
+
+    dynamicTree.RayCastShort(groupID, start_x, start_y, end_x, end_y);
+
+   lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+    int newTable = lua_gettop(L);
+    for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+    {
+        lua_createtable(L, 2, 0);
+        lua_pushstring(L, "id");
+        lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
+        lua_settable(L, -3);
+        lua_pushstring(L, "distance");
+        lua_pushinteger(L, dynamicTree.orderResult[i].distance);
+        lua_settable(L, -3);
+
+        lua_rawseti(L, newTable, i + 1);
+    }
+
+    return 1;
+}
+
+
 static int QueryID(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -152,6 +224,7 @@ static int QueryAABB(lua_State *L)
 
     return 1;
 }
+
 
 static int RayCast(lua_State *L)
 {
@@ -206,9 +279,11 @@ static int MoveProxy(lua_State *L)
 static const luaL_reg Module_methods[] =
     {
         {"raycast", RayCast},
+         {"raycast_short", RayCastShort},
         {"query_id", QueryID},
         {"query_id_short", QueryIDShort},
         {"query", QueryAABB},
+        {"query_short", QueryAABBShort},
         {"new_group", AddGroup},
         {"remove_group", RemoveGroup},
         {"insert", AddProxy},

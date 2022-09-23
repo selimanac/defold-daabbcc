@@ -45,16 +45,20 @@ public:
     float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
 
     // RayCast to AABB
-    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y); // std::vector<int32> RayCast(int groupId,  float start_x, float start_y, float end_x, float end_y);
+    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y); 
+
+    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y); 
 
     // Query with AABB
-    void QueryAABB(int groupId, float x, float y, int w, int h); // std::vector<int32> QueryAABB(int groupId, float x, float y, int w, int h);
+    void QueryAABB(int groupId, float x, float y, int w, int h); 
 
     // Query with ID
     void QueryID(int groupId, int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
 
     // Query with ID - Distance Ordered
     void QueryIDShort(int groupId, int proxyID);
+
+    void QueryAABBShort(int groupId, float x, float y, int w, int h); 
 
     // Query result
     jc::Array<int32> result;
@@ -67,6 +71,7 @@ public:
 
     // Assert
     bool CheckGroup(int groupID);
+     bool isShorted = false;
 
 private:
     // Hashtable for Groups
@@ -102,10 +107,9 @@ private:
     int nodeProxyID;
     b2Vec2 nodeProxyCenter;
     b2Vec2 targetProxyCenter;
-    bool isShorted = false;
+   
     orderResultValues tmpOrder;
-    orderResultValues *tmpOrderResult = (orderResultValues *)malloc(orderResult.Size());
-    
+    jc::Array<orderResultValues> tmpOrderResult;
     
     // Reset class
     void ResetTree();
