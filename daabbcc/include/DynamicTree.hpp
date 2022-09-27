@@ -9,10 +9,10 @@
 #include <dmsdk/dlib/log.h>
 
 struct orderResultValues
-    {
-        int32 proxyID;
-        float32 distance;
-    };
+{
+    int32 proxyID;
+    float32 distance;
+};
 
 class DynamicTree
 {
@@ -45,12 +45,12 @@ public:
     float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
 
     // RayCast to AABB
-    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y); 
+    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
 
-    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y); 
+    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y);
 
     // Query with AABB
-    void QueryAABB(int groupId, float x, float y, int w, int h); 
+    void QueryAABB(int groupId, float x, float y, int w, int h);
 
     // Query with ID
     void QueryID(int groupId, int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
@@ -58,7 +58,7 @@ public:
     // Query with ID - Distance Ordered
     void QueryIDShort(int groupId, int proxyID);
 
-    void QueryAABBShort(int groupId, float x, float y, int w, int h); 
+    void QueryAABBShort(int groupId, float x, float y, int w, int h);
 
     // Query result
     jc::Array<int32> result;
@@ -66,12 +66,12 @@ public:
     // Raycast result
     jc::Array<int32> ray_result;
 
-     // Query order result
+    // Query order result
     jc::Array<orderResultValues> orderResult;
 
     // Assert
     bool CheckGroup(int groupID);
-     bool isShorted = false;
+    bool isShorted = false;
 
 private:
     // Hashtable for Groups
@@ -80,8 +80,6 @@ private:
         b2DynamicTree *m_tree;
     };
     typedef jc::HashTable<uint32_t, Groups> hashtable_t;
-
-    
 
     // Hashtable defaults
     uint32_t numelements = 20; // The maximum number of entries to store
@@ -107,10 +105,10 @@ private:
     int nodeProxyID;
     b2Vec2 nodeProxyCenter;
     b2Vec2 targetProxyCenter;
-   
+
     orderResultValues tmpOrder;
     jc::Array<orderResultValues> tmpOrderResult;
-    
+
     // Reset class
     void ResetTree();
 };
