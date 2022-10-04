@@ -6,19 +6,23 @@
 #define JC_SORT_IMPLEMENTATION
 #include "jc/sort.h"
 #include <DynamicTree/b2DynamicTree.h>
+#include <dmsdk/dlib/hashtable.h>
 #include <dmsdk/dlib/log.h>
+#include <dmsdk/sdk.h>
 
 struct orderResultValues
-    {
-        int32 proxyID;
-        float32 distance;
-    };
+{
+    int32 proxyID;
+    float32 distance;
+};
 
 class DynamicTree
 {
 public:
     DynamicTree();
     ~DynamicTree();
+
+    
 
     // Add new group
     int AddGroup();
@@ -45,12 +49,12 @@ public:
     float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
 
     // RayCast to AABB
-    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y); 
+    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
 
-    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y); 
+    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y);
 
     // Query with AABB
-    void QueryAABB(int groupId, float x, float y, int w, int h); 
+    void QueryAABB(int groupId, float x, float y, int w, int h);
 
     // Query with ID
     void QueryID(int groupId, int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
@@ -58,7 +62,7 @@ public:
     // Query with ID - Distance Ordered
     void QueryIDShort(int groupId, int proxyID);
 
-    void QueryAABBShort(int groupId, float x, float y, int w, int h); 
+    void QueryAABBShort(int groupId, float x, float y, int w, int h);
 
     // Query result
     jc::Array<int32> result;
@@ -66,12 +70,16 @@ public:
     // Raycast result
     jc::Array<int32> ray_result;
 
-     // Query order result
+    // Query order result
     jc::Array<orderResultValues> orderResult;
 
     // Assert
     bool CheckGroup(int groupID);
-     bool isShorted = false;
+    bool isShorted = false;
+
+    int AddGameObject(uint32_t groupID, int32 proxyId,  dmGameObject::HInstance instance,int32 w, int32 h);
+
+     void GameobjectUpdate();
 
 private:
     // Hashtable for Groups
@@ -81,8 +89,6 @@ private:
     };
     typedef jc::HashTable<uint32_t, Groups> hashtable_t;
 
-    
-
     // Hashtable defaults
     uint32_t numelements = 20; // The maximum number of entries to store
     uint32_t load_factor = 50; // percent
@@ -91,6 +97,18 @@ private:
     void *htmem = malloc(sizeneeded);
     hashtable_t ht;
     int groupCounter = 0;
+    int goCounter = 0;
+
+    struct goGroup
+    {
+        uint32_t groupID;
+        int32 proxyId;
+        dmGameObject::HInstance instance;
+        int32 w;
+        int32 h;
+    };
+
+    dmHashTable<uint32_t, goGroup> m_goGroup;
 
     // Bound calculation
     b2Vec2 Bound(int type, float x, float y, int w, int h);
@@ -107,12 +125,18 @@ private:
     int nodeProxyID;
     b2Vec2 nodeProxyCenter;
     b2Vec2 targetProxyCenter;
-   
+
     orderResultValues tmpOrder;
     jc::Array<orderResultValues> tmpOrderResult;
-    
+
+    static void IterateCallback(DynamicTree* context, const uint32_t* key, goGroup* value);
+
+   
+
     // Reset class
     void ResetTree();
 };
+
+
 
 #endif /* DynamicTree_hpp */

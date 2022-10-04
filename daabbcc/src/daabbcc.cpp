@@ -4,7 +4,9 @@
 #define DLIB_LOG_DOMAIN "DAABBCC"
 
 #include <DynamicTree.hpp>
+#include <dmsdk/dlib/hash.h>
 #include <dmsdk/dlib/log.h>
+#include <dmsdk/script/script.h>
 #include <dmsdk/sdk.h>
 
 DynamicTree dynamicTree;
@@ -28,6 +30,39 @@ static int RemoveGroup(lua_State *L)
 
     dynamicTree.RemoveGroup(groupID);
     return 0;
+}
+
+// AddProxyGameobject
+static int AddProxyGameobject(lua_State *L)
+{
+
+    // aabb.insert_gameobject(enemy_group, enemy_id, 80, 80, true)
+
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+
+    dmGameObject::HInstance instance = dmScript::CheckGOInstance(L, 2);
+    dmVMath::Point3 position = dmGameObject::GetPosition(instance);
+
+    // dmhash_t instanceHash = dmGameObject::GetIdentifier(instance);
+
+    float x = position.getX();
+    float y = position.getY();
+    int w = luaL_checkint(L, 3);
+    int h = luaL_checkint(L, 4);
+
+    int proxyID = dynamicTree.AddProxy(groupID, x, y, w, h);
+
+    int gameobjectID = dynamicTree.AddGameObject(groupID, proxyID, instance, w, h);
+
+    lua_pushinteger(L, proxyID);
+
+    return 1;
 }
 
 static int AddProxy(lua_State *L)
@@ -135,7 +170,6 @@ static int QueryAABBShort(lua_State *L)
     return 1;
 }
 
-
 static int RayCastShort(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -153,7 +187,7 @@ static int RayCastShort(lua_State *L)
 
     dynamicTree.RayCastShort(groupID, start_x, start_y, end_x, end_y);
 
-   lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
     int newTable = lua_gettop(L);
     for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
     {
@@ -171,6 +205,23 @@ static int RayCastShort(lua_State *L)
     return 1;
 }
 
+static int QueryGameobject(lua_State *L)
+{
+
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+    int proxyID = luaL_checkint(L, 2);
+
+    dmScript::LuaCallbackInfo *cbk = dmScript::CreateCallback(L, 3);
+
+    // RETURN QUERY ID for REMOVE
+    return 1;
+}
 
 static int QueryID(lua_State *L)
 {
@@ -225,7 +276,6 @@ static int QueryAABB(lua_State *L)
     return 1;
 }
 
-
 static int RayCast(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -276,20 +326,21 @@ static int MoveProxy(lua_State *L)
 }
 
 // Functions exposed to Lua
-static const luaL_reg Module_methods[] =
-    {
-        {"raycast", RayCast},
-         {"raycast_short", RayCastShort},
-        {"query_id", QueryID},
-        {"query_id_short", QueryIDShort},
-        {"query", QueryAABB},
-        {"query_short", QueryAABBShort},
-        {"new_group", AddGroup},
-        {"remove_group", RemoveGroup},
-        {"insert", AddProxy},
-        {"remove", RemoveProxy},
-        {"update", MoveProxy},
-        {NULL, NULL}};
+static const luaL_reg Module_methods[] = {
+    {"raycast", RayCast},
+    {"raycast_short", RayCastShort},
+    {"query_id", QueryID},
+    {"query_gameobject", QueryGameobject},
+    {"query_id_short", QueryIDShort},
+    {"query", QueryAABB},
+    {"query_short", QueryAABBShort},
+    {"new_group", AddGroup},
+    {"remove_group", RemoveGroup},
+    {"insert", AddProxy},
+    {"insert_gameobject", AddProxyGameobject},
+    {"remove", RemoveProxy},
+    {"update", MoveProxy},
+    {NULL, NULL}};
 
 static void LuaInit(lua_State *L)
 {
@@ -311,6 +362,13 @@ dmExtension::Result InitializeDAABBCC(dmExtension::Params *params)
     return dmExtension::RESULT_OK;
 }
 
+static dmExtension::Result OnUpdateMyExtension(dmExtension::Params *params)
+{
+    dynamicTree.GameobjectUpdate();
+
+    return dmExtension::RESULT_OK;
+}
+
 dmExtension::Result AppFinalizeDAABBCC(dmExtension::AppParams *params)
 {
     return dmExtension::RESULT_OK;
@@ -321,4 +379,6 @@ dmExtension::Result FinalizeDAABBCC(dmExtension::Params *params)
     return dmExtension::RESULT_OK;
 }
 
-DM_DECLARE_EXTENSION(DAABBCC, LIB_NAME, AppInitializeDAABBCC, AppFinalizeDAABBCC, InitializeDAABBCC, 0, 0, FinalizeDAABBCC)
+DM_DECLARE_EXTENSION(DAABBCC, LIB_NAME, AppInitializeDAABBCC,
+                     AppFinalizeDAABBCC, InitializeDAABBCC, OnUpdateMyExtension, 0,
+                     FinalizeDAABBCC)

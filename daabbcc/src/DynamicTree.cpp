@@ -11,10 +11,7 @@ DynamicTree::DynamicTree()
     ht.Create(numelements, htmem);
 }
 
-DynamicTree::~DynamicTree()
-{
-    ResetTree();
-}
+DynamicTree::~DynamicTree() { ResetTree(); }
 
 void DynamicTree::ResetTree()
 {
@@ -41,6 +38,49 @@ int DynamicTree::AddGroup()
     groupCounter++;
 
     return c;
+}
+
+void DynamicTree::IterateCallback(DynamicTree *context, const uint32_t *key,
+                                  goGroup *value)
+{
+    //dmLogInfo("ITERATE KEY %i VALUE %i", *key, value->groupID);
+    // dmLogInfo("VALUE %i", context->groupID);
+
+    dmVMath::Point3 goPosition = dmGameObject::GetPosition(value->instance);
+   // dmLogInfo("x: %f - y: %f - z: %f", goPosition.getX(), goPosition.getY(), goPosition.getZ());
+
+    context->MoveProxy(value->groupID, value->proxyId, goPosition.getX(), goPosition.getY(), value->w, value->h);
+}
+
+int DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h)
+{
+
+    int c = goCounter;
+
+    goGroup goContainer;
+    goContainer.groupID = groupID;
+    goContainer.proxyId = proxyId;
+    goContainer.instance = instance;
+    goContainer.w = w;
+    goContainer.h = h;
+
+    if (m_goGroup.Full())
+    {
+        m_goGroup.SetCapacity(m_goGroup.Capacity() + 100, m_goGroup.Capacity() + 100);
+    }
+    m_goGroup.Put(c, goContainer);
+
+    //  goGroup context;
+    // m_goGroup.Iterate(IterateCallback, &context);
+
+    goCounter++;
+
+    return c;
+}
+
+void DynamicTree::GameobjectUpdate()
+{
+    m_goGroup.Iterate(IterateCallback, this);
 }
 
 void DynamicTree::RemoveGroup(int groupId)
@@ -83,7 +123,8 @@ void DynamicTree::RemoveProxy(int groupId, int proxyID)
  *            RAY
  ******************************/
 
-float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId)
+float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
+                                     int32 proxyId, int groupId)
 {
     b2AABB aabb = GetAABB(groupId, proxyId);
     b2RayCastOutputAABB output;
@@ -95,7 +136,7 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
             ray_result.SetCapacity(ray_result.Capacity() + 100);
         }
 
-          if (isShorted)
+        if (isShorted)
         {
 
             if (orderResult.Full())
@@ -109,7 +150,8 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
             }
 
             targetProxyCenter = GetAABBPosition(groupId, proxyId);
-            // dmLogInfo("targetProxyCenter %f %f", targetProxyCenter.x, targetProxyCenter.y);
+            // dmLogInfo("targetProxyCenter %f %f", targetProxyCenter.x,
+            // targetProxyCenter.y);
             float32 distance = b2Distance(targetProxyCenter, nodeProxyCenter);
             // dmLogInfo("distance %i - %f", proxyId, distance);
 
@@ -117,22 +159,25 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
             tmpOrder.distance = distance;
             orderResult.Push(tmpOrder);
             tmpOrderResult.Push(tmpOrder);
-        }else {
+        }
+        else
+        {
             ray_result.Push(proxyId);
         }
-       
+
         // return output.fraction;
     }
 
     return input.maxFraction;
 }
 
-void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y)
+void DynamicTree::RayCastShort(int groupId, float start_x, float start_y,
+                               float end_x, float end_y)
 {
 
-     isShorted = true;
+    isShorted = true;
     ray_result.SetSize(0);
-     orderResult.SetSize(0);
+    orderResult.SetSize(0);
     tmpOrderResult.SetSize(0);
 
     b2RayCastInputAABB m_rayCastInput;
@@ -143,13 +188,14 @@ void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float 
     nodeProxyCenter.y = start_y;
     ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
-     jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+    jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                   tmpOrderResult.Begin());
 }
 
-void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y)
+void DynamicTree::RayCast(int groupId, float start_x, float start_y,
+                          float end_x, float end_y)
 {
     ray_result.SetSize(0);
-    
 
     b2RayCastInputAABB m_rayCastInput;
     m_rayCastInput.p1.Set(start_x, start_y);
@@ -189,7 +235,8 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
             }
 
             targetProxyCenter = GetAABBPosition(groupId, proxyId);
-            // dmLogInfo("targetProxyCenter %f %f", targetProxyCenter.x, targetProxyCenter.y);
+            // dmLogInfo("targetProxyCenter %f %f", targetProxyCenter.x,
+            // targetProxyCenter.y);
             float32 distance = b2Distance(targetProxyCenter, nodeProxyCenter);
             // dmLogInfo("distance %i - %f", proxyId, distance);
 
@@ -197,11 +244,11 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
             tmpOrder.distance = distance;
             orderResult.Push(tmpOrder);
             tmpOrderResult.Push(tmpOrder);
-        }else {
+        }
+        else
+        {
             result.Push(proxyId);
         }
-
-       
     }
 
     return true;
@@ -215,7 +262,8 @@ void DynamicTree::QueryIDShort(int groupId, int proxyID)
     b2AABB aabb = GetAABB(groupId, proxyID);
     Query(groupId, aabb);
 
-    jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+    jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                   tmpOrderResult.Begin());
 }
 
 void DynamicTree::QueryAABBShort(int groupId, float x, float y, int w, int h)
@@ -227,11 +275,10 @@ void DynamicTree::QueryAABBShort(int groupId, float x, float y, int w, int h)
     aabb.upperBound = Bound(1, x, y, w, h);
     nodeProxyCenter = aabb.GetCenter();
     Query(groupId, aabb);
-   
-    jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+
+    jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                   tmpOrderResult.Begin());
 }
-
-
 
 void DynamicTree::QueryID(int groupId, int proxyID)
 {

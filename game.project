@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /main/test/test.collectionc
+main_collection = /main/test/test_copy.collectionc
 
 [script]
 shared_state = 1
@@ -17,6 +17,7 @@ version = 2.0
 
 [sprite]
 max_count = 6000
+subpixels = 0
 
 [resource]
 max_resources = 6800
@@ -29,4 +30,8 @@ app_manifest =
 
 [library]
 include_dirs = daabbcc
+
+[graphics]
+default_texture_min_filter = nearest
+default_texture_mag_filter = nearest
 

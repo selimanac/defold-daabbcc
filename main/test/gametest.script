@@ -1,0 +1,35 @@
+function callback()
+end
+
+
+
+function init(self)
+    local enemy_group = aabb.new_group()
+    local enemy_group2 = aabb.new_group()
+    local enemy_go = msg.url("/go")
+
+    -- enemy_group = AABB Group ID
+    -- enemy_id = GO URL
+    -- w
+    -- h
+    -- Ordered Result = true/false
+    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+    print("-------")
+
+    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
+    pprint("enemy ID:" .. enemy_id)
+
+    go.animate(enemy_go, "position.x", go.PLAYBACK_LOOP_PINGPONG, 450, go.EASING_INOUTBOUNCE, 1)
+
+    -- Returns query ID for remove
+    local query_id =  aabb.query_gameobject(enemy_group, enemy_id, callback)
+end
