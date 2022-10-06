@@ -1,8 +1,6 @@
 #ifndef DynamicTree_hpp
 #define DynamicTree_hpp
 
-#include <jc/array.h>
-
 #define JC_SORT_IMPLEMENTATION
 #include "jc/sort.h"
 
@@ -25,14 +23,9 @@ public:
 
     // Add new group
     int AddGroup();
-   // int AddGoGroup(dmScript::LuaCallbackInfo *cbk);
 
-   // int QueryGameobject(int groupId, int proxyID, dmScript::LuaCallbackInfo *cbk);
     // Remove group
     void RemoveGroup(int groupId);
-
-    // Set groups
-   // void SetGroups(uint32_t num, uint32_t load);
 
     // Add new proxy(aabb)
     int32 AddProxy(int groupId, float x, float y, int w, int h);
@@ -40,8 +33,13 @@ public:
     // Move Proxy
     void MoveProxy(int groupId, int proxyID, float x, float y, int w, int h);
 
+    //Update GO W&H
+    void updateGO(int goID, int w, int h);
+
     // Remove Proxy
     void RemoveProxy(int groupId, int proxyID);
+
+    void RemoveProxyGameobject(int gameobjectID);
 
     // b2DynamicTree query callback
     bool QueryCallback(int32 proxyId, int groupId);
@@ -66,17 +64,17 @@ public:
     void QueryAABBShort(int groupId, float x, float y, int w, int h);
 
     // Query result
-    jc::Array<int32> result;
+    dmArray<int32> result;
 
     // Raycast result
-    jc::Array<int32> ray_result;
+    dmArray<int32> ray_result;
 
     // Query order result
-    jc::Array<orderResultValues> orderResult;
+    dmArray<orderResultValues> orderResult;
 
     // Assert
     bool CheckGroup(int groupID);
-   
+
     bool isShorted = false;
 
     int AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
@@ -84,29 +82,18 @@ public:
     void GameobjectUpdate();
 
 private:
-    // Hashtable for Groups
+    int groupCounter = 0;
+    int goCounter = 0;
+    int nodeProxyID;
+
     struct Groups
     {
         b2DynamicTree *m_tree;
         dmScript::LuaCallbackInfo *cbk;
     };
-    //typedef jc::HashTable<uint32_t, Groups> hashtable_t;
+    dmHashTable<uint32_t, Groups> ht;
 
-    // Hashtable defaults
-    /* uint32_t numelements = 20; // The maximum number of entries to store
-    uint32_t load_factor = 50; // percent
-    uint32_t tablesize = uint32_t(numelements / (load_factor / 100.0f));
-    uint32_t sizeneeded = hashtable_t::CalcSize(tablesize);
-    void *htmem = malloc(sizeneeded);
-    hashtable_t ht; */
-
-     dmHashTable<uint32_t, Groups> ht;
-
-    int groupCounter = 0;
-    int goCounter = 0;
-
-
-    struct goGroup
+    struct GameObjectContainer
     {
         uint32_t groupID;
         int32 proxyId;
@@ -114,19 +101,7 @@ private:
         int32 w;
         int32 h;
     };
-
-/*     struct proxyQuery
-    {
-        int32 proxyId;
-        int32 groupID;
-        dmScript::LuaCallbackInfo *cbk;
-    }; */
-
-    dmHashTable<uint32_t, goGroup> m_goGroup;
-
-    //dmHashTable<uint32_t, dmScript::LuaCallbackInfo *> m_goCallbacks;
-
-    //dmHashTable<uint32_t, proxyQuery> m_proxyQuery;
+    dmHashTable<uint32_t, GameObjectContainer> m_GameObjectContainer;
 
     // Bound calculation
     b2Vec2 Bound(int type, float x, float y, int w, int h);
@@ -140,19 +115,15 @@ private:
     // Query
     void Query(int groupId, b2AABB aabb); // std::vector<int32> Query(int groupId, b2AABB aabb);
 
-    int nodeProxyID;
     b2Vec2 nodeProxyCenter;
     b2Vec2 targetProxyCenter;
+    dmVMath::Point3 goPosition;
 
     orderResultValues tmpOrder;
-    jc::Array<orderResultValues> tmpOrderResult;
+    dmArray<orderResultValues> tmpOrderResult;
 
-    static void IterateCallback(DynamicTree *context, const uint32_t *key, goGroup *value);
+    static void IterateCallback(DynamicTree *context, const uint32_t *key, GameObjectContainer *value);
     static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
-
-    
-    //static void IterateQueryCallback(DynamicTree *context, const uint32_t *key, proxyQuery *value);
-    //static void InvokeCallback(DynamicTree *context, dmScript::LuaCallbackInfo *cbk, proxyQuery *value);
 
     // Reset class
     void ResetTree();

@@ -1,23 +1,31 @@
-
-
 local enemy_group
 local enemy_go
 local enemy_go2
+local enemy_go3
 local enemy_id1
 local enemy_id2
+local enemy_id3
+local go_id1
+local go_id2
+local go_id3
 
 function init(self)
     enemy_group = aabb.new_group()
     enemy_go = msg.url("/go")
     enemy_go2 = msg.url("/go1")
+    enemy_go3 = msg.url("/go2")
 
-    enemy_id1 = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80,true)
-   enemy_id2 = aabb.insert_gameobject(enemy_group, enemy_go2, 80, 80,true)
+    enemy_id1, go_id1 = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80)
+    enemy_id2, go_id2 = aabb.insert_gameobject(enemy_group, enemy_go2, 80, 80)
 
-    go.animate(enemy_go, "position.x", go.PLAYBACK_LOOP_PINGPONG, 450,
-               go.EASING_INOUTBOUNCE, 1)
+    enemy_id3, go_id3 = aabb.insert_gameobject(enemy_group, enemy_go3, 80, 80)
 
   
+
+    go.animate(enemy_go, "position.x", go.PLAYBACK_LOOP_PINGPONG, 450, go.EASING_INOUTBOUNCE, 1)
+
+   -- aabb.remove_gameobject(go_id2)
+
 end
 
 function update(self, dt)

@@ -18,13 +18,6 @@ static int AddGroup(lua_State *L)
     return 1;
 }
 
-/* static int AddGoGroup(lua_State *L)
-{
-    int groupID = dynamicTree.AddGoGroup(dmScript::CreateCallback(L, 1));
-    lua_pushinteger(L, groupID);
-    return 1;
-} */
-
 static int RemoveGroup(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -53,23 +46,19 @@ static int AddProxyGameobject(lua_State *L)
     dmGameObject::HInstance instance = dmScript::CheckGOInstance(L, 2);
     dmVMath::Point3 position = dmGameObject::GetPosition(instance);
 
-    // dmhash_t instanceHash = dmGameObject::GetIdentifier(instance);
-
     float x = position.getX();
     float y = position.getY();
     int w = luaL_checkint(L, 3);
     int h = luaL_checkint(L, 4);
-    if (lua_isboolean(L, 5))
-    {
-        dynamicTree.isShorted = lua_toboolean(L, 5);
-    }
+  
 
     int proxyID = dynamicTree.AddProxy(groupID, x, y, w, h);
     int gameobjectID = dynamicTree.AddGameObject(groupID, proxyID, instance, w, h);
 
     lua_pushinteger(L, proxyID);
+    lua_pushinteger(L, gameobjectID);
 
-    return 1;
+    return 2;
 }
 
 static int AddProxy(lua_State *L)
@@ -91,6 +80,13 @@ static int AddProxy(lua_State *L)
 
     lua_pushinteger(L, proxyID);
     return 1;
+}
+
+static int RemoveProxyGameobject(lua_State *L)
+{
+    int gameobjectID = luaL_checkint(L, 1);
+    dynamicTree.RemoveProxyGameobject(gameobjectID);
+    return 0;
 }
 
 static int RemoveProxy(lua_State *L)
@@ -211,27 +207,6 @@ static int RayCastShort(lua_State *L)
 
     return 1;
 }
-/* 
-static int QueryGameobject(lua_State *L)
-{
-
-    int groupID = luaL_checkint(L, 1);
-
-    if (dynamicTree.CheckGroup(groupID))
-    {
-        dmLogError("Group ID is invalid");
-        return 0;
-    }
-    int proxyID = luaL_checkint(L, 2);
-
-    // dmScript::LuaCallbackInfo *cbk = dmScript::CreateCallback(L, 3);
-
-    int queryID = dynamicTree.QueryGameobject(groupID, proxyID, dmScript::CreateCallback(L, 3));
-
-    lua_pushinteger(L, queryID);
-
-    return 1;
-} */
 
 static int QueryID(lua_State *L)
 {
@@ -317,6 +292,20 @@ static int RayCast(lua_State *L)
     return 1;
 }
 
+
+
+static int updateGameobject(lua_State *L)
+{
+    
+    int goID = luaL_checkint(L, 1);
+    int w = luaL_checkint(L, 5);
+    int h = luaL_checkint(L, 6);
+
+    dynamicTree.updateGO(goID, w, h);
+
+    return 0;
+}
+
 static int MoveProxy(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -342,18 +331,21 @@ static int MoveProxy(lua_State *L)
 static const luaL_reg Module_methods[] = {
     {"raycast", RayCast},
     {"raycast_short", RayCastShort},
+
     {"query_id", QueryID},
-   // {"query_gameobject", QueryGameobject},
+
     {"query_id_short", QueryIDShort},
     {"query", QueryAABB},
     {"query_short", QueryAABBShort},
     {"new_group", AddGroup},
-  //  {"new_go_group", AddGoGroup},
+
     {"remove_group", RemoveGroup},
     {"insert", AddProxy},
     {"insert_gameobject", AddProxyGameobject},
     {"remove", RemoveProxy},
+    {"remove_gameobject", RemoveProxyGameobject},
     {"update", MoveProxy},
+    {"update_gameobject", updateGameobject},
     {NULL, NULL}};
 
 static void LuaInit(lua_State *L)

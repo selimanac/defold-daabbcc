@@ -1,4 +1,4 @@
-DEV 3.0
+DEV 2.1
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
@@ -24,6 +24,11 @@ Open your game.project file and in the dependencies field under project add:
 
 
 ## Release Notes
+
+2.1
+- It is now possible to short result by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs. (#5)
+- Automated position updates for Defold Gameobjects. (#6)
+- External Array and HashTable libs are removed. 
 
 2.0
 
@@ -77,9 +82,25 @@ self.size = go.get("#sprite", "size")
 self.enemy_id = aabb.insert(enemy_group, self.pos.x , self.pos.y, self.size.x, self.size.y)
 ```
 
+### aabb.insert_gameobject(`group_id, url, w, h`)
+Insert Gameobject and its AABB into group.   
+Gameobject ID is necessary when removing gameobject(and its aabb) and setting new width, height.
+
+>Returns aabb id and Gameobject ID.
+
+```lua
+local go_url = msg.url("/go")
+local w = 50
+local h = 50
+
+local aabb_id, go_id = aabb.insert_gameobject(enemy_group, go_url, w, h)
+```
+
+
 ### aabb.update(`group_id, aabb_id, x, y, w, h`)
 
-Updates the AABB position and size when you change it is position or size.
+Updates the AABB position and size when you change it is position or size.  
+Gameobject AABB positions will be overwritten.
 
 ```lua
 local new_x = 10
@@ -136,6 +157,8 @@ Removes the AABB from group
 aabb.remove(group_id, aabb_id)
 ```
 
+### aabb.remove_gameobject(`go_id`)
+Removes gameobject and it is AABB. You don't need to call `aabb.remove` for removing AABB.
 
 ## Notes
 

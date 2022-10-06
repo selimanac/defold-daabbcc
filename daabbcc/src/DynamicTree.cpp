@@ -7,33 +7,33 @@ DynamicTree::DynamicTree()
 
     orderResult.SetCapacity(100);
     tmpOrderResult.SetCapacity(100);
-
-    // ht.Create(numelements, htmem);
 }
 
 DynamicTree::~DynamicTree() { ResetTree(); }
 
+// ITERATE CALLBACKS
 void DynamicTree::IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value)
 {
-
     delete value->m_tree;
 }
 
+void DynamicTree::IterateCallback(DynamicTree *context, const uint32_t *key, GameObjectContainer *value)
+{
+    context->goPosition = dmGameObject::GetPosition(value->instance);
+
+    context->MoveProxy(value->groupID, value->proxyId, context->goPosition.getX(), context->goPosition.getY(), value->w, value->h);
+}
+
+// Reset
 void DynamicTree::ResetTree()
 {
+    //! ------------------
+    //! CLEAR ALL ARRAYS
+    //! ------------------
 
     ht.Iterate(IterateRemoveCallback, this);
-
-    /*  hashtable_t::Iterator it = ht.Begin();
-     hashtable_t::Iterator itend = ht.End();
-     for (; it != itend; ++it)
-     {
-         delete it.GetValue()->m_tree;
-     }
-
-     free(htmem); */
-
     ht.Clear();
+    m_GameObjectContainer.Clear();
 }
 
 int DynamicTree::AddGroup()
@@ -57,85 +57,22 @@ int DynamicTree::AddGroup()
     return c;
 }
 
-/* int DynamicTree::AddGoGroup(dmScript::LuaCallbackInfo *cbk)
-{
-
-
-    int c = groupCounter;
-
-    b2DynamicTree *m_tree = new b2DynamicTree();
-
-    Groups value;
-    value.m_tree = m_tree;
-    value.cbk = cbk;
-    ht.Put(c, value);
-
-    groupCounter++;
-
-    return c;
-} */
-
-/* void DynamicTree::InvokeCallback(DynamicTree *context, dmScript::LuaCallbackInfo *cbk, proxyQuery *value)
-{
-
-    lua_State *L = dmScript::GetCallbackLuaContext(cbk);
-    DM_LUA_STACK_CHECK(L, 0);
-
-    if (!dmScript::SetupCallback(cbk))
-    {
-        dmLogError("Failed to setup callback");
-        return;
-    }
-    // lua_pushstring(L, "hello");
-    lua_pushinteger(L, value->groupID);
-    lua_pushinteger(L, value->proxyId);
-
-    lua_createtable(L, context->result.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < context->result.Size(); i++)
-    {
-        lua_pushnumber(L, context->result[i]);
-        lua_rawseti(L, newTable, i + 1);
-    }
-
-    dmScript::PCall(L, 4, 0); // self + # user arguments
-
-    dmScript::TeardownCallback(cbk);
-} */
-
-/* void DynamicTree::IterateQueryCallback(DynamicTree *context, const uint32_t *key, proxyQuery *value)
-{
-    // dmLogInfo("ITERATE KEY %i VALUE %i", *key, value->groupID);
-    context->QueryID(value->groupID, value->proxyId);
-
-    if (context->result.Size() > 0)
-    {
-        context->InvokeCallback(context, value->cbk, value);
-    }
-} */
-
-void DynamicTree::IterateCallback(DynamicTree *context, const uint32_t *key, goGroup *value)
-{
-    dmVMath::Point3 goPosition = dmGameObject::GetPosition(value->instance);
-    context->MoveProxy(value->groupID, value->proxyId, goPosition.getX(), goPosition.getY(), value->w, value->h);
-}
-
 int DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h)
 {
     int c = goCounter;
 
-    goGroup goContainer;
+    GameObjectContainer goContainer;
     goContainer.groupID = groupID;
     goContainer.proxyId = proxyId;
     goContainer.instance = instance;
     goContainer.w = w;
     goContainer.h = h;
 
-    if (m_goGroup.Full())
+    if (m_GameObjectContainer.Full())
     {
-        m_goGroup.SetCapacity(m_goGroup.Capacity() + 100, m_goGroup.Capacity() + 100);
+        m_GameObjectContainer.SetCapacity(m_GameObjectContainer.Capacity() + 100, m_GameObjectContainer.Capacity() + 100);
     }
-    m_goGroup.Put(c, goContainer);
+    m_GameObjectContainer.Put(c, goContainer);
 
     goCounter++;
 
@@ -144,27 +81,15 @@ int DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HI
 
 void DynamicTree::GameobjectUpdate()
 {
-    m_goGroup.Iterate(IterateCallback, this);
-    // m_proxyQuery.Iterate(IterateQueryCallback, this);
+    m_GameObjectContainer.Iterate(IterateCallback, this);
 }
 
 void DynamicTree::RemoveGroup(int groupId)
 {
+
     delete ht.Get(groupId)->m_tree;
     ht.Erase(groupId);
 }
-
-/* void DynamicTree::SetGroups(uint32_t num, uint32_t load)
-{
-    ResetTree();
-
-    numelements = num;
-    load_factor = load;
-    tablesize = uint32_t(numelements / (load_factor / 100.0f));
-    sizeneeded = hashtable_t::CalcSize(tablesize);
-    htmem = malloc(sizeneeded);
-    ht.Create(numelements, htmem);
-} */
 
 int32 DynamicTree::AddProxy(int groupId, float x, float y, int w, int h)
 {
@@ -177,6 +102,13 @@ int32 DynamicTree::AddProxy(int groupId, float x, float y, int w, int h)
     int32 proxyId = g->m_tree->CreateProxy(aabb, nullptr);
 
     return proxyId;
+}
+
+void DynamicTree::RemoveProxyGameobject(int gameobjectID)
+{
+
+    ht.Get(m_GameObjectContainer.Get(gameobjectID)->groupID)->m_tree->DestroyProxy(m_GameObjectContainer.Get(gameobjectID)->proxyId);
+    m_GameObjectContainer.Erase(gameobjectID);
 }
 
 void DynamicTree::RemoveProxy(int groupId, int proxyID)
@@ -236,8 +168,7 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
     return input.maxFraction;
 }
 
-void DynamicTree::RayCastShort(int groupId, float start_x, float start_y,
-                               float end_x, float end_y)
+void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
 
     isShorted = true;
@@ -257,8 +188,7 @@ void DynamicTree::RayCastShort(int groupId, float start_x, float start_y,
                    tmpOrderResult.Begin());
 }
 
-void DynamicTree::RayCast(int groupId, float start_x, float start_y,
-                          float end_x, float end_y)
+void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
     ray_result.SetSize(0);
 
@@ -353,29 +283,6 @@ void DynamicTree::QueryID(int groupId, int proxyID)
     Query(groupId, aabb);
 }
 
-/* int DynamicTree::QueryGameobject(int groupId, int proxyID, dmScript::LuaCallbackInfo *cbk)
-{
-
-    int c = queryCounter;
-
-    //  b2DynamicTree *m_tree = new b2DynamicTree();
-
-    proxyQuery value;
-    value.cbk = cbk;
-    value.groupID = groupId;
-    value.proxyId = proxyID;
-
-    if (m_proxyQuery.Full())
-    {
-        m_proxyQuery.SetCapacity(m_proxyQuery.Capacity() + 20, m_proxyQuery.Capacity() + 20);
-    }
-    m_proxyQuery.Put(c, value);
-
-    queryCounter++;
-
-    return c;
-} */
-
 void DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
 {
     isShorted = false;
@@ -393,6 +300,12 @@ void DynamicTree::Query(int groupId, b2AABB aabb)
     tmpOrderResult.SetSize(0);
     result.SetSize(0);
     ht.Get(groupId)->m_tree->Query(this, aabb, groupId);
+}
+
+void DynamicTree::updateGO(int goID, int w, int h)
+{
+    m_GameObjectContainer.Get(goID)->w = w;
+    m_GameObjectContainer.Get(goID)->h = h;
 }
 
 void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w, int h)
