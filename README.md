@@ -6,8 +6,8 @@ TODO:
 - [x] Get positions from Gameobjects
 - [x] Remove external libs
 - [x] Remove group limit
-- [ ] Remove GAmeobject when AABB or Group removed 
-- [ ] Add Clear function to clear all remanings.
+- [ ] Remove Gameobject when AABB or Group removed 
+- [x] Add Clear function to clear all remanings.
 
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
@@ -171,6 +171,15 @@ aabb.remove(group_id, aabb_id)
 
 ### aabb.remove_gameobject(`go_id`)
 Remove gameobject and it is AABB. You don't need to call `aabb.remove` for removing AABB.
+
+
+### aabb.clear()
+
+Clear everything(AABBs,groups, gameobjects) and reset it is initial state.
+
+```lua
+aabb.clear();
+```
 
 ## Notes
 

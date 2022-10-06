@@ -27,13 +27,17 @@ void DynamicTree::IterateCallback(DynamicTree *context, const uint32_t *key, Gam
 // Reset
 void DynamicTree::ResetTree()
 {
-    //! ------------------
-    //! CLEAR ALL ARRAYS
-    //! ------------------
-
     ht.Iterate(IterateRemoveCallback, this);
     ht.Clear();
     m_GameObjectContainer.Clear();
+    result.SetSize(0);
+    ray_result.SetSize(0);
+    orderResult.SetSize(0);
+    tmpOrderResult.SetSize(0);
+}
+
+void DynamicTree::Clear(){
+    ResetTree();
 }
 
 int DynamicTree::AddGroup()

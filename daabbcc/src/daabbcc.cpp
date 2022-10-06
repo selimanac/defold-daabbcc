@@ -327,6 +327,12 @@ static int MoveProxy(lua_State *L)
     return 0;
 }
 
+static int Clear(lua_State *L)
+{
+     dynamicTree.Clear();
+
+}
+
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] = {
     {"raycast", RayCast},
@@ -346,7 +352,7 @@ static const luaL_reg Module_methods[] = {
     {"remove_gameobject", RemoveProxyGameobject},
     {"update", MoveProxy},
     {"update_gameobject", updateGameobject},
-    {"update", MoveProxy},
+    {"clear", Clear},
 
     {NULL, NULL}};
 

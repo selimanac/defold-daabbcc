@@ -81,6 +81,8 @@ public:
 
     void GameobjectUpdate();
 
+    void Clear();
+
 private:
     int groupCounter = 0;
     int goCounter = 0;
