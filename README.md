@@ -41,6 +41,7 @@ Open your game.project file and in the dependencies field under project add:
 - Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
 - External Array and HashTable libs are removed. 
 - Group limit removed(Previously, it was limited to 20)
+- Clear function added for removing and reseting everything. 
 
 2.0
 
@@ -170,7 +171,11 @@ aabb.remove(group_id, aabb_id)
 ```
 
 ### aabb.remove_gameobject(`go_id`)
-Remove gameobject and it is AABB. You don't need to call `aabb.remove` for removing AABB.
+Removes gameobject and it is AABB. You don't need to call `aabb.remove` again for removing AABB.
+
+```lua
+aabb.remove_gameobject(go_id)
+```
 
 
 ### aabb.clear()
@@ -178,7 +183,7 @@ Remove gameobject and it is AABB. You don't need to call `aabb.remove` for remov
 Clear everything(AABBs,groups, gameobjects) and reset it is initial state.
 
 ```lua
-aabb.clear();
+aabb.clear()
 ```
 
 ## Notes
