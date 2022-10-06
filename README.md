@@ -24,15 +24,16 @@ You can use it whenever precise collision manifold(narrow-phase) is not required
 You can use the DAABBCC in your own project by adding this project as a [Defold library dependency](http://www.defold.com/manuals/libraries/).  
 Open your game.project file and in the dependencies field under project add:
 
->https://github.com/selimanac/DAABBCC/archive/refs/tags/v2.0.zip
+>https://github.com/selimanac/DAABBCC/archive/refs/tags/v2.1.zip
 
 
 ## Release Notes
 
 2.1
-- It is now possible to short result by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs.[#5](https://github.com/selimanac/DAABBCC/issues/5)
+- It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs.[#5](https://github.com/selimanac/DAABBCC/issues/5)
 - Automated position updates for Defold Gameobjects. [#6](https://github.com/selimanac/DAABBCC/issues/6)
 - External Array and HashTable libs are removed. 
+- Group limit removed(Previously, it was limited to 20)
 
 2.0
 
@@ -162,9 +163,8 @@ aabb.remove(group_id, aabb_id)
 ```
 
 ### aabb.remove_gameobject(`go_id`)
-Removes gameobject and it is AABB. You don't need to call `aabb.remove` for removing AABB.
+Remove gameobject and it is AABB. You don't need to call `aabb.remove` for removing AABB.
 
 ## Notes
 
-- Currently groups has limited to 20. I have a solution for this but I don't want to expose it to API now. If you need more groups, please open an issue. I can expose it to api
-- Performance is really depend on CPU load. I manage to get 60fps with 4800 sprite on my desktop. But this doesn't mean that you can use 4800 sprites on mobile platforms. You have to do your own test.  
+- Performance is really depend on CPU load. I manage to get 60fps with 4800 sprite on my desktop. But this doesn't mean that you can use 4800 sprites on mobile platforms. You have to do your own test on your target platforms.  
