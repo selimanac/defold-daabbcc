@@ -18,6 +18,13 @@ static int AddGroup(lua_State *L)
     return 1;
 }
 
+/* static int AddGoGroup(lua_State *L)
+{
+    int groupID = dynamicTree.AddGoGroup(dmScript::CreateCallback(L, 1));
+    lua_pushinteger(L, groupID);
+    return 1;
+} */
+
 static int RemoveGroup(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
@@ -35,9 +42,6 @@ static int RemoveGroup(lua_State *L)
 // AddProxyGameobject
 static int AddProxyGameobject(lua_State *L)
 {
-
-    // aabb.insert_gameobject(enemy_group, enemy_id, 80, 80, true)
-
     int groupID = luaL_checkint(L, 1);
 
     if (dynamicTree.CheckGroup(groupID))
@@ -55,9 +59,12 @@ static int AddProxyGameobject(lua_State *L)
     float y = position.getY();
     int w = luaL_checkint(L, 3);
     int h = luaL_checkint(L, 4);
+    if (lua_isboolean(L, 5))
+    {
+        dynamicTree.isShorted = lua_toboolean(L, 5);
+    }
 
     int proxyID = dynamicTree.AddProxy(groupID, x, y, w, h);
-
     int gameobjectID = dynamicTree.AddGameObject(groupID, proxyID, instance, w, h);
 
     lua_pushinteger(L, proxyID);
@@ -204,7 +211,7 @@ static int RayCastShort(lua_State *L)
 
     return 1;
 }
-
+/* 
 static int QueryGameobject(lua_State *L)
 {
 
@@ -217,11 +224,14 @@ static int QueryGameobject(lua_State *L)
     }
     int proxyID = luaL_checkint(L, 2);
 
-    dmScript::LuaCallbackInfo *cbk = dmScript::CreateCallback(L, 3);
+    // dmScript::LuaCallbackInfo *cbk = dmScript::CreateCallback(L, 3);
 
-    // RETURN QUERY ID for REMOVE
+    int queryID = dynamicTree.QueryGameobject(groupID, proxyID, dmScript::CreateCallback(L, 3));
+
+    lua_pushinteger(L, queryID);
+
     return 1;
-}
+} */
 
 static int QueryID(lua_State *L)
 {
@@ -237,12 +247,15 @@ static int QueryID(lua_State *L)
 
     dynamicTree.QueryID(groupID, proxyID);
 
-    lua_createtable(L, dynamicTree.result.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.result.Size(); i++)
+    if (dynamicTree.result.Size() > 0)
     {
-        lua_pushnumber(L, dynamicTree.result[i]);
-        lua_rawseti(L, newTable, i + 1);
+        lua_createtable(L, dynamicTree.result.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 0; i < dynamicTree.result.Size(); i++)
+        {
+            lua_pushnumber(L, dynamicTree.result[i]);
+            lua_rawseti(L, newTable, i + 1);
+        }
     }
 
     return 1;
@@ -330,11 +343,12 @@ static const luaL_reg Module_methods[] = {
     {"raycast", RayCast},
     {"raycast_short", RayCastShort},
     {"query_id", QueryID},
-    {"query_gameobject", QueryGameobject},
+   // {"query_gameobject", QueryGameobject},
     {"query_id_short", QueryIDShort},
     {"query", QueryAABB},
     {"query_short", QueryAABBShort},
     {"new_group", AddGroup},
+  //  {"new_go_group", AddGoGroup},
     {"remove_group", RemoveGroup},
     {"insert", AddProxy},
     {"insert_gameobject", AddProxyGameobject},

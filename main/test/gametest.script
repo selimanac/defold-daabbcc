@@ -1,35 +1,27 @@
-function callback()
-end
 
 
+local enemy_group
+local enemy_go
+local enemy_go2
+local enemy_id1
+local enemy_id2
 
 function init(self)
-    local enemy_group = aabb.new_group()
-    local enemy_group2 = aabb.new_group()
-    local enemy_go = msg.url("/go")
+    enemy_group = aabb.new_group()
+    enemy_go = msg.url("/go")
+    enemy_go2 = msg.url("/go1")
 
-    -- enemy_group = AABB Group ID
-    -- enemy_id = GO URL
-    -- w
-    -- h
-    -- Ordered Result = true/false
-    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
-    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
-    local enemy_id = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
-    print("-------")
+    enemy_id1 = aabb.insert_gameobject(enemy_group, enemy_go, 80, 80,true)
+   enemy_id2 = aabb.insert_gameobject(enemy_group, enemy_go2, 80, 80,true)
 
-    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
-    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
-    local enemy_id = aabb.insert_gameobject(enemy_group2, enemy_go, 80, 80, true)
-    pprint("enemy ID:" .. enemy_id)
+    go.animate(enemy_go, "position.x", go.PLAYBACK_LOOP_PINGPONG, 450,
+               go.EASING_INOUTBOUNCE, 1)
 
-    go.animate(enemy_go, "position.x", go.PLAYBACK_LOOP_PINGPONG, 450, go.EASING_INOUTBOUNCE, 1)
+  
+end
 
-    -- Returns query ID for remove
-    local query_id =  aabb.query_gameobject(enemy_group, enemy_id, callback)
+function update(self, dt)
+
+    local result = aabb.query_id(enemy_group, enemy_id1)
+    pprint(result)
 end

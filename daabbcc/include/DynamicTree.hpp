@@ -2,9 +2,10 @@
 #define DynamicTree_hpp
 
 #include <jc/array.h>
-#include <jc/hashtable.h>
+
 #define JC_SORT_IMPLEMENTATION
 #include "jc/sort.h"
+
 #include <DynamicTree/b2DynamicTree.h>
 #include <dmsdk/dlib/hashtable.h>
 #include <dmsdk/dlib/log.h>
@@ -22,16 +23,16 @@ public:
     DynamicTree();
     ~DynamicTree();
 
-    
-
     // Add new group
     int AddGroup();
+   // int AddGoGroup(dmScript::LuaCallbackInfo *cbk);
 
+   // int QueryGameobject(int groupId, int proxyID, dmScript::LuaCallbackInfo *cbk);
     // Remove group
     void RemoveGroup(int groupId);
 
     // Set groups
-    void SetGroups(uint32_t num, uint32_t load);
+   // void SetGroups(uint32_t num, uint32_t load);
 
     // Add new proxy(aabb)
     int32 AddProxy(int groupId, float x, float y, int w, int h);
@@ -75,29 +76,35 @@ public:
 
     // Assert
     bool CheckGroup(int groupID);
+   
     bool isShorted = false;
 
-    int AddGameObject(uint32_t groupID, int32 proxyId,  dmGameObject::HInstance instance,int32 w, int32 h);
+    int AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
 
-     void GameobjectUpdate();
+    void GameobjectUpdate();
 
 private:
     // Hashtable for Groups
     struct Groups
     {
         b2DynamicTree *m_tree;
+        dmScript::LuaCallbackInfo *cbk;
     };
-    typedef jc::HashTable<uint32_t, Groups> hashtable_t;
+    //typedef jc::HashTable<uint32_t, Groups> hashtable_t;
 
     // Hashtable defaults
-    uint32_t numelements = 20; // The maximum number of entries to store
+    /* uint32_t numelements = 20; // The maximum number of entries to store
     uint32_t load_factor = 50; // percent
     uint32_t tablesize = uint32_t(numelements / (load_factor / 100.0f));
     uint32_t sizeneeded = hashtable_t::CalcSize(tablesize);
     void *htmem = malloc(sizeneeded);
-    hashtable_t ht;
+    hashtable_t ht; */
+
+     dmHashTable<uint32_t, Groups> ht;
+
     int groupCounter = 0;
     int goCounter = 0;
+
 
     struct goGroup
     {
@@ -108,7 +115,18 @@ private:
         int32 h;
     };
 
+/*     struct proxyQuery
+    {
+        int32 proxyId;
+        int32 groupID;
+        dmScript::LuaCallbackInfo *cbk;
+    }; */
+
     dmHashTable<uint32_t, goGroup> m_goGroup;
+
+    //dmHashTable<uint32_t, dmScript::LuaCallbackInfo *> m_goCallbacks;
+
+    //dmHashTable<uint32_t, proxyQuery> m_proxyQuery;
 
     // Bound calculation
     b2Vec2 Bound(int type, float x, float y, int w, int h);
@@ -129,14 +147,15 @@ private:
     orderResultValues tmpOrder;
     jc::Array<orderResultValues> tmpOrderResult;
 
-    static void IterateCallback(DynamicTree* context, const uint32_t* key, goGroup* value);
+    static void IterateCallback(DynamicTree *context, const uint32_t *key, goGroup *value);
+    static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
 
-   
+    
+    //static void IterateQueryCallback(DynamicTree *context, const uint32_t *key, proxyQuery *value);
+    //static void InvokeCallback(DynamicTree *context, dmScript::LuaCallbackInfo *cbk, proxyQuery *value);
 
     // Reset class
     void ResetTree();
 };
-
-
 
 #endif /* DynamicTree_hpp */
