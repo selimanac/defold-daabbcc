@@ -1,11 +1,14 @@
 DEV 2.1
 
+TODO:  
+- Remove GAmeobject when AABB or Group removed 
+
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
 This is a [Dynamic AABB Tree](https://box2d.org/files/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/). DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/master/src/collision/b2_dynamic_tree.cpp).
 
 Special thanks to [Randy Gaul](https://twitter.com/RandyPGaul) for [Branch and Bound](https://github.com/erincatto/Box2D/pull/548) implementation.  
-[HashTable and Array](https://github.com/JCash/containers) by [Mathias Westerdahl](https://github.com/JCash)  
+[Radix sort](https://github.com/JCash/containers) by [Mathias Westerdahl](https://github.com/JCash)  
 Box2D Copyright (c) 2009 Erin Catto http://www.box2d.org
 
 **What is DAABBCC?**
