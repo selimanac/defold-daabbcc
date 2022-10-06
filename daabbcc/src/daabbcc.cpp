@@ -346,6 +346,8 @@ static const luaL_reg Module_methods[] = {
     {"remove_gameobject", RemoveProxyGameobject},
     {"update", MoveProxy},
     {"update_gameobject", updateGameobject},
+    {"update", MoveProxy},
+
     {NULL, NULL}};
 
 static void LuaInit(lua_State *L)

@@ -1,7 +1,14 @@
 DEV 2.1
 
 TODO:  
-- Remove GAmeobject when AABB or Group removed 
+
+- [x] Short results
+- [x] Get positions from Gameobjects
+- [x] Remove external libs
+- [x] Remove group limit
+- [ ] Remove GAmeobject when AABB or Group removed 
+- [ ] Add Clear function to clear all remanings.
+
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
@@ -30,8 +37,8 @@ Open your game.project file and in the dependencies field under project add:
 ## Release Notes
 
 2.1
-- It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs.[#5](https://github.com/selimanac/DAABBCC/issues/5)
-- Automated position updates for Defold Gameobjects. [#6](https://github.com/selimanac/DAABBCC/issues/6)
+- It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
+- Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
 - External Array and HashTable libs are removed. 
 - Group limit removed(Previously, it was limited to 20)
 
