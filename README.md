@@ -5,7 +5,8 @@ TODO:
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
-This is a [Dynamic AABB Tree](https://box2d.org/files/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/). DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/master/src/collision/b2_dynamic_tree.cpp).
+This is a [Dynamic AABB Tree](https://box2d.org/files/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/).  
+DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/master/src/collision/b2_dynamic_tree.cpp).
 
 Special thanks to [Randy Gaul](https://twitter.com/RandyPGaul) for [Branch and Bound](https://github.com/erincatto/Box2D/pull/548) implementation.  
 [Radix sort](https://github.com/JCash/containers) by [Mathias Westerdahl](https://github.com/JCash)  
@@ -29,8 +30,8 @@ Open your game.project file and in the dependencies field under project add:
 ## Release Notes
 
 2.1
-- It is now possible to short result by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs. (#5)
-- Automated position updates for Defold Gameobjects. (#6)
+- It is now possible to short result by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs.[#5](https://github.com/selimanac/DAABBCC/issues/5)
+- Automated position updates for Defold Gameobjects. [#6](https://github.com/selimanac/DAABBCC/issues/6)
 - External Array and HashTable libs are removed. 
 
 2.0
