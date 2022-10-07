@@ -1,15 +1,4 @@
-DEV 2.1 - Test
-
-TODO:  
-
-- [x] Short results
-- [x] Get positions from Gameobjects
-- [x] Remove external libs
-- [x] Remove group limit
-- [ ] Remove Gameobject when AABB or Group removed 
-- [x] Add Clear function to clear all remanings.
-- [ ] Resume - Stop ? 
-
+DEV 2.1 
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
@@ -38,11 +27,16 @@ Open your game.project file and in the dependencies field under project add:
 ## Release Notes
 
 2.1
-- It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
-- Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
-- External Array and HashTable libs are removed. 
-- Group limit removed(Previously, it was limited to 20)
-- Clear function added for removing and reseting everything. 
+
+- [x] It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
+- [x] Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
+- [x] External Array and HashTable libs are removed. 
+- [x] Group limit removed(Previously, it was limited to 20)
+- [x] Remove Gameobject when AABB or Group removed 
+- [x] Clear function added for removing and reseting everything. 
+- [x] Stop/Resume for automated position update.
+
+
 
 2.0
 
@@ -73,6 +67,9 @@ New group for AABBs. Currently groups has limited to 20.
 local enemy_group = aabb.new_group()
 ```
 
+---
+
+
 ### aabb.insert(`group_id, x, y, w, h`)
 
 Insert AABB into the group.  
@@ -96,20 +93,23 @@ self.size = go.get("#sprite", "size")
 self.enemy_id = aabb.insert(enemy_group, self.pos.x , self.pos.y, self.size.x, self.size.y)
 ```
 
+---
+
+
 ### aabb.insert_gameobject(`group_id, url, w, h`)
 Insert Gameobject and its AABB into group.   
-Gameobject ID is necessary when removing gameobject(and its aabb) and setting new width, height.
 
->Returns aabb id and Gameobject ID.
+>Returns aabb id.
 
 ```lua
 local go_url = msg.url("/go")
 local w = 50
 local h = 50
 
-local aabb_id, go_id = aabb.insert_gameobject(enemy_group, go_url, w, h)
+local aabb_id = aabb.insert_gameobject(enemy_group, go_url, w, h)
 ```
 
+---
 
 ### aabb.update(`group_id, aabb_id, x, y, w, h`)
 
@@ -125,6 +125,22 @@ local new_h = 60
 aabb.update(enemy_group, self.enemy_id, new_x, new_y, new_w, new_h)
 ```
 
+---
+
+### update_gameobject(`group_id, aabb_id, w, h`)
+
+Updates the AABB size related to Gameobject
+
+
+```lua
+local new_w = 60
+local new_h = 60
+
+aabb.update_gameobject(enemy_group, proxy_id,  new_w, new_h)
+```
+
+---
+
 ### aabb.query_id(`group_id, aabb_id`)
 
 Query the possible overlaps using ID.  
@@ -134,6 +150,8 @@ Query the possible overlaps using ID.
 local result = aabb.query_id(enemy_group, self.enemy_id)
 ```
 
+---
+
 ### aabb.query(`group_id, x, y, w, h`)
 
 Query the possible overlaps using AABB.  
@@ -142,6 +160,8 @@ Query the possible overlaps using AABB.
 ```lua
 local result = aabb.query(enemy_group, x, y, w, h)
 ```
+
+---
 
 ### aabb.raycast(`group_id, start_x, start_y, end_x, end_y`)
 
@@ -155,13 +175,19 @@ local ray_end = vmath.vector3(365, 370, 0)
 local result = aabb.raycast(enemy_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
 ```
 
+---
+
+
 ### aabb.remove_group(`group_id`)
 
-Removes the group and cleans all AABBs
+Removes the group and cleans all AABBs and Gameobjects
 
 ```lua
 aabb.remove_group(enemy_group)
 ```
+
+---
+
 
 ### aabb.remove(`group_id, aabb_id`)
 
@@ -171,13 +197,16 @@ Removes the AABB from group
 aabb.remove(group_id, aabb_id)
 ```
 
-### aabb.remove_gameobject(`go_id`)
+---
+
+### aabb.remove_gameobject(`group_id, aabb_id`)
 Removes gameobject and it is AABB. You don't need to call `aabb.remove` again for removing AABB.
 
 ```lua
 aabb.remove_gameobject(go_id)
 ```
 
+---
 
 ### aabb.clear()
 
@@ -186,6 +215,8 @@ Clear everything(AABBs,groups, gameobjects) and reset it is initial state.
 ```lua
 aabb.clear()
 ```
+
+---
 
 ## Notes
 

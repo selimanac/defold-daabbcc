@@ -34,12 +34,12 @@ public:
     void MoveProxy(int groupId, int proxyID, float x, float y, int w, int h);
 
     //Update GO W&H
-    void updateGO(int goID, int w, int h);
+    void updateGameobjectSize(int groupID, int proxyID, int w, int h);
 
     // Remove Proxy
     void RemoveProxy(int groupId, int proxyID);
 
-    void RemoveProxyGameobject(int gameobjectID);
+    void RemoveProxyGameobject(int groupID, int proxyID);
 
     // b2DynamicTree query callback
     bool QueryCallback(int32 proxyId, int groupId);
@@ -63,6 +63,8 @@ public:
 
     void QueryAABBShort(int groupId, float x, float y, int w, int h);
 
+    void Run(bool toggle);
+
     // Query result
     dmArray<int32> result;
 
@@ -77,7 +79,7 @@ public:
 
     bool isShorted = false;
 
-    int AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
+    void AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
 
     void GameobjectUpdate();
 
@@ -85,8 +87,10 @@ public:
 
 private:
     int groupCounter = 0;
-    int goCounter = 0;
+   // int goCounter = 0;
     int nodeProxyID;
+
+    bool state=true;
 
     struct Groups
     {
@@ -103,7 +107,7 @@ private:
         int32 w;
         int32 h;
     };
-    dmHashTable<uint32_t, GameObjectContainer> m_GameObjectContainer;
+    dmArray<GameObjectContainer> m_GameObjectContainer;
 
     // Bound calculation
     b2Vec2 Bound(int type, float x, float y, int w, int h);
@@ -124,7 +128,6 @@ private:
     orderResultValues tmpOrder;
     dmArray<orderResultValues> tmpOrderResult;
 
-    static void IterateCallback(DynamicTree *context, const uint32_t *key, GameObjectContainer *value);
     static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
 
     // Reset class

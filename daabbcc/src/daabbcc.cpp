@@ -50,15 +50,13 @@ static int AddProxyGameobject(lua_State *L)
     float y = position.getY();
     int w = luaL_checkint(L, 3);
     int h = luaL_checkint(L, 4);
-  
 
     int proxyID = dynamicTree.AddProxy(groupID, x, y, w, h);
-    int gameobjectID = dynamicTree.AddGameObject(groupID, proxyID, instance, w, h);
+    dynamicTree.AddGameObject(groupID, proxyID, instance, w, h);
 
     lua_pushinteger(L, proxyID);
-    lua_pushinteger(L, gameobjectID);
 
-    return 2;
+    return 1;
 }
 
 static int AddProxy(lua_State *L)
@@ -84,8 +82,16 @@ static int AddProxy(lua_State *L)
 
 static int RemoveProxyGameobject(lua_State *L)
 {
-    int gameobjectID = luaL_checkint(L, 1);
-    dynamicTree.RemoveProxyGameobject(gameobjectID);
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+
+    int proxyID = luaL_checkint(L, 2);
+    dynamicTree.RemoveProxyGameobject(groupID, proxyID);
     return 0;
 }
 
@@ -292,16 +298,22 @@ static int RayCast(lua_State *L)
     return 1;
 }
 
-
-
 static int updateGameobject(lua_State *L)
 {
-    
-    int goID = luaL_checkint(L, 1);
-    int w = luaL_checkint(L, 5);
-    int h = luaL_checkint(L, 6);
 
-    dynamicTree.updateGO(goID, w, h);
+    int groupID = luaL_checkint(L, 1);
+
+    if (dynamicTree.CheckGroup(groupID))
+    {
+        dmLogError("Group ID is invalid");
+        return 0;
+    }
+
+    int proxyID = luaL_checkint(L, 2);
+    int w = luaL_checkint(L, 3);
+    int h = luaL_checkint(L, 4);
+
+    dynamicTree.updateGameobjectSize(groupID, proxyID, w, h);
 
     return 0;
 }
@@ -329,30 +341,45 @@ static int MoveProxy(lua_State *L)
 
 static int Clear(lua_State *L)
 {
-     dynamicTree.Clear();
+    dynamicTree.Clear();
+    return 0;
+}
 
+static int Run(lua_State *L)
+{
+    if (lua_isboolean(L, 1))
+    {
+        bool state = lua_toboolean(L, 1);
+        dynamicTree.Run(state);
+    }
+
+    return 0;
 }
 
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] = {
+    {"new_group", AddGroup},
+
     {"raycast", RayCast},
     {"raycast_short", RayCastShort},
 
-    {"query_id", QueryID},
-
-    {"query_id_short", QueryIDShort},
     {"query", QueryAABB},
+    {"query_id", QueryID},
     {"query_short", QueryAABBShort},
-    {"new_group", AddGroup},
+    {"query_id_short", QueryIDShort},
 
-    {"remove_group", RemoveGroup},
     {"insert", AddProxy},
     {"insert_gameobject", AddProxyGameobject},
+
     {"remove", RemoveProxy},
+    {"remove_group", RemoveGroup},
     {"remove_gameobject", RemoveProxyGameobject},
+
     {"update", MoveProxy},
     {"update_gameobject", updateGameobject},
+
     {"clear", Clear},
+    {"run", Run},
 
     {NULL, NULL}};
 
