@@ -8,6 +8,7 @@ TODO:
 - [x] Remove group limit
 - [ ] Remove Gameobject when AABB or Group removed 
 - [x] Add Clear function to clear all remanings.
+- [ ] Resume - Stop ? 
 
 
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
