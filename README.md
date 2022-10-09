@@ -5,7 +5,7 @@ DEV 2.1
 This is a [Dynamic AABB Tree](https://box2d.org/files/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/).  
 DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/master/src/collision/b2_dynamic_tree.cpp).
 
-Special thanks to [Randy Gaul](https://twitter.com/RandyPGaul) for [Branch and Bound](https://github.com/erincatto/Box2D/pull/548) implementation.  
+[Branch and Bound](https://github.com/erincatto/Box2D/pull/548) implementation by [Randy Gaul](https://twitter.com/RandyPGaul)   
 [Radix sort](https://github.com/JCash/containers) by [Mathias Westerdahl](https://github.com/JCash)  
 Box2D Copyright (c) 2009 Erin Catto http://www.box2d.org
 
@@ -216,7 +216,7 @@ local result = aabb.raycast_sort(enemy_group, ray_start.x, ray_start.y, ray_end.
 
 ### aabb.remove_group(`group_id`)
 
-Removes the group and cleans all AABBs and Gameobjects
+Removes the group and cleans all AABBs and Gameobjects.
 
 ```lua
 aabb.remove_group(enemy_group)
@@ -224,20 +224,10 @@ aabb.remove_group(enemy_group)
 
 ---
 
-### aabb.run(boolean)
-
-Stop/resume Gameobject position update iteration.
-
-```lua
-aabb.run(true)
-```
-
----
-
 
 ### aabb.remove(`group_id, aabb_id`)
 
-Removes the AABB from group
+Removes the AABB and Gameobject from group
 
 ```lua
 aabb.remove(group_id, aabb_id)
@@ -246,10 +236,20 @@ aabb.remove(group_id, aabb_id)
 ---
 
 ### aabb.remove_gameobject(`group_id, aabb_id`)
-Removes gameobject and it is AABB. You don't need to call `aabb.remove` again for removing AABB.
+Removes gameobject and it is AABB.  
+You don't need to call `aabb.remove` again for removing AABB.
 
 ```lua
 aabb.remove_gameobject(go_id)
+```
+
+---
+### aabb.run(boolean)
+
+Stop/resume Gameobject position update iteration.
+
+```lua
+aabb.run(true)
 ```
 
 ---
