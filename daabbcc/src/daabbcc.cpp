@@ -42,7 +42,7 @@ static int AddProxyGameobject(lua_State *L)
         dmLogError("Group ID is invalid");
         return 0;
     }
-   
+
     dmGameObject::HInstance instance = dmScript::CheckGOInstance(L, 2);
     dmVMath::Point3 position = dmGameObject::GetPosition(instance);
 
@@ -126,22 +126,26 @@ static int QueryIDSort(lua_State *L)
 
     dynamicTree.QueryIDSort(groupID, proxyID);
 
-    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+    if (dynamicTree.orderResult.Size() > 0)
     {
-        lua_createtable(L, 2, 0);
-        lua_pushstring(L, "id");
-        lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
-        lua_settable(L, -3);
-        lua_pushstring(L, "distance");
-        lua_pushinteger(L, dynamicTree.orderResult[i].distance);
-        lua_settable(L, -3);
+        lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+        {
+            lua_createtable(L, 2, 0);
+            lua_pushstring(L, "id");
+            lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
+            lua_settable(L, -3);
+            lua_pushstring(L, "distance");
+            lua_pushinteger(L, dynamicTree.orderResult[i].distance);
+            lua_settable(L, -3);
 
-        lua_rawseti(L, newTable, i + 1);
+            lua_rawseti(L, newTable, i + 1);
+        }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int QueryAABBSort(lua_State *L)
@@ -161,22 +165,27 @@ static int QueryAABBSort(lua_State *L)
 
     dynamicTree.QueryAABBSort(groupID, x, y, w, h);
 
-    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+    if (dynamicTree.orderResult.Size() > 1)
     {
-        lua_createtable(L, 2, 0);
-        lua_pushstring(L, "id");
-        lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
-        lua_settable(L, -3);
-        lua_pushstring(L, "distance");
-        lua_pushinteger(L, dynamicTree.orderResult[i].distance);
-        lua_settable(L, -3);
 
-        lua_rawseti(L, newTable, i + 1);
+        lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 1; i < dynamicTree.orderResult.Size(); i++)
+        {
+            lua_createtable(L, 2, 0);
+            lua_pushstring(L, "id");
+            lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
+            lua_settable(L, -3);
+            lua_pushstring(L, "distance");
+            lua_pushinteger(L, dynamicTree.orderResult[i].distance);
+            lua_settable(L, -3);
+
+            lua_rawseti(L, newTable, i + 1);
+        }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int RayCastSort(lua_State *L)
@@ -196,22 +205,26 @@ static int RayCastSort(lua_State *L)
 
     dynamicTree.RayCastSort(groupID, start_x, start_y, end_x, end_y);
 
-    lua_createtable(L, dynamicTree.orderResult.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+    if (dynamicTree.orderResult.Size() > 0)
     {
-        lua_createtable(L, 2, 0);
-        lua_pushstring(L, "id");
-        lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
-        lua_settable(L, -3);
-        lua_pushstring(L, "distance");
-        lua_pushinteger(L, dynamicTree.orderResult[i].distance);
-        lua_settable(L, -3);
+        lua_createtable(L, dynamicTree.orderResult.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
+        {
+            lua_createtable(L, 2, 0);
+            lua_pushstring(L, "id");
+            lua_pushinteger(L, dynamicTree.orderResult[i].proxyID);
+            lua_settable(L, -3);
+            lua_pushstring(L, "distance");
+            lua_pushinteger(L, dynamicTree.orderResult[i].distance);
+            lua_settable(L, -3);
 
-        lua_rawseti(L, newTable, i + 1);
+            lua_rawseti(L, newTable, i + 1);
+        }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int QueryID(lua_State *L)
@@ -237,9 +250,10 @@ static int QueryID(lua_State *L)
             lua_pushnumber(L, dynamicTree.result[i]);
             lua_rawseti(L, newTable, i + 1);
         }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int QueryAABB(lua_State *L)
@@ -258,16 +272,19 @@ static int QueryAABB(lua_State *L)
     int h = luaL_checkint(L, 5);
 
     dynamicTree.QueryAABB(groupID, x, y, w, h);
-
-    lua_createtable(L, dynamicTree.result.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.result.Size(); i++)
+    if (dynamicTree.result.Size() > 1)
     {
-        lua_pushnumber(L, dynamicTree.result[i]);
-        lua_rawseti(L, newTable, i + 1);
+        lua_createtable(L, dynamicTree.result.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 1; i < dynamicTree.result.Size(); i++)
+        {
+            lua_pushnumber(L, dynamicTree.result[i]);
+            lua_rawseti(L, newTable, i + 1);
+        }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int RayCast(lua_State *L)
@@ -287,15 +304,20 @@ static int RayCast(lua_State *L)
 
     dynamicTree.RayCast(groupID, start_x, start_y, end_x, end_y);
 
-    lua_createtable(L, dynamicTree.ray_result.Size(), 0);
-    int newTable = lua_gettop(L);
-    for (int i = 0; i < dynamicTree.ray_result.Size(); i++)
+    if (dynamicTree.ray_result.Size() > 0)
     {
-        lua_pushnumber(L, dynamicTree.ray_result[i]);
-        lua_rawseti(L, newTable, i + 1);
+
+        lua_createtable(L, dynamicTree.ray_result.Size(), 0);
+        int newTable = lua_gettop(L);
+        for (int i = 0; i < dynamicTree.ray_result.Size(); i++)
+        {
+            lua_pushnumber(L, dynamicTree.ray_result[i]);
+            lua_rawseti(L, newTable, i + 1);
+        }
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 static int updateGameobject(lua_State *L)
