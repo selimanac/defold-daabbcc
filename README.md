@@ -28,7 +28,7 @@ Open your game.project file and in the dependencies field under project add:
 
 2.1
 
-- [x] It is now possible to short results by distance. Use `raycast_short`, `query_id_short`, `query_short` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
+- [x] It is now possible to sort results by distance. Use `raycast_sort`, `query_id_sort`, `query_sort` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
 - [x] Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
 - [x] External Array and HashTable libs are removed. 
 - [x] Group limit removed(Previously, it was limited to 20)
@@ -161,6 +161,29 @@ Query the possible overlaps using AABB.
 local result = aabb.query(enemy_group, x, y, w, h)
 ```
 
+
+---
+
+### aabb.query_id_sort(`group_id, aabb_id`)
+
+Query the possible overlaps using ID.  
+>Returns result table with ids and distance.
+
+```lua
+local result = aabb.query_id_sort(enemy_group, self.enemy_id)
+```
+
+---
+
+### aabb.query_sort(`group_id, x, y, w, h`)
+
+Query the possible overlaps using AABB.  
+>Returns result table with ids and distance.
+
+```lua
+local result = aabb.query(enemy_group, x, y, w, h)
+```
+
 ---
 
 ### aabb.raycast(`group_id, start_x, start_y, end_x, end_y`)
@@ -176,6 +199,19 @@ local result = aabb.raycast(enemy_group, ray_start.x, ray_start.y, ray_end.x, ra
 ```
 
 ---
+### aabb.raycast_sort(`group_id, start_x, start_y, end_x, end_y`)
+
+Query the possible overlaps using RAYCAST.  
+>Returns result table with ids and distance.
+
+```lua
+local ray_start = vmath.vector3(0, 0, 0)
+local ray_end = vmath.vector3(365, 370, 0)
+
+local result = aabb.raycast_sort(enemy_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+```
+
+---
 
 
 ### aabb.remove_group(`group_id`)
@@ -184,6 +220,16 @@ Removes the group and cleans all AABBs and Gameobjects
 
 ```lua
 aabb.remove_group(enemy_group)
+```
+
+---
+
+### aabb.run(boolean)
+
+Stop/resume Gameobject position update iteration.
+
+```lua
+aabb.run(true)
 ```
 
 ---

@@ -82,21 +82,26 @@ void DynamicTree::GameobjectUpdate()
         return;
     }
 
-    for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i)
+    for (updateCounter = 0; updateCounter < m_GameObjectContainer.Size(); ++updateCounter)
     {
-        goPosition = dmGameObject::GetPosition(m_GameObjectContainer[i].instance);
-        MoveProxy(m_GameObjectContainer[i].groupID, m_GameObjectContainer[i].proxyId, goPosition.getX(), goPosition.getY(), m_GameObjectContainer[i].w, m_GameObjectContainer[i].h);
+        updateContainer = &m_GameObjectContainer[updateCounter];
+        
+        goPosition = dmGameObject::GetPosition(updateContainer->instance);
+        MoveProxy(updateContainer->groupID, updateContainer->proxyId, goPosition.getX(), goPosition.getY(), updateContainer->w, updateContainer->h);
     }
 }
 
 void DynamicTree::RemoveGroup(int groupId)
 {
-    int i = 0;
-    while (i < m_GameObjectContainer.Size())
+    int n = (int)m_GameObjectContainer.Size();
+    for (int i = 0; i < n; ++i)
     {
+
         if (m_GameObjectContainer[i].groupID == groupId)
         {
             m_GameObjectContainer.EraseSwap(i);
+            --n;
+            --i;
         }
     }
 
@@ -133,16 +138,13 @@ void DynamicTree::RemoveProxyGameobject(int groupID, int proxyID)
 void DynamicTree::RemoveProxy(int groupId, int proxyID)
 {
 
-   
-
-    for(int i = 0; i < m_GameObjectContainer.Size(); i++){
-         if (m_GameObjectContainer[i].groupID == groupId && m_GameObjectContainer[i].proxyId == proxyID)
+    for (int i = 0; i < m_GameObjectContainer.Size(); i++)
+    {
+        if (m_GameObjectContainer[i].groupID == groupId && m_GameObjectContainer[i].proxyId == proxyID)
         {
             m_GameObjectContainer.EraseSwap(i);
         }
     }
-
-
 
     ht.Get(groupId)->m_tree->DestroyProxy(proxyID);
 }
@@ -164,7 +166,7 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
             ray_result.SetCapacity(ray_result.Capacity() + 100);
         }
 
-        if (isShorted)
+        if (isSorted)
         {
 
             if (orderResult.Full())
@@ -199,10 +201,10 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
     return input.maxFraction;
 }
 
-void DynamicTree::RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y)
+void DynamicTree::RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
 
-    isShorted = true;
+    isSorted = true;
     ray_result.SetSize(0);
     orderResult.SetSize(0);
     tmpOrderResult.SetSize(0);
@@ -247,7 +249,7 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
             result.SetCapacity(result.Capacity() + 100);
         }
 
-        if (isShorted)
+        if (isSorted)
         {
 
             if (orderResult.Full())
@@ -279,10 +281,10 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
 
     return true;
 }
-/* SHORT */
-void DynamicTree::QueryIDShort(int groupId, int proxyID)
+/* Sort */
+void DynamicTree::QueryIDSort(int groupId, int proxyID)
 {
-    isShorted = true;
+    isSorted = true;
     nodeProxyID = proxyID;
     nodeProxyCenter = GetAABBPosition(groupId, proxyID);
     b2AABB aabb = GetAABB(groupId, proxyID);
@@ -292,9 +294,9 @@ void DynamicTree::QueryIDShort(int groupId, int proxyID)
                    tmpOrderResult.Begin());
 }
 
-void DynamicTree::QueryAABBShort(int groupId, float x, float y, int w, int h)
+void DynamicTree::QueryAABBSort(int groupId, float x, float y, int w, int h)
 {
-    isShorted = true;
+    isSorted = true;
     nodeProxyID = -1;
     b2AABB aabb;
     aabb.lowerBound = Bound(0, x, y, w, h);
@@ -308,7 +310,7 @@ void DynamicTree::QueryAABBShort(int groupId, float x, float y, int w, int h)
 
 void DynamicTree::QueryID(int groupId, int proxyID)
 {
-    isShorted = false;
+    isSorted = false;
     nodeProxyID = proxyID;
     b2AABB aabb = GetAABB(groupId, proxyID);
     Query(groupId, aabb);
@@ -316,7 +318,7 @@ void DynamicTree::QueryID(int groupId, int proxyID)
 
 void DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
 {
-    isShorted = false;
+    isSorted = false;
     nodeProxyID = -1;
     b2AABB aabb;
     aabb.lowerBound = Bound(0, x, y, w, h);

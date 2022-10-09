@@ -33,7 +33,7 @@ public:
     // Move Proxy
     void MoveProxy(int groupId, int proxyID, float x, float y, int w, int h);
 
-    //Update GO W&H
+    // Update GO W&H
     void updateGameobjectSize(int groupID, int proxyID, int w, int h);
 
     // Remove Proxy
@@ -50,7 +50,7 @@ public:
     // RayCast to AABB
     void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
 
-    void RayCastShort(int groupId, float start_x, float start_y, float end_x, float end_y);
+    void RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y);
 
     // Query with AABB
     void QueryAABB(int groupId, float x, float y, int w, int h);
@@ -59,9 +59,9 @@ public:
     void QueryID(int groupId, int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
 
     // Query with ID - Distance Ordered
-    void QueryIDShort(int groupId, int proxyID);
+    void QueryIDSort(int groupId, int proxyID);
 
-    void QueryAABBShort(int groupId, float x, float y, int w, int h);
+    void QueryAABBSort(int groupId, float x, float y, int w, int h);
 
     void Run(bool toggle);
 
@@ -77,7 +77,7 @@ public:
     // Assert
     bool CheckGroup(int groupID);
 
-    bool isShorted = false;
+    bool isSorted = false;
 
     void AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
 
@@ -87,10 +87,10 @@ public:
 
 private:
     int groupCounter = 0;
-   // int goCounter = 0;
+
     int nodeProxyID;
 
-    bool state=true;
+    bool state = true;
 
     struct Groups
     {
@@ -108,6 +108,8 @@ private:
         int32 h;
     };
     dmArray<GameObjectContainer> m_GameObjectContainer;
+    uint32_t updateCounter;
+    GameObjectContainer *updateContainer;
 
     // Bound calculation
     b2Vec2 Bound(int type, float x, float y, int w, int h);

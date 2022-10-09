@@ -42,7 +42,7 @@ static int AddProxyGameobject(lua_State *L)
         dmLogError("Group ID is invalid");
         return 0;
     }
-
+   
     dmGameObject::HInstance instance = dmScript::CheckGOInstance(L, 2);
     dmVMath::Point3 position = dmGameObject::GetPosition(instance);
 
@@ -112,7 +112,7 @@ static int RemoveProxy(lua_State *L)
     return 0;
 }
 
-static int QueryIDShort(lua_State *L)
+static int QueryIDSort(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
@@ -124,7 +124,7 @@ static int QueryIDShort(lua_State *L)
 
     int proxyID = luaL_checkint(L, 2);
 
-    dynamicTree.QueryIDShort(groupID, proxyID);
+    dynamicTree.QueryIDSort(groupID, proxyID);
 
     lua_createtable(L, dynamicTree.orderResult.Size(), 0);
     int newTable = lua_gettop(L);
@@ -144,7 +144,7 @@ static int QueryIDShort(lua_State *L)
     return 1;
 }
 
-static int QueryAABBShort(lua_State *L)
+static int QueryAABBSort(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
@@ -159,7 +159,7 @@ static int QueryAABBShort(lua_State *L)
     int w = luaL_checkint(L, 4);
     int h = luaL_checkint(L, 5);
 
-    dynamicTree.QueryAABBShort(groupID, x, y, w, h);
+    dynamicTree.QueryAABBSort(groupID, x, y, w, h);
 
     lua_createtable(L, dynamicTree.orderResult.Size(), 0);
     int newTable = lua_gettop(L);
@@ -179,7 +179,7 @@ static int QueryAABBShort(lua_State *L)
     return 1;
 }
 
-static int RayCastShort(lua_State *L)
+static int RayCastSort(lua_State *L)
 {
     int groupID = luaL_checkint(L, 1);
 
@@ -194,7 +194,7 @@ static int RayCastShort(lua_State *L)
     float end_x = luaL_checknumber(L, 4);
     float end_y = luaL_checknumber(L, 5);
 
-    dynamicTree.RayCastShort(groupID, start_x, start_y, end_x, end_y);
+    dynamicTree.RayCastSort(groupID, start_x, start_y, end_x, end_y);
 
     lua_createtable(L, dynamicTree.orderResult.Size(), 0);
     int newTable = lua_gettop(L);
@@ -361,12 +361,12 @@ static const luaL_reg Module_methods[] = {
     {"new_group", AddGroup},
 
     {"raycast", RayCast},
-    {"raycast_short", RayCastShort},
+    {"raycast_sort", RayCastSort},
 
     {"query", QueryAABB},
     {"query_id", QueryID},
-    {"query_short", QueryAABBShort},
-    {"query_id_short", QueryIDShort},
+    {"query_sort", QueryAABBSort},
+    {"query_id_sort", QueryIDSort},
 
     {"insert", AddProxy},
     {"insert_gameobject", AddProxyGameobject},
