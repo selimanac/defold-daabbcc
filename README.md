@@ -35,6 +35,7 @@ Open your game.project file and in the dependencies field under project add:
 - [x] Remove Gameobject when AABB or Group removed 
 - [x] Clear function added for removing and reseting everything. 
 - [x] Stop/Resume for automated position update.
+- [x] All query results return nil when it is empty. No need to check `#count` anymore.
 
 
 
@@ -97,7 +98,8 @@ self.enemy_id = aabb.insert(enemy_group, self.pos.x , self.pos.y, self.size.x, s
 
 
 ### aabb.insert_gameobject(`group_id, url, w, h`)
-Insert Gameobject and its AABB into group.   
+Insert Gameobject and its AABB into group.  
+Most suitable for moving gameobjects. If your gameobject is static then use `aabb.insert`
 
 >Returns aabb id.
 
