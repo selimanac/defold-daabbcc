@@ -28,10 +28,12 @@ void DynamicTree::ResetTree()
     orderResult.SetSize(0);
     tmpOrderResult.SetSize(0);
 }
+
 void DynamicTree::Run(bool toggle)
 {
     state = toggle;
 }
+
 void DynamicTree::Clear()
 {
     ResetTree();
@@ -60,7 +62,6 @@ int DynamicTree::AddGroup()
 
 void DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h)
 {
-
     GameObjectContainer goContainer;
     goContainer.groupID = groupID;
     goContainer.proxyId = proxyId;
@@ -85,7 +86,7 @@ void DynamicTree::GameobjectUpdate()
     for (updateCounter = 0; updateCounter < m_GameObjectContainer.Size(); ++updateCounter)
     {
         updateContainer = &m_GameObjectContainer[updateCounter];
-        
+
         goPosition = dmGameObject::GetPosition(updateContainer->instance);
         MoveProxy(updateContainer->groupID, updateContainer->proxyId, goPosition.getX(), goPosition.getY(), updateContainer->w, updateContainer->h);
     }
@@ -96,7 +97,6 @@ void DynamicTree::RemoveGroup(int groupId)
     int n = (int)m_GameObjectContainer.Size();
     for (int i = 0; i < n; ++i)
     {
-
         if (m_GameObjectContainer[i].groupID == groupId)
         {
             m_GameObjectContainer.EraseSwap(i);
@@ -124,7 +124,6 @@ int32 DynamicTree::AddProxy(int groupId, float x, float y, int w, int h)
 
 void DynamicTree::RemoveProxyGameobject(int groupID, int proxyID)
 {
-
     for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i)
     {
         if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID)
@@ -137,7 +136,6 @@ void DynamicTree::RemoveProxyGameobject(int groupID, int proxyID)
 
 void DynamicTree::RemoveProxy(int groupId, int proxyID)
 {
-
     for (int i = 0; i < m_GameObjectContainer.Size(); i++)
     {
         if (m_GameObjectContainer[i].groupID == groupId && m_GameObjectContainer[i].proxyId == proxyID)
@@ -203,7 +201,6 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
 
 void DynamicTree::RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y)
 {
-
     isSorted = true;
     ray_result.SetSize(0);
     orderResult.SetSize(0);
@@ -231,8 +228,6 @@ void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x
     m_rayCastInput.maxFraction = 1.0f;
 
     ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
-
-    // return ray_result;
 }
 
 /******************************
@@ -281,6 +276,7 @@ bool DynamicTree::QueryCallback(int32 proxyId, int groupId)
 
     return true;
 }
+
 /* Sort */
 void DynamicTree::QueryIDSort(int groupId, int proxyID)
 {
@@ -324,7 +320,6 @@ void DynamicTree::QueryAABB(int groupId, float x, float y, int w, int h)
     aabb.lowerBound = Bound(0, x, y, w, h);
     aabb.upperBound = Bound(1, x, y, w, h);
     Query(groupId, aabb);
-    // return Query(groupId, aabb);
 }
 
 void DynamicTree::Query(int groupId, b2AABB aabb)
@@ -337,7 +332,6 @@ void DynamicTree::Query(int groupId, b2AABB aabb)
 
 void DynamicTree::updateGameobjectSize(int groupID, int proxyID, int w, int h)
 {
-
     for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i)
     {
         if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID)

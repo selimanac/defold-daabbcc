@@ -4,7 +4,6 @@
 #define DLIB_LOG_DOMAIN "DAABBCC"
 
 #include <DynamicTree.hpp>
-#include <dmsdk/dlib/hash.h>
 #include <dmsdk/dlib/log.h>
 #include <dmsdk/script/script.h>
 #include <dmsdk/sdk.h>
@@ -272,6 +271,7 @@ static int QueryAABB(lua_State *L)
     int h = luaL_checkint(L, 5);
 
     dynamicTree.QueryAABB(groupID, x, y, w, h);
+
     if (dynamicTree.result.Size() > 1)
     {
         lua_createtable(L, dynamicTree.result.Size(), 0);
@@ -306,7 +306,6 @@ static int RayCast(lua_State *L)
 
     if (dynamicTree.ray_result.Size() > 0)
     {
-
         lua_createtable(L, dynamicTree.ray_result.Size(), 0);
         int newTable = lua_gettop(L);
         for (int i = 0; i < dynamicTree.ray_result.Size(); i++)
@@ -322,7 +321,6 @@ static int RayCast(lua_State *L)
 
 static int updateGameobject(lua_State *L)
 {
-
     int groupID = luaL_checkint(L, 1);
 
     if (dynamicTree.CheckGroup(groupID))

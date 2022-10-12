@@ -87,9 +87,7 @@ public:
 
 private:
     int groupCounter = 0;
-
-    int nodeProxyID;
-
+    int nodeProxyID = 0;
     bool state = true;
 
     struct Groups
@@ -108,7 +106,7 @@ private:
         int32 h;
     };
     dmArray<GameObjectContainer> m_GameObjectContainer;
-    uint32_t updateCounter;
+    uint32_t updateCounter = 0;
     GameObjectContainer *updateContainer;
 
     // Bound calculation
