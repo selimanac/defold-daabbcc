@@ -29,7 +29,6 @@ function init(self)
     add_box(vmath.vector3(260, 280, 0))
     add_box(vmath.vector3(250, 280, 0))
     add_box(vmath.vector3(525, 490, 0))
-
     add_box(vmath.vector3(650, 250, 0))
     add_box(vmath.vector3(500, 550, 0))
     add_box(vmath.vector3(600, 250, 0))
@@ -43,15 +42,15 @@ function init(self)
     boxes[2].pos.y = boxes[2].pos.y + 50
     go.set_position(boxes[2].pos, boxes[2].box)
 
-    -- Updates the AABB position and size when you change it is position or size.
+    -- Updates the AABB position and size when you change it is position or size. 
     aabb.update(box_group, boxes[2].proxy_id, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
 
     -- Query the possible overlaps using AABB. Returns itself.
     local query_result = aabb.query(box_group, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
     pprint(query_result)
     pprint(boxes[5])
+    
     go.animate(boxes[5].box, "position.x", go.PLAYBACK_LOOP_PINGPONG, boxes[7].pos.x + 150, go.EASING_INOUTBACK, 2)
-
 end
 
 function update(self, dt)
@@ -66,7 +65,9 @@ function update(self, dt)
 
     local query_id_sort = aabb.query_id_sort(box_group, boxes[5].proxy_id)
 
-    if query_id_sort then pprint(query_id_sort) end
+    if query_id_sort then
+        pprint(query_id_sort)
+    end
 
     local query_sort = aabb.query_sort(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
 

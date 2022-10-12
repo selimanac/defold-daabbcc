@@ -129,7 +129,7 @@ aabb.update(enemy_group, self.enemy_id, new_x, new_y, new_w, new_h)
 
 ---
 
-### update_gameobject(`group_id, aabb_id, w, h`)
+### aabb.update_gameobject(`group_id, aabb_id, w, h`)
 
 Updates the AABB size related to Gameobject
 
@@ -149,7 +149,7 @@ Query the possible overlaps using ID.
 >Returns result table with ids.
 
 ```lua
-local result = aabb.query_id(enemy_group, self.enemy_id)
+local result = aabb.query_id(enemy_group, enemy_id)
 ```
 
 ---
@@ -172,7 +172,7 @@ Query the possible overlaps using ID.
 >Returns result table with ids and distance.
 
 ```lua
-local result = aabb.query_id_sort(enemy_group, self.enemy_id)
+local result = aabb.query_id_sort(enemy_group, enemy_id)
 ```
 
 ---
@@ -268,4 +268,4 @@ aabb.clear()
 
 ## Notes
 
-- Performance is really depend on CPU load. I manage to get 60fps with 4800 sprite on my desktop. But this doesn't mean that you can use 4800 sprites on mobile platforms. You have to do your own test on your target platforms.  
+- Performance is really depend on CPU load. 
