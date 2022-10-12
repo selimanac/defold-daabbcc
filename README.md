@@ -245,7 +245,7 @@ Removes gameobject and it is AABB.
 You don't need to call `aabb.remove` again for removing AABB.
 
 ```lua
-aabb.remove_gameobject(go_id)
+aabb.remove_gameobject(`group_id, aabb_id`)
 ```
 
 ---
