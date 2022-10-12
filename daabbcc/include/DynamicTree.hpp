@@ -1,13 +1,13 @@
 #ifndef DynamicTree_hpp
 #define DynamicTree_hpp
 
-#define JC_SORT_IMPLEMENTATION
-#include "jc/sort.h"
-
 #include <DynamicTree/b2DynamicTree.h>
 #include <dmsdk/dlib/hashtable.h>
 #include <dmsdk/dlib/log.h>
 #include <dmsdk/sdk.h>
+
+#define JC_SORT_IMPLEMENTATION
+#include "jc/sort.h"
 
 struct orderResultValues
 {
