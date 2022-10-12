@@ -37,7 +37,7 @@ Open your game.project file and in the dependencies field under project add:
 - [x] Group limit removed(Previously, it was limited to 20)
 - [x] Remove Gameobject when AABB or Group removed 
 - [x] Clear function added for removing and reseting everything. 
-- [x] Stop/Resume for automated position update.
+- [x] Stop/Resume for automated Gameobject position update.
 - [x] All query results return nil when it is empty. No need to check `#count` anymore.
 
 
