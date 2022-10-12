@@ -1,5 +1,3 @@
-DEV 2.1 
-
 ![DAABBCC](https://github.com/selimanac/DAABBCC/blob/v2.0/assets/header.png?raw=true)
 
 This is a [Dynamic AABB Tree](https://box2d.org/files/ErinCatto_DynamicBVH_Full.pdf) native extension with Branch and Bound Algorithm for [Defold Engine](https://www.defold.com/).  
@@ -22,6 +20,11 @@ You can use the DAABBCC in your own project by adding this project as a [Defold 
 Open your game.project file and in the dependencies field under project add:
 
 >https://github.com/selimanac/DAABBCC/archive/refs/tags/v2.1.zip
+
+
+## Example
+
+>https://github.com/selimanac/space-shooter-daabbcc
 
 
 ## Release Notes
