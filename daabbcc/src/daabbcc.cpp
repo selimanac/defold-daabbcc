@@ -164,12 +164,12 @@ static int QueryAABBSort(lua_State *L)
 
     dynamicTree.QueryAABBSort(groupID, x, y, w, h);
 
-    if (dynamicTree.orderResult.Size() > 1)
+    if (dynamicTree.orderResult.Size() > 0)
     {
 
         lua_createtable(L, dynamicTree.orderResult.Size(), 0);
         int newTable = lua_gettop(L);
-        for (int i = 1; i < dynamicTree.orderResult.Size(); i++)
+        for (int i = 0; i < dynamicTree.orderResult.Size(); i++)
         {
             lua_createtable(L, 2, 0);
             lua_pushstring(L, "id");
@@ -271,19 +271,18 @@ static int QueryAABB(lua_State *L)
     int h = luaL_checkint(L, 5);
 
     dynamicTree.QueryAABB(groupID, x, y, w, h);
-
-    if (dynamicTree.result.Size() > 1)
+    if (dynamicTree.result.Size() > 0)
     {
+
         lua_createtable(L, dynamicTree.result.Size(), 0);
         int newTable = lua_gettop(L);
-        for (int i = 1; i < dynamicTree.result.Size(); i++)
+        for (int i = 0; i < dynamicTree.result.Size(); i++)
         {
             lua_pushnumber(L, dynamicTree.result[i]);
             lua_rawseti(L, newTable, i + 1);
         }
         return 1;
     }
-
     return 0;
 }
 

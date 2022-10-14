@@ -186,7 +186,7 @@ Query the possible overlaps using AABB.
 >Returns result table with ids and distance.
 
 ```lua
-local result = aabb.query(enemy_group, x, y, w, h)
+local result = aabb.query_sort(enemy_group, x, y, w, h)
 ```
 
 ---
@@ -252,6 +252,7 @@ aabb.remove_gameobject(`group_id, aabb_id`)
 ### aabb.run(boolean)
 
 Stop/resume Gameobject position update iteration.
+It is `true` by default. But it is not iterating when it is size is 0.
 
 ```lua
 aabb.run(true)

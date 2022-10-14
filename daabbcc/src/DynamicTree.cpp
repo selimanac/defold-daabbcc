@@ -122,29 +122,45 @@ int32 DynamicTree::AddProxy(int groupId, float x, float y, int w, int h)
     return proxyId;
 }
 
-void DynamicTree::RemoveProxyGameobject(int groupID, int proxyID)
+void DynamicTree::DestroyProxyID(int groupID, int proxyID)
 {
+
     for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i)
     {
         if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID)
         {
-            ht.Get(m_GameObjectContainer[i].groupID)->m_tree->DestroyProxy(m_GameObjectContainer[i].proxyId);
             m_GameObjectContainer.EraseSwap(i);
         }
     }
+    ht.Get(groupID)->m_tree->DestroyProxy(proxyID);
 }
 
-void DynamicTree::RemoveProxy(int groupId, int proxyID)
+void DynamicTree::RemoveProxyGameobject(int groupID, int proxyID)
 {
-    for (int i = 0; i < m_GameObjectContainer.Size(); i++)
-    {
-        if (m_GameObjectContainer[i].groupID == groupId && m_GameObjectContainer[i].proxyId == proxyID)
-        {
-            m_GameObjectContainer.EraseSwap(i);
-        }
-    }
+    DestroyProxyID(groupID, proxyID);
+    /*  for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i)
+     {
+         if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID)
+         {
+             //  ht.Get(m_GameObjectContainer[i].groupID)->m_tree->DestroyProxy(m_GameObjectContainer[i].proxyId);
+             m_GameObjectContainer.EraseSwap(i);
+         }
+     }
+     ht.Get(groupID)->m_tree->DestroyProxy(proxyID); */
+}
 
-    ht.Get(groupId)->m_tree->DestroyProxy(proxyID);
+void DynamicTree::RemoveProxy(int groupID, int proxyID)
+{
+    DestroyProxyID(groupID, proxyID);
+    /*  for (int i = 0; i < m_GameObjectContainer.Size(); i++)
+     {
+         if (m_GameObjectContainer[i].groupID == groupId && m_GameObjectContainer[i].proxyId == proxyID)
+         {
+             m_GameObjectContainer.EraseSwap(i);
+         }
+     }
+
+     ht.Get(groupId)->m_tree->DestroyProxy(proxyID); */
 }
 
 /******************************

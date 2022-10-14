@@ -37,7 +37,7 @@ public:
     void updateGameobjectSize(int groupID, int proxyID, int w, int h);
 
     // Remove Proxy
-    void RemoveProxy(int groupId, int proxyID);
+    void RemoveProxy(int groupID, int proxyID);
 
     void RemoveProxyGameobject(int groupID, int proxyID);
 
@@ -129,6 +129,8 @@ private:
     dmArray<orderResultValues> tmpOrderResult;
 
     static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
+
+    void DestroyProxyID(int groupId, int proxyID);
 
     // Reset class
     void ResetTree();
