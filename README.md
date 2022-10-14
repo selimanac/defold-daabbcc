@@ -34,11 +34,11 @@ Open your game.project file and in the dependencies field under project add:
 - [x] It is now possible to sort results by distance. Use `raycast_sort`, `query_id_sort`, `query_sort` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
 - [x] Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
 - [x] External Array and HashTable libs are removed. 
-- [x] Group limit removed(Previously, it was limited to 20)
+- [x] Group limit removed (previously the number of groups was limited to 20)
 - [x] Remove Gameobject when AABB or Group removed 
-- [x] Clear function added for removing and reseting everything. 
-- [x] Stop/Resume for automated Gameobject position update.
-- [x] All query results return nil when it is empty. No need to check `#count` anymore.
+- [x] Clear function added for removing and resetting everything. 
+- [x] Stop/Resume for automated Gameobject position updates.
+- [x] All query results return nil when they are empty. No need to check `#count` anymore.
 
 
 
@@ -64,7 +64,7 @@ Initial release.
 
 ### aabb.new_group()
 
-New group for AABBs. Currently groups has limited to 20.  
+New group for AABBs.  
 >Returns group id.
 
 ```lua
@@ -88,7 +88,7 @@ local h = 50
 local enemy_id = aabb.insert(enemy_group, x, y, w, h)
 ```
 
-You can get position and size from sprite.
+You can get a size from sprites as shown in the example below.
 
 ```lua
 self.pos = go.get_position(".")
@@ -101,8 +101,8 @@ self.enemy_id = aabb.insert(enemy_group, self.pos.x , self.pos.y, self.size.x, s
 
 
 ### aabb.insert_gameobject(`group_id, url, w, h`)
-Insert Gameobject and its AABB into group.  
-Most suitable for moving gameobjects. If your gameobject is static then use `aabb.insert`
+Insert Gameobject and the associated AABB into a group.  
+Most suitable for moving gameobjects. If your gameobject is static then use `aabb.insert` instead.
 
 >Returns aabb id.
 
@@ -118,7 +118,7 @@ local aabb_id = aabb.insert_gameobject(enemy_group, go_url, w, h)
 
 ### aabb.update(`group_id, aabb_id, x, y, w, h`)
 
-Updates the AABB position and size when you change it is position or size.  
+Updates the AABB position and size when you change its position or size.  
 Gameobject AABB positions will be overwritten.
 
 ```lua
@@ -134,7 +134,7 @@ aabb.update(enemy_group, self.enemy_id, new_x, new_y, new_w, new_h)
 
 ### aabb.update_gameobject(`group_id, aabb_id, w, h`)
 
-Updates the AABB size related to Gameobject
+Updates the AABB size related to the Gameobject.
 
 
 ```lua
@@ -172,7 +172,7 @@ local result = aabb.query(enemy_group, x, y, w, h)
 ### aabb.query_id_sort(`group_id, aabb_id`)
 
 Query the possible overlaps using ID.  
->Returns result table with ids and distance.
+>Returns result table with ids and distance, ordered by closest first.
 
 ```lua
 local result = aabb.query_id_sort(enemy_group, enemy_id)
@@ -183,7 +183,7 @@ local result = aabb.query_id_sort(enemy_group, enemy_id)
 ### aabb.query_sort(`group_id, x, y, w, h`)
 
 Query the possible overlaps using AABB.  
->Returns result table with ids and distance.
+>Returns result table with ids and distance, ordered by closest first.
 
 ```lua
 local result = aabb.query_sort(enemy_group, x, y, w, h)
@@ -207,7 +207,7 @@ local result = aabb.raycast(enemy_group, ray_start.x, ray_start.y, ray_end.x, ra
 ### aabb.raycast_sort(`group_id, start_x, start_y, end_x, end_y`)
 
 Query the possible overlaps using RAYCAST.  
->Returns result table with ids and distance.
+>Returns result table with ids and distance, ordered by closest first.
 
 ```lua
 local ray_start = vmath.vector3(0, 0, 0)
@@ -221,7 +221,7 @@ local result = aabb.raycast_sort(enemy_group, ray_start.x, ray_start.y, ray_end.
 
 ### aabb.remove_group(`group_id`)
 
-Removes the group and cleans all AABBs and Gameobjects.
+Removes the group and all associated AABBs and Gameobjects.
 
 ```lua
 aabb.remove_group(enemy_group)
@@ -232,7 +232,7 @@ aabb.remove_group(enemy_group)
 
 ### aabb.remove(`group_id, aabb_id`)
 
-Removes the AABB and Gameobject from group
+Removes the AABB and Gameobject from group.
 
 ```lua
 aabb.remove(group_id, aabb_id)
@@ -241,7 +241,7 @@ aabb.remove(group_id, aabb_id)
 ---
 
 ### aabb.remove_gameobject(`group_id, aabb_id`)
-Removes gameobject and it is AABB.  
+Removes gameobject and the associated AABB.  
 You don't need to call `aabb.remove` again for removing AABB.
 
 ```lua
@@ -252,7 +252,7 @@ aabb.remove_gameobject(`group_id, aabb_id`)
 ### aabb.run(boolean)
 
 Stop/resume Gameobject position update iteration.
-It is `true` by default. But it is not iterating when it is size is 0.
+It is `true` by default, but does not iterate when when there are no Gameobjects registered.
 
 ```lua
 aabb.run(true)
@@ -262,7 +262,7 @@ aabb.run(true)
 
 ### aabb.clear()
 
-Clear everything(AABBs,groups, gameobjects) and reset it is initial state.
+Clear everything (AABBs,groups, gameobjects) and reset to initial state.
 
 ```lua
 aabb.clear()
@@ -272,4 +272,5 @@ aabb.clear()
 
 ## Notes
 
-- Performance is really depend on CPU load. 
+- Performance is heavily dependent on CPU load.
+- For objects that do not move, it is advised to use aabb.insert() instead of aabb.insert_gameobject() to avoid unnecessary calculations.
