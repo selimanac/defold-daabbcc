@@ -29,16 +29,21 @@ Open your game.project file and in the dependencies field under project add:
 
 ## Release Notes
 
+2.1.1
+
+- Table count added to query results.
+- Documentation update
+
 2.1
 
-- [x] It is now possible to sort results by distance. Use `raycast_sort`, `query_id_sort`, `query_sort` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
-- [x] Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
-- [x] External Array and HashTable libs are removed. 
-- [x] Group limit removed (previously the number of groups was limited to 20)
-- [x] Remove Gameobject when AABB or Group removed 
-- [x] Clear function added for removing and resetting everything. 
-- [x] Stop/Resume for automated Gameobject position updates.
-- [x] All query results return nil when they are empty. No need to check `#count` anymore.
+- It is now possible to sort results by distance. Use `raycast_sort`, `query_id_sort`, `query_sort` according to your needs [#5](https://github.com/selimanac/DAABBCC/issues/5).
+- Automated position updates for Defold Gameobjects [#6](https://github.com/selimanac/DAABBCC/issues/6).
+- External Array and HashTable libs are removed. 
+- Group limit removed (previously the number of groups was limited to 20)
+- Remove Gameobject when AABB or Group removed 
+- Clear function added for removing and resetting everything. 
+- Stop/Resume for automated Gameobject position updates.
+- All query results return nil when they are empty. No need to check `#count` anymore.
 
 
 
@@ -60,213 +65,435 @@ Final 1.x release.
 Initial release.
 
 
-## API
+# API
 
-### aabb.new_group()
 
-New group for AABBs.  
->Returns group id.
 
+
+## aabb.new_group()
+
+New empty group for AABBs.
+
+**RETURN**
+* ```group_id``` (int) - New group ID.
+
+
+**EXAMPLE**
 ```lua
-local enemy_group = aabb.new_group()
-```
 
----
+   local group_id = aabb.new_group()
 
+``` 
 
-### aabb.insert(`group_id, x, y, w, h`)
-
+## aabb.insert(`group_id`, `x`, `y`, `width`, `height`)
 Insert AABB into the group.  
->Returns aabb id.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```x``` (number) - X position of AABB.
+* ```y``` (number) - Y position of AABB.
+* ```width``` (int) - Width of AABB.
+* ```height``` (int) - Height of AABB.
+
+**RETURN**
+* ```aabb_id``` (int) - New AABB ID.
+
+**EXAMPLE**
 ```lua
-local x = 0
-local y = 0
-local w = 50
-local h = 50
+	
+    local x = 0
+    local y = 0
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
 
-local enemy_id = aabb.insert(enemy_group, x, y, w, h)
-```
+    local aabb_id = aabb.insert(group_id, x, y, width, height)
 
-You can get a size from sprites as shown in the example below.
+    -- OR --
 
-```lua
-self.pos = go.get_position(".")
-self.size = go.get("#sprite", "size")
+    self.pos = go.get_position(".")
+    self.size = go.get("#sprite", "size")
+    self.group_id = aabb.new_group()
 
-self.enemy_id = aabb.insert(enemy_group, self.pos.x , self.pos.y, self.size.x, self.size.y)
-```
+    self.aabb_id = aabb.insert(self.group_id, self.pos.x , self.pos.y, self.size.x, self.size.y)
 
----
+``` 
 
-
-### aabb.insert_gameobject(`group_id, url, w, h`)
+## aabb.insert_gameobject(`group_id`, `url`, `width`, `height`)
 Insert Gameobject and the associated AABB into a group.  
 Most suitable for moving gameobjects. If your gameobject is static then use `aabb.insert` instead.
 
->Returns aabb id.
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```url``` (msg.url) - URL of Gameobject.
+* ```width``` (int) - Width of AABB.
+* ```height``` (int) - Height of AABB.
 
+**RETURN**
+* ```aabb_id``` (int) - New AABB ID.
+
+**EXAMPLE**
 ```lua
-local go_url = msg.url("/go")
-local w = 50
-local h = 50
+	
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
 
-local aabb_id = aabb.insert_gameobject(enemy_group, go_url, w, h)
-```
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
+    
+``` 
 
----
 
-### aabb.update(`group_id, aabb_id, x, y, w, h`)
-
+## aabb.update(`group_id`, `aabb_id`, `x`, `y`, `width`, `height`)
 Updates the AABB position and size when you change its position or size.  
 Gameobject AABB positions will be overwritten.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
+* ```x``` (number) - X position of AABB.
+* ```y``` (number) - Y position of AABB.
+* ```width``` (int) - Width of AABB.
+* ```height``` (int) - Height of AABB.
+
+**EXAMPLE**
 ```lua
-local new_x = 10
-local new_y = 10
-local new_w = 60
-local new_h = 60
 
-aabb.update(enemy_group, self.enemy_id, new_x, new_y, new_w, new_h)
-```
+    local x = 0
+    local y = 0
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert(group_id, x, y, width, height)
+ 
+    local new_x = 10
+    local new_y = 10
+    local new_w = 60
+    local new_h = 60
 
----
+    aabb.update(group_id, aabb_id, new_x, new_y, new_w, new_h)
+    
+``` 
 
-### aabb.update_gameobject(`group_id, aabb_id, w, h`)
-
+## aabb.update_gameobject(`group_id`, `aabb_id`, `w`, `h`)
 Updates the AABB size related to the Gameobject.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
+* ```width``` (int) - Width of AABB.
+* ```height``` (int) - Height of AABB.
 
+**EXAMPLE**
 ```lua
-local new_w = 60
-local new_h = 60
 
-aabb.update_gameobject(enemy_group, proxy_id,  new_w, new_h)
-```
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
+	
+    local new_w = 60
+    local new_h = 60
 
----
+    aabb.update_gameobject(group_id, aabb_id,  new_w, new_h)
+    
+``` 
 
-### aabb.query_id(`group_id, aabb_id`)
+## aabb.query_id(`group_id`, `aabb_id`)
+Query the possible overlaps using AABB ID.  
 
-Query the possible overlaps using ID.  
->Returns result table with ids.
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
 
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs.
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local result = aabb.query_id(enemy_group, enemy_id)
-```
 
----
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
 
-### aabb.query(`group_id, x, y, w, h`)
+    local result, count = aabb.query_id(group_id, aabb_id)
 
-Query the possible overlaps using AABB.  
->Returns result table with ids.
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+``` 
 
+
+## aabb.query(`group_id`, `x`, `y`, `width`, `height`)
+
+Query the possible overlaps without AABB ID.   
+
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```x``` (number) - X position. 
+* ```y``` (number) - Y position. 
+* ```width``` (int) - Width. 
+* ```height``` (int) - Height. 
+
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs.
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local result = aabb.query(enemy_group, x, y, w, h)
-```
 
+    local x = 0
+    local y = 0
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+   
 
----
+   local result, count = aabb.query(group_id, x, y, width, height)
+    
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+``` 
 
-### aabb.query_id_sort(`group_id, aabb_id`)
+## aabb.query_id_sort(`group_id`, `aabb_id`)
+Query the possible overlaps using AABB ID.  
+Returns result table with ids and distance, ordered by closest first.
 
-Query the possible overlaps using ID.  
->Returns result table with ids and distance, ordered by closest first.
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
 
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs. Result table contains `aabb_id` and  `distance`.
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local result = aabb.query_id_sort(enemy_group, enemy_id)
-```
 
----
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
 
-### aabb.query_sort(`group_id, x, y, w, h`)
+    local result, count = aabb.query_id_sort(group_id, aabb_id)
 
-Query the possible overlaps using AABB.  
->Returns result table with ids and distance, ordered by closest first.
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+``` 
 
+## aabb.query_sort(`group_id`, `x`, `y`, `width`, `height`)
+Query the possible overlaps without AABB ID.  
+Returns result table with ids and distance, ordered by closest first.
+
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```x``` (number) - X position. 
+* ```y``` (number) - Y position. 
+* ```width``` (int) - Width. 
+* ```height``` (int) - Height. 
+
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs. Result table contains `aabb_id` and  `distance`.
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local result = aabb.query_sort(enemy_group, x, y, w, h)
-```
 
----
+    local x = 0
+    local y = 0
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
 
-### aabb.raycast(`group_id, start_x, start_y, end_x, end_y`)
+    local result, count = aabb.query_sort(group_id, x, y, width, height)
+    
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+    
+``` 
 
+## aabb.raycast(`group_id`, `start_x`, `start_y`, `end_x`, `end_y`)
 Query the possible overlaps using RAYCAST.  
->Returns result table with ids.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```start_x``` (number) - Ray start position X.
+* ```start_y``` (number) - Ray start position Y.
+* ```end_x``` (number) - Ray end position X. 
+* ```end_y``` (number) - Ray end position Y.   
+
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs. 
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local ray_start = vmath.vector3(0, 0, 0)
-local ray_end = vmath.vector3(365, 370, 0)
 
-local result = aabb.raycast(enemy_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
-```
+    local group_id = aabb.new_group()
 
----
-### aabb.raycast_sort(`group_id, start_x, start_y, end_x, end_y`)
+    local ray_start = vmath.vector3(0, 0, 0)
+    local ray_end = vmath.vector3(365, 370, 0)
 
+    local result, count = aabb.raycast(group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+    
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+    
+``` 
+
+## aabb.raycast_sort(`group_id`, `start_x`, `start_y`, `end_x`, `end_y`)
 Query the possible overlaps using RAYCAST.  
->Returns result table with ids and distance, ordered by closest first.
+Returns result table with ids and distance, ordered by closest first.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```start_x``` (number) - Ray start position X.
+* ```start_y``` (number) - Ray start position Y.
+* ```end_x``` (number) - Ray end position X. 
+* ```end_y``` (number) - Ray end position Y.   
+
+**RETURN**
+* ```result``` (table) - Table of possible overlapping AABBs. Result table contains `aabb_id` and  `distance`.
+* ```count``` (int) - Count of `result` table.
+
+**EXAMPLE**
 ```lua
-local ray_start = vmath.vector3(0, 0, 0)
-local ray_end = vmath.vector3(365, 370, 0)
 
-local result = aabb.raycast_sort(enemy_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
-```
+    local group_id = aabb.new_group()
 
----
+    local ray_start = vmath.vector3(0, 0, 0)
+    local ray_end = vmath.vector3(365, 370, 0)
+
+    local result, count = aabb.raycast_sort(group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+    
+    if result then
+        for i = 1, count do
+            print(result[i])
+        end
+    end
+    
+    
+``` 
 
 
-### aabb.remove_group(`group_id`)
+## aabb.remove_group(`group_id`)
 
 Removes the group and all associated AABBs and Gameobjects.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+
+
+**EXAMPLE**
 ```lua
-aabb.remove_group(enemy_group)
-```
 
----
+    local group_id = aabb.new_group()
+
+    aabb.remove_group(group_id)
+
+``` 
 
 
-### aabb.remove(`group_id, aabb_id`)
+## aabb.remove(`group_id`, `aabb_id`)
 
 Removes the AABB and Gameobject from group.
 
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
+
+
+**EXAMPLE**
 ```lua
-aabb.remove(group_id, aabb_id)
-```
 
----
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
 
-### aabb.remove_gameobject(`group_id, aabb_id`)
+    aabb.remove(group_id, aabb_id)
+
+``` 
+
+
+## aabb.remove_gameobject(`group_id`, `aabb_id`)
+
 Removes gameobject and the associated AABB.  
 You don't need to call `aabb.remove` again for removing AABB.
 
-```lua
-aabb.remove_gameobject(`group_id, aabb_id`)
-```
+**PARAMETERS**
+* ```group_id``` (int) - Group ID.
+* ```aabb_id``` (int) - AABB ID.
 
----
-### aabb.run(boolean)
+
+**EXAMPLE**
+```lua
+
+    local go_url = msg.url("/go")
+    local width = 50
+    local height = 50
+    local group_id = aabb.new_group()
+    local aabb_id = aabb.insert_gameobject(group_id, go_url, width, height)
+
+    aabb.remove_gameobject(group_id, aabb_id)
+
+``` 
+
+## aabb.run(`state`)
 
 Stop/resume Gameobject position update iteration.
 It is `true` by default, but does not iterate when when there are no Gameobjects registered.
 
+**PARAMETERS**
+* ```state``` (boolean) - True/False
+
+**EXAMPLE**
 ```lua
-aabb.run(true)
-```
 
----
+    aabb.run(true)
 
-### aabb.clear()
+``` 
+
+## aabb.clear()
 
 Clear everything (AABBs,groups, gameobjects) and reset to initial state.
 
+
+
+**EXAMPLE**
 ```lua
-aabb.clear()
-```
+
+    aabb.clear()
+
+``` 
+
+
 
 ---
 

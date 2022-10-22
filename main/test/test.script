@@ -46,33 +46,64 @@ function init(self)
     aabb.update(box_group, boxes[2].proxy_id, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
 
     -- Query the possible overlaps using AABB. Returns itself.
-    local query_result = aabb.query(box_group, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
-    pprint(query_result)
-    pprint(boxes[5])
-    
+    local query_result, result_count = aabb.query(box_group, boxes[2].pos.x, boxes[2].pos.y, boxes[2].size.x, boxes[2].size.y)
+
+    print(result_count)
+    if query_result then
+        pprint(query_result)
+    end
+
     go.animate(boxes[5].box, "position.x", go.PLAYBACK_LOOP_PINGPONG, boxes[7].pos.x + 150, go.EASING_INOUTBACK, 2)
 end
 
 function update(self, dt)
     msg.post("@render:", "draw_line", {start_point = ray_start, end_point = ray_end, color = vmath.vector4(1, 1, 1, 1)})
 
-    --  Query the possible overlaps using RAYCAST.
-    local ray_result = aabb.raycast_sort(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+    --  raycast_sort
+    local ray_result, result_count = aabb.raycast_sort(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
     if ray_result then
         print("raycast_sort")
+        print(result_count)
         pprint(ray_result)
     end
 
-    local query_id_sort = aabb.query_id_sort(box_group, boxes[5].proxy_id)
-
+    --  query_id_sort
+    local query_id_sort, result_count = aabb.query_id_sort(box_group, boxes[5].proxy_id)
     if query_id_sort then
+        print("query_id_sort")
+        print(result_count)
         pprint(query_id_sort)
     end
 
-    local query_sort = aabb.query_sort(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
-
+    --  query_sort
+    local query_sort, result_count = aabb.query_sort(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
     if query_sort then
-        print("Query sort")
+        print("query_sort")
+        print(result_count)
+        pprint(query_sort)
+    end
+
+    --  raycast
+    local ray_result, result_count = aabb.raycast(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y)
+    if ray_result then
+        print("raycast_sort")
+        print(result_count)
+        pprint(ray_result)
+    end
+
+    --  query_id
+    local query_id_sort, result_count = aabb.query_id(box_group, boxes[5].proxy_id)
+    if query_id_sort then
+        print("query_id_sort")
+        print(result_count)
+        pprint(query_id_sort)
+    end
+
+    --  query
+    local query_sort, result_count = aabb.query(box_group, boxes[3].pos.x, boxes[3].pos.y, boxes[3].size.x, boxes[3].size.y)
+    if query_sort then
+        print("query_sort")
+        print(result_count)
         pprint(query_sort)
     end
 
