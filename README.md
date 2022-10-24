@@ -501,3 +501,22 @@ Clear everything (AABBs,groups, gameobjects) and reset to initial state.
 
 - Performance is heavily dependent on CPU load.
 - For objects that do not move, it is advised to use aabb.insert() instead of aabb.insert_gameobject() to avoid unnecessary calculations.
+
+---
+
+## Games using DAABBCC
+
+
+
+### Void Scrappers
+
+![DAABBCC](/assets/void_scrappers.jpg?raw=true)
+
+**Developer:** [8BitSkull](https://www.8bitskull.com/)  
+**Publisher:** [8BitSkull](https://www.8bitskull.com/)   
+**Release Date:** 21 Oct, 2022  
+**Steam:** https://store.steampowered.com/app/2005210/Void_Scrappers/  
+**Switch:** TBA
+
+
+
