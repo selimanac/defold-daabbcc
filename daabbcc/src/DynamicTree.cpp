@@ -242,8 +242,15 @@ void DynamicTree::RayCastSort(int groupId, float start_x, float start_y, float e
   m_rayCastInput.p1.Set(start_x, start_y);
   m_rayCastInput.p2.Set(end_x, end_y);
   m_rayCastInput.maxFraction = 1.0f;
+
   nodeProxyCenter.x = start_x;
   nodeProxyCenter.y = start_y;
+
+  if (m_rayCastInput.p1 == m_rayCastInput.p2) {
+    dmLogError("Raycast length must be bigger then 0.0f.");
+    return;
+  }
+
   ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
   jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
@@ -256,6 +263,11 @@ void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x
   m_rayCastInput.p1.Set(start_x, start_y);
   m_rayCastInput.p2.Set(end_x, end_y);
   m_rayCastInput.maxFraction = 1.0f;
+
+  if (m_rayCastInput.p1 == m_rayCastInput.p2) {
+    dmLogError("Raycast length must be bigger then 0.0f.");
+    return;
+  }
 
   ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 }

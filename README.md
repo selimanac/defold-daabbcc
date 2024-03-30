@@ -32,7 +32,8 @@ Open your game.project file and in the dependencies field under project add:
 2.1.2
 
 - Internal Update Frequency added. Default value is set from game.project file (display.frequency).  
-- It is now possible to set a new internal(independent from Defold game loop) update frequency by using `aabb.update_frequency()`.
+It is now possible to set a new internal(independent from Defold game loop) update frequency by using `aabb.update_frequency()`.
+- Fixed [#9](https://github.com/selimanac/DAABBCC/issues/9#issue-1533854235)
 
 2.1.1
 
