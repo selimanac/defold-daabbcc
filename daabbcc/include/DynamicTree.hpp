@@ -1,7 +1,7 @@
 #ifndef DynamicTree_hpp
 #define DynamicTree_hpp
 
-#include <DynamicTree/b2DynamicTree.h>
+#include "DynamicTree/b2DynamicTree.h"
 #include <dmsdk/dlib/hashtable.h>
 #include <dmsdk/dlib/log.h>
 #include <dmsdk/sdk.h>
@@ -9,131 +9,136 @@
 #define JC_SORT_IMPLEMENTATION
 #include "jc/sort.h"
 
-struct orderResultValues
-{
-    int32 proxyID;
-    float32 distance;
+struct orderResultValues {
+  int32 proxyID;
+  float32 distance;
 };
 
-class DynamicTree
-{
+class DynamicTree {
 public:
-    DynamicTree();
-    ~DynamicTree();
+  DynamicTree();
+  ~DynamicTree();
 
-    // Add new group
-    int AddGroup();
+  int m_UpdateFrequency; // = dmConfigFile::GetInt(m_Config, "display.update_frequency", 0);
+  // Add new group
+  int AddGroup();
 
-    // Remove group
-    void RemoveGroup(int groupId);
+  // Remove group
+  void RemoveGroup(int groupId);
 
-    // Add new proxy(aabb)
-    int32 AddProxy(int groupId, float x, float y, int w, int h);
+  // Add new proxy(aabb)
+  int32 AddProxy(int groupId, float x, float y, int w, int h);
 
-    // Move Proxy
-    void MoveProxy(int groupId, int proxyID, float x, float y, int w, int h);
+  // Move Proxy
+  void MoveProxy(int groupId, int proxyID, float x, float y, int w, int h);
 
-    // Update GO W&H
-    void updateGameobjectSize(int groupID, int proxyID, int w, int h);
+  // Update GO W&H
+  void updateGameobjectSize(int groupID, int proxyID, int w, int h);
 
-    // Remove Proxy
-    void RemoveProxy(int groupID, int proxyID);
+  // Remove Proxy
+  void RemoveProxy(int groupID, int proxyID);
 
-    void RemoveProxyGameobject(int groupID, int proxyID);
+  void RemoveProxyGameobject(int groupID, int proxyID);
 
-    // b2DynamicTree query callback
-    bool QueryCallback(int32 proxyId, int groupId);
+  // b2DynamicTree query callback
+  bool QueryCallback(int32 proxyId, int groupId);
 
-    // b2DynamicTree raycast callback
-    float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
+  // b2DynamicTree raycast callback
+  float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
 
-    // RayCast to AABB
-    void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
+  // RayCast to AABB
+  void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
 
-    void RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y);
+  void RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y);
 
-    // Query with AABB
-    void QueryAABB(int groupId, float x, float y, int w, int h);
+  // Query with AABB
+  void QueryAABB(int groupId, float x, float y, int w, int h);
 
-    // Query with ID
-    void QueryID(int groupId, int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
+  // Query with ID
+  void QueryID(int groupId,
+               int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
 
-    // Query with ID - Distance Ordered
-    void QueryIDSort(int groupId, int proxyID);
+  // Query with ID - Distance Ordered
+  void QueryIDSort(int groupId, int proxyID);
 
-    void QueryAABBSort(int groupId, float x, float y, int w, int h);
+  void QueryAABBSort(int groupId, float x, float y, int w, int h);
 
-    void Run(bool toggle);
+  void Run(bool toggle);
 
-    // Query result
-    dmArray<int32> result;
+  void SetUpdateFrequency(int32_t updateFrequency);
 
-    // Raycast result
-    dmArray<int32> ray_result;
+  // Query result
+  dmArray<int32> result;
 
-    // Query order result
-    dmArray<orderResultValues> orderResult;
+  // Raycast result
+  dmArray<int32> ray_result;
 
-    // Assert
-    bool CheckGroup(int groupID);
+  // Query order result
+  dmArray<orderResultValues> orderResult;
 
-    bool isSorted = false;
+  // Assert
+  bool CheckGroup(int groupID);
 
-    void AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
+  bool isSorted;
 
-    void GameobjectUpdate();
+  void AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
 
-    void Clear();
+  void GameobjectUpdate();
+
+  void Clear();
 
 private:
-    int groupCounter = 0;
-    int nodeProxyID = 0;
-    bool state = true;
+  int groupCounter;
+  int nodeProxyID;
+  bool state;
 
-    struct Groups
-    {
-        b2DynamicTree *m_tree;
-        dmScript::LuaCallbackInfo *cbk;
-    };
-    dmHashTable<uint32_t, Groups> ht;
+  uint64_t m_PreviousFrameTime;
+  float m_AccumFrameTime;
 
-    struct GameObjectContainer
-    {
-        uint32_t groupID;
-        int32 proxyId;
-        dmGameObject::HInstance instance;
-        int32 w;
-        int32 h;
-    };
-    dmArray<GameObjectContainer> m_GameObjectContainer;
-    uint32_t updateCounter = 0;
-    GameObjectContainer *updateContainer;
+  struct Groups {
+    b2DynamicTree *m_tree;
+    dmScript::LuaCallbackInfo *cbk;
+  };
+  dmHashTable<uint32_t, Groups> ht;
 
-    // Bound calculation
-    b2Vec2 Bound(int type, float x, float y, int w, int h);
+  struct GameObjectContainer {
+    uint32_t groupID;
+    int32 proxyId;
+    dmGameObject::HInstance instance;
+    int32 w;
+    int32 h;
+  };
+  dmArray<GameObjectContainer> m_GameObjectContainer;
+  uint32_t updateCounter;
+  GameObjectContainer *updateContainer;
 
-    // GetFatAABB -> GetAABB
-    b2AABB GetAABB(int groupId, int proxyID);
+  // Bound calculation
+  b2Vec2 Bound(int type, float x, float y, int w, int h);
 
-    // Get AABB Position (Center)
-    b2Vec2 GetAABBPosition(int groupId, int proxyID);
+  // GetFatAABB -> GetAABB
+  b2AABB GetAABB(int groupId, int proxyID);
 
-    // Query
-    void Query(int groupId, b2AABB aabb); // std::vector<int32> Query(int groupId, b2AABB aabb);
+  // Get AABB Position (Center)
+  b2Vec2 GetAABBPosition(int groupId, int proxyID);
 
-    b2Vec2 nodeProxyCenter;
-    b2Vec2 targetProxyCenter;
-    dmVMath::Point3 goPosition;
+  // Query
+  // std::vector<int32> Query(int groupId, b2AABB aabb);
+  void Query(int groupId, b2AABB aabb);
 
-    orderResultValues tmpOrder;
-    dmArray<orderResultValues> tmpOrderResult;
+  b2Vec2 nodeProxyCenter;
+  b2Vec2 targetProxyCenter;
+  dmVMath::Point3 goPosition;
 
-    static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
+  orderResultValues tmpOrder;
+  dmArray<orderResultValues> tmpOrderResult;
 
-    void DestroyProxyID(int groupId, int proxyID);
+  static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
+  void CalcTimeStep(float &step_dt, uint32_t &num_steps);
 
-    // Reset class
-    void ResetTree();
+  void DestroyProxyID(int groupId, int proxyID);
+
+  // Reset class
+  void ResetTree();
 };
 
 #endif /* DynamicTree_hpp */

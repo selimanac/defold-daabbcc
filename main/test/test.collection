@@ -16,6 +16,8 @@ embedded_instances {
   "    z: 0.0\n"
   "    w: 1.0\n"
   "  }\n"
+  "  property_decls {\n"
+  "  }\n"
   "}\n"
   ""
   position {
@@ -42,6 +44,7 @@ embedded_instances {
   "  type: \"factory\"\n"
   "  data: \"prototype: \\\"/main/assets/box.go\\\"\\n"
   "load_dynamically: false\\n"
+  "dynamic_prototype: false\\n"
   "\"\n"
   "  position {\n"
   "    x: 0.0\n"

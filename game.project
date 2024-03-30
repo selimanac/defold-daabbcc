@@ -7,6 +7,7 @@ shared_state = 1
 [display]
 width = 1280
 height = 720
+update_frequency = 0
 
 [android]
 input_method = HiddenInputField
@@ -34,4 +35,7 @@ include_dirs = daabbcc
 [graphics]
 default_texture_min_filter = nearest
 default_texture_mag_filter = nearest
+
+[engine]
+fixed_update_frequency = 60
 

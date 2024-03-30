@@ -1,10 +1,13 @@
 embedded_components {
   id: "sprite"
   type: "sprite"
-  data: "tile_set: \"/main/assets/main.atlas\"\n"
-  "default_animation: \"40x40_rect\"\n"
+  data: "default_animation: \"40x40_rect\"\n"
   "material: \"/builtins/materials/sprite.material\"\n"
   "blend_mode: BLEND_MODE_ALPHA\n"
+  "textures {\n"
+  "  sampler: \"texture_sampler\"\n"
+  "  texture: \"/main/assets/main.atlas\"\n"
+  "}\n"
   ""
   position {
     x: 0.0
@@ -51,7 +54,7 @@ embedded_components {
   "blend_mode: BLEND_MODE_ALPHA\n"
   "line_break: false\n"
   "text: \"9\"\n"
-  "font: \"/builtins/fonts/system_font.font\"\n"
+  "font: \"/builtins/fonts/default.font\"\n"
   "material: \"/builtins/fonts/label.material\"\n"
   ""
   position {

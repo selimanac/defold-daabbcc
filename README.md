@@ -29,6 +29,11 @@ Open your game.project file and in the dependencies field under project add:
 
 ## Release Notes
 
+2.1.2
+
+- Internal Update Frequency added. Default value is set from game.project file (display.frequency).  
+- It is now possible to set a new internal(independent from Defold game loop) update frequency by using `aabb.update_frequency()`.
+
 2.1.1
 
 - Table count added to query results.
@@ -494,6 +499,22 @@ Clear everything (AABBs,groups, gameobjects) and reset to initial state.
 ``` 
 
 
+## aabb.update_frequency(`update_frequency`)
+
+It is possible to set a independent update frequency for gameobject loop. Default value is set from game.project file(display.frequency).
+
+**PARAMETERS**
+* ```update_frequency``` (int) - Update Frequency.
+
+
+**EXAMPLE**
+```lua
+
+    aabb.update_frequency(5)
+
+``` 
+
+
 
 ---
 
@@ -516,6 +537,16 @@ Clear everything (AABBs,groups, gameobjects) and reset to initial state.
 **Publisher:** [8BitSkull](https://www.8bitskull.com/)   
 **Release Date:** 21 Oct, 2022  
 **Steam:** https://store.steampowered.com/app/2005210/Void_Scrappers/  
+**Switch:** 3 Mar, 2023
+
+### Bore Blast
+
+![DAABBCC](/assets/boreblast.jpg?raw=true)
+
+**Developer:** [8BitSkull](https://www.8bitskull.com/)  
+**Publisher:** [8BitSkull](https://www.8bitskull.com/)   
+**Release Date:** 8 Mar, 2024  
+**Steam:** https://store.steampowered.com/app/2398170/BORE_BLASTERS/  
 **Switch:** TBA
 
 
