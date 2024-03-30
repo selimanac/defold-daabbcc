@@ -537,7 +537,7 @@ It is possible to set a independent update frequency for gameobject loop. Defaul
 **Publisher:** [8BitSkull](https://www.8bitskull.com/)   
 **Release Date:** 21 Oct, 2022  
 **Steam:** https://store.steampowered.com/app/2005210/Void_Scrappers/  
-**Switch:** 3 Mar, 2023
+**Switch:** https://www.nintendo.co.uk/Games/Nintendo-Switch-download-software/Void-Scrappers-2344179.html. 
 
 ### Bore Blast
 
