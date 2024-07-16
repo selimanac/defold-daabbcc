@@ -29,6 +29,10 @@ Open your game.project file and in the dependencies field under project add:
 
 ## Release Notes
 
+2.1.3
+
+- Small fix to prevent collision with Defold's build-in box2D lib.    
+
 2.1.2
 
 - Internal Update Frequency added. Default value is set from game.project file (display.frequency).  

@@ -11,3 +11,10 @@ builtins
 /.vscode
 .vscode
 *.der
+*.sublime-project
+*.sublime-workspace
+compile_commands.json
+compile_flags.txt
+
+.clang-format
+.clangd

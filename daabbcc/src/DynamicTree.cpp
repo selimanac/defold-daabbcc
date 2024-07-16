@@ -1,7 +1,11 @@
-#include "dmsdk/dlib/log.h"
 #include <DynamicTree.hpp>
 
-DynamicTree::DynamicTree() : isSorted(false), groupCounter(0), nodeProxyID(0), state(true), updateCounter(0), m_AccumFrameTime(0), m_PreviousFrameTime(dmTime::GetTime()) {
+using namespace daabbcc;
+
+DynamicTree::DynamicTree()
+    : isSorted(false), groupCounter(0), nodeProxyID(0), state(true),
+      updateCounter(0), m_AccumFrameTime(0),
+      m_PreviousFrameTime(dmTime::GetTime()) {
   result.SetCapacity(100);
   ray_result.SetCapacity(100);
 
@@ -12,9 +16,14 @@ DynamicTree::DynamicTree() : isSorted(false), groupCounter(0), nodeProxyID(0), s
 DynamicTree::~DynamicTree() { ResetTree(); }
 
 // ITERATE CALLBACKS
-void DynamicTree::IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value) { delete value->m_tree; }
+void DynamicTree::IterateRemoveCallback(DynamicTree *context,
+                                        const uint32_t *key, Groups *value) {
+  delete value->m_tree;
+}
 
-void DynamicTree::SetUpdateFrequency(int32_t updateFrequency) { m_UpdateFrequency = updateFrequency; }
+void DynamicTree::SetUpdateFrequency(int32_t updateFrequency) {
+  m_UpdateFrequency = updateFrequency;
+}
 // Reset
 void DynamicTree::ResetTree() {
   ht.Iterate(IterateRemoveCallback, this);
@@ -49,7 +58,9 @@ int DynamicTree::AddGroup() {
   return c;
 }
 
-void DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h) {
+void DynamicTree::AddGameObject(uint32_t groupID, int32 proxyId,
+                                dmGameObject::HInstance instance, int32 w,
+                                int32 h) {
   GameObjectContainer goContainer;
   goContainer.groupID = groupID;
   goContainer.proxyId = proxyId;
@@ -115,11 +126,14 @@ void DynamicTree::GameobjectUpdate() {
 
   for (uint32_t i = 0; i < num_steps; ++i) {
 
-    for (updateCounter = 0; updateCounter < m_GameObjectContainer.Size(); ++updateCounter) {
+    for (updateCounter = 0; updateCounter < m_GameObjectContainer.Size();
+         ++updateCounter) {
       updateContainer = &m_GameObjectContainer[updateCounter];
 
       goPosition = dmGameObject::GetPosition(updateContainer->instance);
-      MoveProxy(updateContainer->groupID, updateContainer->proxyId, goPosition.getX(), goPosition.getY(), updateContainer->w, updateContainer->h);
+      MoveProxy(updateContainer->groupID, updateContainer->proxyId,
+                goPosition.getX(), goPosition.getY(), updateContainer->w,
+                updateContainer->h);
     }
   }
 }
@@ -153,7 +167,8 @@ int32 DynamicTree::AddProxy(int groupId, float x, float y, int w, int h) {
 void DynamicTree::DestroyProxyID(int groupID, int proxyID) {
 
   for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i) {
-    if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID) {
+    if (m_GameObjectContainer[i].groupID == groupID &&
+        m_GameObjectContainer[i].proxyId == proxyID) {
       m_GameObjectContainer.EraseSwap(i);
     }
   }
@@ -193,7 +208,8 @@ void DynamicTree::RemoveProxy(int groupID, int proxyID) {
  *            RAY
  ******************************/
 
-float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId) {
+float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input,
+                                     int32 proxyId, int groupId) {
   b2AABB aabb = GetAABB(groupId, proxyId);
   b2RayCastOutputAABB output;
   bool hit = aabb.RayCast(&output, input);
@@ -232,7 +248,8 @@ float32 DynamicTree::RayCastCallback(const b2RayCastInputAABB &input, int32 prox
   return input.maxFraction;
 }
 
-void DynamicTree::RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y) {
+void DynamicTree::RayCastSort(int groupId, float start_x, float start_y,
+                              float end_x, float end_y) {
   isSorted = true;
   ray_result.SetSize(0);
   orderResult.SetSize(0);
@@ -253,10 +270,12 @@ void DynamicTree::RayCastSort(int groupId, float start_x, float start_y, float e
 
   ht.Get(groupId)->m_tree->RayCast(this, m_rayCastInput, groupId);
 
-  jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+  jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                 tmpOrderResult.Begin());
 }
 
-void DynamicTree::RayCast(int groupId, float start_x, float start_y, float end_x, float end_y) {
+void DynamicTree::RayCast(int groupId, float start_x, float start_y,
+                          float end_x, float end_y) {
   ray_result.SetSize(0);
 
   b2RayCastInputAABB m_rayCastInput;
@@ -319,7 +338,8 @@ void DynamicTree::QueryIDSort(int groupId, int proxyID) {
   b2AABB aabb = GetAABB(groupId, proxyID);
   Query(groupId, aabb);
 
-  jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+  jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                 tmpOrderResult.Begin());
 }
 
 void DynamicTree::QueryAABBSort(int groupId, float x, float y, int w, int h) {
@@ -331,7 +351,8 @@ void DynamicTree::QueryAABBSort(int groupId, float x, float y, int w, int h) {
   nodeProxyCenter = aabb.GetCenter();
   Query(groupId, aabb);
 
-  jc::radix_sort(orderResult.Begin(), orderResult.End(), tmpOrderResult.Begin());
+  jc::radix_sort(orderResult.Begin(), orderResult.End(),
+                 tmpOrderResult.Begin());
 }
 
 void DynamicTree::QueryID(int groupId, int proxyID) {
@@ -359,14 +380,16 @@ void DynamicTree::Query(int groupId, b2AABB aabb) {
 
 void DynamicTree::updateGameobjectSize(int groupID, int proxyID, int w, int h) {
   for (uint32_t i = 0; i < m_GameObjectContainer.Size(); ++i) {
-    if (m_GameObjectContainer[i].groupID == groupID && m_GameObjectContainer[i].proxyId == proxyID) {
+    if (m_GameObjectContainer[i].groupID == groupID &&
+        m_GameObjectContainer[i].proxyId == proxyID) {
       m_GameObjectContainer[i].w = w;
       m_GameObjectContainer[i].h = h;
     }
   }
 }
 
-void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w, int h) {
+void DynamicTree::MoveProxy(int groupId, int proxyID, float x, float y, int w,
+                            int h) {
   b2AABB current_aabb = GetAABB(groupId, proxyID);
 
   b2AABB next_aabb;

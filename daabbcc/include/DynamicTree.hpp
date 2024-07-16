@@ -1,5 +1,4 @@
-#ifndef DynamicTree_hpp
-#define DynamicTree_hpp
+#pragma once
 
 #include "DynamicTree/b2DynamicTree.h"
 #include <dmsdk/dlib/hashtable.h>
@@ -9,6 +8,7 @@
 #define JC_SORT_IMPLEMENTATION
 #include "jc/sort.h"
 
+namespace daabbcc {
 struct orderResultValues {
   int32 proxyID;
   float32 distance;
@@ -19,7 +19,8 @@ public:
   DynamicTree();
   ~DynamicTree();
 
-  int m_UpdateFrequency; // = dmConfigFile::GetInt(m_Config, "display.update_frequency", 0);
+  int m_UpdateFrequency; // = dmConfigFile::GetInt(m_Config,
+                         // "display.update_frequency", 0);
   // Add new group
   int AddGroup();
 
@@ -44,19 +45,23 @@ public:
   bool QueryCallback(int32 proxyId, int groupId);
 
   // b2DynamicTree raycast callback
-  float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId, int groupId);
+  float32 RayCastCallback(const b2RayCastInputAABB &input, int32 proxyId,
+                          int groupId);
 
   // RayCast to AABB
-  void RayCast(int groupId, float start_x, float start_y, float end_x, float end_y);
+  void RayCast(int groupId, float start_x, float start_y, float end_x,
+               float end_y);
 
-  void RayCastSort(int groupId, float start_x, float start_y, float end_x, float end_y);
+  void RayCastSort(int groupId, float start_x, float start_y, float end_x,
+                   float end_y);
 
   // Query with AABB
   void QueryAABB(int groupId, float x, float y, int w, int h);
 
   // Query with ID
-  void QueryID(int groupId,
-               int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
+  void
+  QueryID(int groupId,
+          int proxyID); // std::vector<int32> QueryID(int groupId, int proxyID);
 
   // Query with ID - Distance Ordered
   void QueryIDSort(int groupId, int proxyID);
@@ -81,7 +86,8 @@ public:
 
   bool isSorted;
 
-  void AddGameObject(uint32_t groupID, int32 proxyId, dmGameObject::HInstance instance, int32 w, int32 h);
+  void AddGameObject(uint32_t groupID, int32 proxyId,
+                     dmGameObject::HInstance instance, int32 w, int32 h);
 
   void GameobjectUpdate();
 
@@ -132,7 +138,8 @@ private:
   orderResultValues tmpOrder;
   dmArray<orderResultValues> tmpOrderResult;
 
-  static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key, Groups *value);
+  static void IterateRemoveCallback(DynamicTree *context, const uint32_t *key,
+                                    Groups *value);
   void CalcTimeStep(float &step_dt, uint32_t &num_steps);
 
   void DestroyProxyID(int groupId, int proxyID);
@@ -140,5 +147,4 @@ private:
   // Reset class
   void ResetTree();
 };
-
-#endif /* DynamicTree_hpp */
+} // namespace daabbcc

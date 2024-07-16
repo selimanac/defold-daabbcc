@@ -8,7 +8,7 @@
 #include <dmsdk/script/script.h>
 #include <dmsdk/sdk.h>
 
-DynamicTree dynamicTree;
+daabbcc::DynamicTree dynamicTree;
 
 static int AddGroup(lua_State *L) {
   int groupID = dynamicTree.AddGroup();
@@ -376,31 +376,32 @@ static int UpdateFrequency(lua_State *L) {
 }
 
 // Functions exposed to Lua
-static const luaL_reg Module_methods[] = {{"new_group", AddGroup},
+static const luaL_reg Module_methods[] = {
+    {"new_group", AddGroup},
 
-                                          {"raycast", RayCast},
-                                          {"raycast_sort", RayCastSort},
+    {"raycast", RayCast},
+    {"raycast_sort", RayCastSort},
 
-                                          {"query", QueryAABB},
-                                          {"query_id", QueryID},
-                                          {"query_sort", QueryAABBSort},
-                                          {"query_id_sort", QueryIDSort},
+    {"query", QueryAABB},
+    {"query_id", QueryID},
+    {"query_sort", QueryAABBSort},
+    {"query_id_sort", QueryIDSort},
 
-                                          {"insert", AddProxy},
-                                          {"insert_gameobject", AddProxyGameobject},
+    {"insert", AddProxy},
+    {"insert_gameobject", AddProxyGameobject},
 
-                                          {"remove", RemoveProxy},
-                                          {"remove_group", RemoveGroup},
-                                          {"remove_gameobject", RemoveProxyGameobject},
+    {"remove", RemoveProxy},
+    {"remove_group", RemoveGroup},
+    {"remove_gameobject", RemoveProxyGameobject},
 
-                                          {"update", MoveProxy},
-                                          {"update_gameobject", updateGameobject},
+    {"update", MoveProxy},
+    {"update_gameobject", updateGameobject},
 
-                                          {"clear", Clear},
-                                          {"run", Run},
-                                          {"update_frequency", UpdateFrequency},
+    {"clear", Clear},
+    {"run", Run},
+    {"update_frequency", UpdateFrequency},
 
-                                          {NULL, NULL}};
+    {NULL, NULL}};
 
 static void LuaInit(lua_State *L) {
   int top = lua_gettop(L);
@@ -410,7 +411,8 @@ static void LuaInit(lua_State *L) {
 }
 
 dmExtension::Result AppInitializeDAABBCC(dmExtension::AppParams *params) {
-  dynamicTree.m_UpdateFrequency = dmConfigFile::GetInt(params->m_ConfigFile, "display.update_frequency", 0);
+  dynamicTree.m_UpdateFrequency =
+      dmConfigFile::GetInt(params->m_ConfigFile, "display.update_frequency", 0);
   return dmExtension::RESULT_OK;
 }
 
@@ -427,8 +429,14 @@ static dmExtension::Result OnUpdateMyExtension(dmExtension::Params *params) {
   return dmExtension::RESULT_OK;
 }
 
-dmExtension::Result AppFinalizeDAABBCC(dmExtension::AppParams *params) { return dmExtension::RESULT_OK; }
+dmExtension::Result AppFinalizeDAABBCC(dmExtension::AppParams *params) {
+  return dmExtension::RESULT_OK;
+}
 
-dmExtension::Result FinalizeDAABBCC(dmExtension::Params *params) { return dmExtension::RESULT_OK; }
+dmExtension::Result FinalizeDAABBCC(dmExtension::Params *params) {
+  return dmExtension::RESULT_OK;
+}
 
-DM_DECLARE_EXTENSION(DAABBCC, LIB_NAME, AppInitializeDAABBCC, AppFinalizeDAABBCC, InitializeDAABBCC, OnUpdateMyExtension, 0, FinalizeDAABBCC)
+DM_DECLARE_EXTENSION(DAABBCC, LIB_NAME, AppInitializeDAABBCC,
+                     AppFinalizeDAABBCC, InitializeDAABBCC, OnUpdateMyExtension,
+                     0, FinalizeDAABBCC)
