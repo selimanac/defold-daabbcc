@@ -1,0 +1,7 @@
+# C++ symbol in your extension
+name: "DAABBCC"
+
+platforms:
+    common:
+       context:
+           flags: ["-std=c++11"]

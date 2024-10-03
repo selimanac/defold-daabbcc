@@ -1,32 +1,22 @@
 [bootstrap]
-main_collection = /main/test/test.collectionc
+main_collection = /example/example.collectionc
 
 [script]
 shared_state = 1
 
 [display]
-width = 1280
-height = 720
-
-[android]
-input_method = HiddenInputField
+width = 960
+height = 640
 
 [project]
-title = daabbcc
-version = 2.0
-
-[sprite]
-max_count = 6000
-
-[resource]
-max_resources = 6800
-
-[collection]
-max_instances = 6800
-
-[native_extension]
-app_manifest = 
+title = defold-daabbcc
 
 [library]
-include_dirs = daabbcc
+include_dirs = defold-daabbcc
 
+
+[daabbcc]
+max_group_count = 3
+max_gameobject_count = 128
+max_query_result_count = 32
+max_raycast_result_count = 32

@@ -8,5 +8,9 @@ Thumbs.db
 .project
 .cproject
 builtins
-/.vscode
-.vscode
+*.sublime-project
+*.sublime-workspace
+.clang-format
+compile_commands.json
+*.appmanifest
+/.cache
