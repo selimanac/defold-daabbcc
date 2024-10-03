@@ -125,7 +125,7 @@ void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, u
   m_daabbcc.m_GameObjectContainer.Push(gameObject);
 }
 
-void MoveProxy(uint8_t groupID, int32_t proxyID, float x, float y, uint32_t width, uint32_t height)
+void MoveProxy(int32_t proxyID, float x, float y, uint32_t width, uint32_t height)
 {
   Bound(&m_daabbcc.m_aabb, x, y, width, height);
   b2DynamicTree_MoveProxy(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID, m_daabbcc.m_aabb);

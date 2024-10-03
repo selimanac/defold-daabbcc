@@ -433,7 +433,7 @@ static int MoveProxy(lua_State* L)
   uint32_t width = luaL_checkint(L, 5);
   uint32_t height = luaL_checkint(L, 6);
 
-  daabbcc::MoveProxy(groupID, proxyID, x, y, width, height);
+  daabbcc::MoveProxy(proxyID, x, y, width, height);
 
   return 0;
 }
@@ -552,7 +552,7 @@ static const luaL_reg Module_methods[] = {
   {"insert_aabb", AddProxy},
   {"insert_gameobject", AddGameObject},
   {"update_aabb", MoveProxy},
-  {"update_gameobject", UpdateGameobjectSize},
+  {"update_gameobject_size", UpdateGameobjectSize},
   {"remove", RemoveProxy},
 
   // Query Operations

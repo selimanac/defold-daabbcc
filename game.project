@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /example/example.collectionc
+main_collection = /example/test/test.collectionc
 
 [script]
 shared_state = 1
@@ -12,11 +12,11 @@ height = 640
 title = defold-daabbcc
 
 [library]
-include_dirs = defold-daabbcc
-
+include_dirs = daabbcc
 
 [daabbcc]
 max_group_count = 3
 max_gameobject_count = 128
 max_query_result_count = 32
 max_raycast_result_count = 32
+

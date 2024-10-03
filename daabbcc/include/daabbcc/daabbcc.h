@@ -140,7 +140,7 @@ int32_t AddProxy(uint8_t groupID, float x, float y, uint32_t width, uint32_t hei
 
 void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance);
 
-void MoveProxy(uint8_t groupID, int32_t proxyID, float x, float y, uint32_t width, uint32_t height);
+void MoveProxy( int32_t proxyID, float x, float y, uint32_t width, uint32_t height);
 
 void UpdateGameobjectSize(uint8_t groupID, int32_t proxyID, uint32_t width, uint32_t height);
 

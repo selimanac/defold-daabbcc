@@ -6,6 +6,7 @@ function init(self)
 
 	local groupID = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
 	print('id', groupID)
+
 	daabbcc.remove_group(groupID);
 
 	groupID = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
@@ -41,7 +42,7 @@ function init(self)
 	local gameobjectProxyID = daabbcc.insert_gameobject(groupID, go_url, width, height, maskBits)
 
 	daabbcc.update_aabb(groupID, proxyID, 20, 20, 125, 125)
-	daabbcc.update_gameobject(groupID, gameobjectProxyID, 125, 125)
+	daabbcc.update_gameobject_size(groupID, gameobjectProxyID, 125, 125)
 	print('proxyID', proxyID)
 
 	print('----query_aabb')
