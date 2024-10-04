@@ -350,7 +350,7 @@ static int RayCastSort(lua_State* L)
 
 static int AddProxy(lua_State* L)
 {
-  DM_LUA_STACK_CHECK(L, 1);
+  //DM_LUA_STACK_CHECK(L, 1);
 
   uint8_t groupID = luaL_checkint(L, 1);
 
@@ -381,7 +381,7 @@ static int AddProxy(lua_State* L)
 
 static int AddGameObject(lua_State* L)
 {
-  DM_LUA_STACK_CHECK(L, 1);
+  //DM_LUA_STACK_CHECK(L, 1);
 
   uint8_t groupID = luaL_checkint(L, 1);
 

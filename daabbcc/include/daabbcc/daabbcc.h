@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <daabbcc/collision.h>
 #include <dmsdk/dlib/array.h>
 #include <dmsdk/dlib/hashtable.h>
@@ -140,7 +141,7 @@ int32_t AddProxy(uint8_t groupID, float x, float y, uint32_t width, uint32_t hei
 
 void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance);
 
-void MoveProxy( int32_t proxyID, float x, float y, uint32_t width, uint32_t height);
+void MoveProxy(int32_t proxyID, float x, float y, uint32_t width, uint32_t height);
 
 void UpdateGameobjectSize(uint8_t groupID, int32_t proxyID, uint32_t width, uint32_t height);
 
@@ -229,6 +230,8 @@ static void CalcTimeStep(float& step_dt, uint32_t& num_steps);
 void Reset();
 
 void ErrorAssert(const char* info, uint8_t groupID);
+
+void LimitErrorAssert(const char* info, uint16_t count);
 
 ////////////////////////////////////////
 // Tests

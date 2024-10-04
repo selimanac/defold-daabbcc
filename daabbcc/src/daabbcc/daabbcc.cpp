@@ -53,7 +53,7 @@ uint8_t AddGroup(uint8_t treeBuildType)
 {
   if (m_daabbcc.m_dynamicTreeGroup.Full())
   {
-    dmLogError("Can't add new group. Groups are full. Increase the group size.");
+    LimitErrorAssert("Max Group Count", m_daabbcc.m_dynamicTreeGroup.Size());
     return 0;
   }
 
@@ -122,7 +122,14 @@ void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, u
 {
   GameObject gameObject = {groupID, proxyID, position, gameObjectInstance, width, height};
 
-  m_daabbcc.m_GameObjectContainer.Push(gameObject);
+  if (m_daabbcc.m_GameObjectContainer.Full())
+  {
+    LimitErrorAssert("Max Gameobject Count", m_daabbcc.m_GameObjectContainer.Size());
+  }
+  else
+  {
+    m_daabbcc.m_GameObjectContainer.Push(gameObject);
+  }
 }
 
 void MoveProxy(int32_t proxyID, float x, float y, uint32_t width, uint32_t height)
@@ -169,7 +176,15 @@ static bool QueryCallback(int32_t proxyID, int32_t groupID, void* queryContainer
     return true;
   }
 
-  m_daabbcc.m_queryResult.Push(proxyID);
+  if (m_daabbcc.m_queryResult.Full())
+  {
+    LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryResult.Size());
+  }
+  else
+  {
+    m_daabbcc.m_queryResult.Push(proxyID);
+  }
+
   return true;
 }
 
@@ -187,8 +202,15 @@ static bool QuerySortCallback(int32_t proxyID, int32_t groupID, void* queryConta
 
   m_daabbcc.m_sortResult = {proxyID, b2Distance(m_daabbcc.m_aabbCenter, m_queryContainer->m_center)};
 
-  m_daabbcc.m_tempSortResults.Push(m_daabbcc.m_sortResult);
-  m_daabbcc.m_sortResults.Push(m_daabbcc.m_sortResult);
+  if (m_daabbcc.m_sortResults.Full())
+  {
+    LimitErrorAssert("Max Query Result Count", m_daabbcc.m_sortResults.Size());
+  }
+  else
+  {
+    m_daabbcc.m_tempSortResults.Push(m_daabbcc.m_sortResult);
+    m_daabbcc.m_sortResults.Push(m_daabbcc.m_sortResult);
+  }
 
   return true;
 }
@@ -267,7 +289,15 @@ dmArray<SortResult>& GetQuerySortResults() { return m_daabbcc.m_sortResults; }
 
 static float RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context)
 {
-  m_daabbcc.m_rayResult.Push(proxyID);
+  if (m_daabbcc.m_rayResult.Full())
+  {
+    LimitErrorAssert("Max Raycast Result Count", m_daabbcc.m_rayResult.Size());
+  }
+  else
+  {
+    m_daabbcc.m_rayResult.Push(proxyID);
+  }
+
   return input->maxFraction;
 }
 
@@ -278,8 +308,16 @@ static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, i
 
   m_daabbcc.m_sortRayResult = {proxyID, b2Distance(m_daabbcc.m_aabbCenter, input->origin)};
 
-  m_daabbcc.m_tempSortRayResults.Push(m_daabbcc.m_sortRayResult);
-  m_daabbcc.m_sortRayResults.Push(m_daabbcc.m_sortRayResult);
+  if (m_daabbcc.m_sortRayResults.Full())
+  {
+    LimitErrorAssert("Max Raycast Result Count", m_daabbcc.m_sortRayResults.Size());
+  }
+  else
+  {
+    m_daabbcc.m_tempSortRayResults.Push(m_daabbcc.m_sortRayResult);
+    m_daabbcc.m_sortRayResults.Push(m_daabbcc.m_sortRayResult);
+  }
+
   return input->maxFraction;
 }
 
@@ -350,7 +388,6 @@ void GameObjectUpdate()
     {
       m_daabbcc.m_gameObject = &m_daabbcc.m_GameObjectContainer[i];
 
-      // TODO COMMENT THIS
       m_daabbcc.m_gameObject->m_position = dmGameObject::GetPosition(m_daabbcc.m_gameObject->m_gameObjectInstance);
 
       // TODO Find a better way:
@@ -360,10 +397,6 @@ void GameObjectUpdate()
       Bound(&m_aabb, m_daabbcc.m_gameObject->m_position.getX(), m_daabbcc.m_gameObject->m_position.getY(), m_daabbcc.m_gameObject->m_width, m_daabbcc.m_gameObject->m_height);
 
       b2DynamicTree_MoveProxy(&m_treeGroup->m_dynamicTree, m_daabbcc.m_gameObject->m_proxyID, m_aabb);
-
-      // TODO RACE CONDITION BY SETTIN GROUIP ID?
-      //  SetTreeGroup(m_daabbcc.m_gameObject->m_groupID);
-      //  MoveProxy(m_daabbcc.m_gameObject->m_groupID, m_daabbcc.m_gameObject->m_proxyID, m_daabbcc.m_gameObject->m_position.getX(), m_daabbcc.m_gameObject->m_position.getY(), m_daabbcc.m_gameObject->m_width, m_daabbcc.m_gameObject->m_height);
     }
 
     m_daabbcc.m_dynamicTreeGroup.Iterate(GameobjectRebuildIterateCallback, (void*)0x0);
@@ -469,6 +502,8 @@ void Reset()
 }
 
 void ErrorAssert(const char* info, uint8_t groupID) { dmLogError("%s: Group ID [%i] is invalid or already removed!", info, groupID); }
+
+void LimitErrorAssert(const char* info, uint16_t count) { dmLogError("%s reached: %i", info, count); }
 
 ////////////////////////////////////////
 // Tests

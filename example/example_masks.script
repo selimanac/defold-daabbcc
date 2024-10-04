@@ -28,7 +28,6 @@ function init(self)
 	print('team2_proxy_id: ', team2_proxy_id)
 	print('team3_proxy_id: ', team3_proxy_id)
 
-
 	--maskBits
 	local mask_bits = bit.bor(collision_bits.TEAM1)
 	print(mask_bits)
