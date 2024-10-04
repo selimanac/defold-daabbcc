@@ -207,7 +207,7 @@ static void Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context,
   m_daabbcc.m_queryResult.SetSize(0);
   m_daabbcc.m_sortResults.SetSize(0);
   m_daabbcc.m_tempSortResults.SetSize(0);
-
+  dmLogInfo("QuerymaskBits: %llu", maskBits);
   b2DynamicTree_Query(&m_daabbcc.m_treeGroup->m_dynamicTree, *aabb, maskBits, callback, context);
 }
 

@@ -44,7 +44,7 @@ static int Init(lua_State* L)
 static int AddGroup(lua_State* L)
 {
   DM_LUA_STACK_CHECK(L, 1);
-  uint8_t treeBuildType = luaL_checkint(L, 1);
+  uint8_t treeBuildType = luaL_checkint(L, 1); // TODO:  OPTIONAL -> UPDATE_FULLREBUILD
   uint8_t groupID = daabbcc::AddGroup(treeBuildType);
   lua_pushinteger(L, groupID);
   return 1;
@@ -132,7 +132,8 @@ static inline int QueryIDSort(lua_State* L)
 
   if (lua_isnumber(L, 3))
   {
-    maskBits = luaL_checkint(L, 3);
+
+    maskBits = luaL_checkinteger(L, 3);
   }
 
   daabbcc::QueryIDSort(proxyID, maskBits);
@@ -170,7 +171,7 @@ static int QueryAABBSort(lua_State* L)
 
   if (lua_isnumber(L, 6))
   {
-    maskBits = luaL_checkint(L, 6);
+    maskBits = luaL_checkinteger(L, 6);
   }
 
   daabbcc::QueryAABBSort(x, y, width, height, maskBits);
@@ -208,7 +209,7 @@ static int QueryAABB(lua_State* L)
 
   if (lua_isnumber(L, 6))
   {
-    maskBits = luaL_checkint(L, 6);
+    maskBits = luaL_checkinteger(L, 6);
   }
 
   daabbcc::QueryAABB(x, y, width, height, maskBits);
@@ -241,7 +242,7 @@ static int QueryID(lua_State* L)
 
   if (lua_isnumber(L, 3))
   {
-    maskBits = luaL_checkint(L, 3);
+    maskBits = luaL_checkinteger(L, 3);
   }
 
   daabbcc::QueryID(proxyID, maskBits);
@@ -283,7 +284,7 @@ static int RayCast(lua_State* L)
 
   if (lua_isnumber(L, 6))
   {
-    maskBits = luaL_checkint(L, 6);
+    maskBits = luaL_checkinteger(L, 6);
   }
 
   daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits);
@@ -324,7 +325,7 @@ static int RayCastSort(lua_State* L)
 
   if (lua_isnumber(L, 6))
   {
-    maskBits = luaL_checkint(L, 6);
+    maskBits = luaL_checkinteger(L, 6);
   }
 
   daabbcc::RayCastSort(groupID, start_x, start_y, end_x, end_y, maskBits);
@@ -368,7 +369,7 @@ static int AddProxy(lua_State* L)
 
   if (lua_isnumber(L, 6))
   {
-    categoryBits = luaL_checkint(L, 6);
+    categoryBits = luaL_checkinteger(L, 6);
   }
 
   int32_t proxyID = daabbcc::AddProxy(groupID, x, y, width, height, categoryBits);
@@ -402,7 +403,7 @@ static int AddGameObject(lua_State* L)
 
   if (lua_isnumber(L, 5))
   {
-    categoryBits = luaL_checkint(L, 5);
+    categoryBits = luaL_checkinteger(L, 5);
   }
 
   int32_t proxyID = daabbcc::AddProxy(groupID, x, y, width, height, categoryBits);

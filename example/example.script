@@ -1,136 +1,66 @@
 function init(self)
 	msg.post("@render:", "use_camera_projection")
 
-	daabbcc.init(3, 128, 128, 128)
-
-
-	local groupID = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
-	print('id', groupID)
-
-	daabbcc.remove_group(groupID);
-
-	groupID = daabbcc.new_group(daabbcc.UPDATE_INCREMENTAL)
-	print('new group id', groupID)
-
-	local proxyID = daabbcc.insert_aabb(groupID, 10, 10, 100, 100, 1)
-	print('proxyID', proxyID)
+	--se the powers of two for each category. Each category should be a unique power of two, allowing for clear and non-overlapping bitwise representations.
+	local PLAYER      = 1 -- 00000000001 in binary (2^0)
+	local ENEMY       = 2 -- 00000000010 in binary (2^1)
+	local GROUND      = 4 -- 00000000100 in binary (2^2)
+	local ITEM        = 8 -- 00000001000 in binary (2^3)
+	local TRIGGER     = 16 -- 00000010000 in binary (2^4)
+	local WALL        = 32 -- 00000100000 in binary (2^5)
+	local PLATFORM    = 64 -- 00001000000 in binary (2^6)
+	local PROJECTILE  = 128 -- 00010000000 in binary (2^7)
+	local NPC         = 256 -- 00100000000 in binary (2^8)
+	local ENVIRONMENT = 512 -- 01000000000 in binary (2^9)
 
 
 
-	local CollisionBits = {
-		GROUND = 1,
-		TEAM1 = 2,
-		TEAM2 = 3,
-		TEAM3 = 4,
+	local collision_bits = {
+		GROUND = 0x0001,
+		TEAM1  = 0x0008,
+		TEAM2  = 0x0013,
 
-		ALL = bit.bnot(0)
+		ALL    = bit.bnot(0)
 	}
 
+	-- must be power of two
+	local GROUND = 1
+	local TEAM1 = 2
+	local TEAM2 = 4
+	local TEAM3 = 8
 
-	local maskBits = bit.bor(CollisionBits.GROUND, CollisionBits.TEAM1, CollisionBits.TEAM3)
+
+	local FLAG_A  = 1 -- 0001
+	local FLAG_B  = 2 -- 0010
+	local FLAG_C  = 4 -- 0100
+	local ALL     = bit.bnot(0)
+
+	local groupID = daabbcc.new_group(daabbcc.UPDATE_FULLREBUILD)
+
+	local go_url  = msg.url("/test")
+	local width   = 40
+	local height  = 40
+
+	local test    = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_A)
+
+	go_url        = msg.url("/test1")
+	local test1   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_B)
+
+	go_url        = msg.url("/test3")
+	local test3   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_C)
+
+	------------------
+	go_url        = msg.url("/test2")
+	local test2   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_A)
+	print('\nTEAM1:', test, '\nTEAM2: ', test1, '\nTEAM3: ', test3, '\nNEVER: ', test2)
+
+	local maskBits = bit.bor(FLAG_A, FLAG_C)
 	print('maskBits:', maskBits)
-	local x = 10
-	local y = 10
-	local w = 100
-	local h = 100
-	proxyID = daabbcc.insert_aabb(groupID, x, y, w, h, maskBits)
+	local result, count = daabbcc.query_id(groupID, test2, maskBits)
 
-	local go_url = msg.url("/test")
-	local width = 50
-	local height = 50
-
-	local gameobjectProxyID = daabbcc.insert_gameobject(groupID, go_url, width, height, maskBits)
-
-	daabbcc.update_aabb(groupID, proxyID, 20, 20, 125, 125)
-	daabbcc.update_gameobject_size(groupID, gameobjectProxyID, 125, 125)
-	print('proxyID', proxyID)
-
-	print('----query_aabb')
-	local result, count = daabbcc.query_aabb(groupID, 20, 20, 200, 200, maskBits)
+	print('count: ', count)
 
 	if result then
-		for i = 1, count do
-			print(result[i])
-		end
+		pprint(result)
 	end
-	print('----query_id')
-	result, count = daabbcc.query_id(groupID, proxyID, maskBits)
-	if result then
-		for i = 1, count do
-			print(result[i])
-		end
-	end
-	print('----query_aabb_sort ')
-	local result, count = daabbcc.query_aabb_sort(groupID, 20, 20, 200, 200, maskBits)
-
-	if result then
-		for i = 1, count do
-			pprint(result[i])
-		end
-	end
-	print('----')
-
-	print('----query_id_sort ')
-	local result, count = daabbcc.query_id_sort(groupID, proxyID, maskBits)
-
-	if result then
-		for i = 1, count do
-			pprint(result[i])
-		end
-	end
-	print('----')
-	print('----raycast')
-	local ray_start = vmath.vector3(0, 0, 0)
-	local ray_end = vmath.vector3(20, 20, 0)
-
-	local result, count = daabbcc.raycast(groupID, ray_start.x, ray_start.y, ray_end.x, ray_end.y, maskBits)
-
-	if result then
-		for i = 1, count do
-			pprint(result[i])
-		end
-	end
-
-	local result, count = daabbcc.raycast_sort(groupID, ray_start.x, ray_start.y, ray_end.x, ray_end.y, maskBits)
-
-	if result then
-		for i = 1, count do
-			pprint(result[i])
-		end
-	end
-	print('----reset')
-	daabbcc.reset()
-
-	local result, count = daabbcc.raycast_sort(groupID, ray_start.x, ray_start.y, ray_end.x, ray_end.y, maskBits)
-
-	if result then
-		for i = 1, count do
-			pprint(result[i])
-		end
-	end
-end
-
-function final(self)
-	-- Add finalization code here
-	-- Remove this function if not needed
-end
-
-function update(self, dt)
-	-- Add update code here
-	-- Remove this function if not needed
-end
-
-function on_message(self, message_id, message, sender)
-	-- Add message-handling code here
-	-- Remove this function if not needed
-end
-
-function on_input(self, action_id, action)
-	-- Add input-handling code here
-	-- Remove this function if not needed
-end
-
-function on_reload(self)
-	-- Add reload-handling code here
-	-- Remove this function if not needed
 end

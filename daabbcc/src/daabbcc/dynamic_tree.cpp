@@ -6,6 +6,7 @@
 #include "daabbcc/collision.h"
 #include "daabbcc/core.h"
 #include "daabbcc/math_functions.h"
+#include "dmsdk/dlib/log.h"
 
 #include <float.h>
 #include <string.h>
@@ -723,6 +724,7 @@ static void b2RemoveLeaf(b2DynamicTree* tree, int32_t leaf)
 // instead of a pointer so that we can grow the node pool.
 int32_t b2DynamicTree_CreateProxy(b2DynamicTree* tree, b2AABB aabb, uint64_t categoryBits, int32_t userData)
 {
+  dmLogInfo("b2DynamicTree_CreateProxy - categoryBits:  %llu", categoryBits);
   B2_ASSERT(-b2_huge < aabb.lowerBound.x && aabb.lowerBound.x < b2_huge);
   B2_ASSERT(-b2_huge < aabb.lowerBound.y && aabb.lowerBound.y < b2_huge);
   B2_ASSERT(-b2_huge < aabb.upperBound.x && aabb.upperBound.x < b2_huge);
@@ -1131,8 +1133,10 @@ void b2DynamicTree_Query(const b2DynamicTree* tree, b2AABB aabb, uint64_t maskBi
     {
       if (b2IsLeaf(node))
       {
+
 	// callback to user code with proxy id
 	bool proceed = callback(nodeId, node->userData, context);
+
 	if (proceed == false)
 	{
 	  return;

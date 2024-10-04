@@ -8,9 +8,9 @@ daabbcc = {
 
 
 ---@alias rebuildType integer
----| 'daabbcc.UPDATE_INCREMENTAL' [# description]
----| 'daabbcc.UPDATE_FULLREBUILD' [# description]
----| 'daabbcc.UPDATE_PARTIALREBUILD' [# description]
+---| 'UPDATE_INCREMENTAL' [# description]
+---| 'UPDATE_FULLREBUILD' [# description]
+---| 'UPDATE_PARTIALREBUILD' [# description]
 
 
 
