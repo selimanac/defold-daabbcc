@@ -4,17 +4,19 @@
 This is a Dynamic Tree(aka AABB Tree) native extension for [Defold Engine](https://www.defold.com/).    
 DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/main/src/dynamic_tree.c).  
 
+**Credits**  
+
 [Radix sort](https://github.com/JCash/containers) by [Mathias Westerdahl](https://x.com/mwesterdahl76)  
 [Box2D](https://github.com/erincatto/box2d) by  [Erin Catto](https://x.com/erin_catto)  
 
 
 **What is DAABBCC?**
 
-A Dynamic AABB Tree is a binary search algorithm for fast overlap testing. Dynamic AABB trees are good for general purpose use, and can handle moving objects very well. The data structure provides an efficient way of detecting potential overlap between objects.    
+A Dynamic AABB Tree is a binary search algorithm for fast overlap testing. Dynamic AABB trees are well-suited for general-purpose use and can handle moving objects efficiently. This data structure provides an effective method for detecting potential overlap between objects.  
 
-DAABBCC is not a physics engine. DAABBCC does not contain narrow-phase collision detection and manifold generation.
+DAABBCC is not a physics engine. It does not include narrow-phase collision detection or manifold generation.  
 
-It is very well suited for platformers, bullet-hell, top down games which doesnt require narrow-phase collision detection.
+It is particularly well-suited for platformers, bullet-hell, and top-down games that do not require narrow-phase collision detection.  
 
 
 ## Toss a Coin to Your Witcher
