@@ -16,30 +16,31 @@ DAABBCC is not a physics engine. DAABBCC does not contain narrow-phase collision
 It is very well suited for platformers, bullet-hell, top down games which doesnt require narrow-phase collision detection.
 
 
-## Installation
-
-You can use the A* extension in your own project by adding this project as a [Defold library dependency](https://defold.com/manuals/libraries/#setting-up-library-dependencies).  
-Open your `game.project` file, select  `Project ` and add a  `Dependencies ` field:
-
->https://github.com/selimanac/defold-astar/archive/master.zip <- TODO 3.0
-
-or you can add stable versions from [releases](https://github.com/selimanac/defold-daabbcc/releases).  
-
-## Examples
-
-Flappy Bird Clone: https://github.com/selimanac/DAABBCC-Flappybird-Example  
-Breakout: https://github.com/selimanac/DAABBCC-Breakout-Example  
-
-## Forum
-
-https://forum.defold.com/t/daabbcc-dynamic-aabb-tree-native-extension-with-branch-and-bound-algorithm
-
 ## Toss a Coin to Your Witcher
 If you find my [Defold Extensions](https://github.com/selimanac) useful for your projects, please consider [supporting](https://github.com/sponsors/selimanac) it.  
 I'd love to hear about your projects! Please share your released projects that use my native extensions. It would be very motivating for me.
 
 
+---
 
-## Release Notes
+# Games using DAABBCC
 
-https://github.com/selimanac/defold-daabbcc/discussions/categories/announcements
+## Void Scrappers
+
+![DAABBCC](/assets/void_scrappers.jpg?raw=true)
+
+**Developer:** [8BitSkull](https://www.8bitskull.com/)  
+**Publisher:** [8BitSkull](https://www.8bitskull.com/)   
+**Release Date:** 21 Oct, 2022  
+**Steam:** https://store.steampowered.com/app/2005210/Void_Scrappers/  
+**Switch:** https://www.nintendo.co.uk/Games/Nintendo-Switch-download-software/Void-Scrappers-2344179.html. 
+
+## Bore Blast
+
+![DAABBCC](/assets/boreblast.jpg?raw=true)
+
+**Developer:** [8BitSkull](https://www.8bitskull.com/)  
+**Publisher:** [8BitSkull](https://www.8bitskull.com/)   
+**Release Date:** 8 Mar, 2024  
+**Steam:** https://store.steampowered.com/app/2398170/BORE_BLASTERS/  
+**Switch:** TBA
