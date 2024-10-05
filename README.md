@@ -5,7 +5,6 @@ This is a Dynamic Tree(aka AABB Tree) native extension for [Defold Engine](https
 DAABBCC build by using Box2D’s [Dynamic Tree](https://github.com/erincatto/box2d/blob/main/src/dynamic_tree.c).  
 
 **Credits**  
-
 [Radix sort](https://github.com/JCash/containers) by [Mathias Westerdahl](https://x.com/mwesterdahl76)  
 [Box2D](https://github.com/erincatto/box2d) by  [Erin Catto](https://x.com/erin_catto)  
 
