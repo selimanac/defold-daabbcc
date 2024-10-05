@@ -44,7 +44,14 @@ static int Init(lua_State* L)
 static int AddGroup(lua_State* L)
 {
   DM_LUA_STACK_CHECK(L, 1);
-  uint8_t treeBuildType = luaL_checkint(L, 1); // TODO:  OPTIONAL -> UPDATE_FULLREBUILD
+
+  uint8_t treeBuildType = daabbcc::UPDATE_INCREMENTAL;
+
+  if (lua_isnumber(L, 1))
+  {
+    treeBuildType = luaL_checkint(L, 1);
+  }
+
   uint8_t groupID = daabbcc::AddGroup(treeBuildType);
   lua_pushinteger(L, groupID);
   return 1;

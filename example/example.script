@@ -1,7 +1,10 @@
 function init(self)
 	msg.post("@render:", "use_camera_projection")
-	profiler.enable_ui(true)
-	profiler.set_ui_view_mode(profiler.VIEW_MODE_MINIMIZED)
+	if profiler then
+		profiler.enable_ui(true)
+		profiler.set_ui_view_mode(profiler.VIEW_MODE_MINIMIZED)
+	end
+
 
 	--se the powers of two for each category. Each category should be a unique power of two, allowing for clear and non-overlapping bitwise representations.
 	local PLAYER      = 1 -- 00000000001 in binary (2^0)

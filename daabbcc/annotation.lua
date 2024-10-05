@@ -23,7 +23,7 @@ daabbcc = {
 function daabbcc.init(max_group_count, max_gameobject_count, max_query_count, max_raycast_count, update_frequency) end
 
 ---new_group
----@param rebuild_type rebuildType
+---@param rebuild_type? rebuildType
 ---@return integer group_id
 function daabbcc.new_group(rebuild_type) end
 
