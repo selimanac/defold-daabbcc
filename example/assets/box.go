@@ -16,13 +16,9 @@ embedded_components {
   "  x: 128.0\n"
   "  y: 32.0\n"
   "}\n"
-  "text: \"9\\\\n"
-  "\"\n"
-  "  \"\\n"
-  "\"\n"
-  "  \"10\"\n"
-  "font: \"/builtins/fonts/debug/always_on_top.font\"\n"
-  "material: \"/builtins/fonts/label.material\"\n"
+  "text: \"9\"\n"
+  "font: \"/builtins/fonts/default.font\"\n"
+  "material: \"/builtins/fonts/label-df.material\"\n"
   ""
   position {
     z: 0.1

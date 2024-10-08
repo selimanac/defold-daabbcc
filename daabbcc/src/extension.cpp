@@ -16,7 +16,7 @@
 ////////////////////////////////////////
 // Initialize
 ////////////////////////////////////////
-
+/*
 static int Init(lua_State* L)
 {
   DM_LUA_STACK_CHECK(L, 0);
@@ -36,7 +36,7 @@ static int Init(lua_State* L)
 
   return 0;
 }
-
+*/
 ////////////////////////////////////////
 // Group Operations
 ////////////////////////////////////////
@@ -550,7 +550,7 @@ static int RebuildAll(lua_State* L)
 // clang-format off
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] = {
-  {"init", Init}, 
+ // {"init", Init}, 
 
   // Group Operations
   {"new_group", AddGroup}, 
@@ -612,15 +612,6 @@ static dmExtension::Result AppInitializeDAABBCC(dmExtension::AppParams* params)
 {
   dmLogInfo("AppInitializeDAABBCC");
 
-  return dmExtension::RESULT_OK;
-}
-
-static dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
-{
-  // Init Lua
-  LuaInit(params->m_L);
-  dmLogInfo("Registered %s Extension", MODULE_NAME);
-
   uint8_t max_group_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_group_count", 3);
 
   uint16_t max_gameobject_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_gameobject_count", 128);
@@ -633,6 +624,15 @@ static dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
 
   daabbcc::Initialize(max_group_count, max_gameobject_count, max_query_count, max_raycast_count);
   daabbcc::SetUpdateFrequency(updateFrequency);
+
+  return dmExtension::RESULT_OK;
+}
+
+static dmExtension::Result InitializeDAABBCC(dmExtension::Params* params)
+{
+  // Init Lua
+  LuaInit(params->m_L);
+  dmLogInfo("Registered %s Extension", MODULE_NAME);
 
   return dmExtension::RESULT_OK;
 }
