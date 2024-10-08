@@ -1,4 +1,3 @@
-// myextension.cpp
 // Extension lib defines
 #include "dmsdk/dlib/configfile_gen.hpp"
 #include "dmsdk/dlib/log.h"
@@ -17,6 +16,7 @@
 // Initialize
 ////////////////////////////////////////
 /*
+77 Dropped in favor of game.project file settings
 static int Init(lua_State* L)
 {
   DM_LUA_STACK_CHECK(L, 0);
@@ -37,6 +37,7 @@ static int Init(lua_State* L)
   return 0;
 }
 */
+
 ////////////////////////////////////////
 // Group Operations
 ////////////////////////////////////////
@@ -300,9 +301,6 @@ static int RayCast(lua_State* L)
 
   if (queryResultSize > 0)
   {
-    //  dmArray<uint16_t>& queryResult = daabbcc::GetRayResults();
-    // RayResult(L, queryResultSize, queryResult);
-
     dmArray<uint16_t>& queryResult = daabbcc::GetRayResults();
     Result(L, queryResultSize, queryResult);
 
