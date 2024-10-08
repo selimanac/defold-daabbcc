@@ -1,0 +1,20 @@
+name: "default"
+scale_along_z: 0
+embedded_instances {
+  id: "scripts"
+  data: "components {\n"
+  "  id: \"test\"\n"
+  "  component: \"/example/test.script\"\n"
+  "}\n"
+  ""
+}
+embedded_instances {
+  id: "factory"
+  data: "embedded_components {\n"
+  "  id: \"box\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/assets/box.go\\\"\\n"
+  "\"\n"
+  "}\n"
+  ""
+}
