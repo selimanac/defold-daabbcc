@@ -10,6 +10,7 @@ height = 640
 
 [project]
 title = defold-daabbcc
+dependencies#0 = https://github.com/selimanac/defold-random/archive/refs/heads/master.zip
 
 [library]
 include_dirs = daabbcc

@@ -1,7 +1,7 @@
 name: "main"
 scale_along_z: 0
 embedded_instances {
-  id: "go"
+  id: "script"
   data: "components {\n"
   "  id: \"example\"\n"
   "  component: \"/example/example.script\"\n"
@@ -9,90 +9,12 @@ embedded_instances {
   ""
 }
 embedded_instances {
-  id: "test"
+  id: "factory"
   data: "embedded_components {\n"
-  "  id: \"sprite\"\n"
-  "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"40x40_rect\\\"\\n"
-  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
-  "textures {\\n"
-  "  sampler: \\\"texture_sampler\\\"\\n"
-  "  texture: \\\"/example/assets/main.atlas\\\"\\n"
-  "}\\n"
+  "  id: \"box\"\n"
+  "  type: \"factory\"\n"
+  "  data: \"prototype: \\\"/example/assets/box.go\\\"\\n"
   "\"\n"
   "}\n"
   ""
-  position {
-    x: 106.0
-    y: 76.0
-  }
-}
-embedded_instances {
-  id: "test1"
-  data: "embedded_components {\n"
-  "  id: \"sprite\"\n"
-  "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"40x40_rect\\\"\\n"
-  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
-  "size {\\n"
-  "  x: 40.0\\n"
-  "  y: 40.0\\n"
-  "}\\n"
-  "textures {\\n"
-  "  sampler: \\\"texture_sampler\\\"\\n"
-  "  texture: \\\"/example/assets/main.atlas\\\"\\n"
-  "}\\n"
-  "\"\n"
-  "}\n"
-  ""
-  position {
-    x: 159.0
-    y: 116.0
-  }
-}
-embedded_instances {
-  id: "test2"
-  data: "embedded_components {\n"
-  "  id: \"sprite\"\n"
-  "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"40x40_rect\\\"\\n"
-  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
-  "size {\\n"
-  "  x: 40.0\\n"
-  "  y: 40.0\\n"
-  "}\\n"
-  "textures {\\n"
-  "  sampler: \\\"texture_sampler\\\"\\n"
-  "  texture: \\\"/example/assets/main.atlas\\\"\\n"
-  "}\\n"
-  "\"\n"
-  "}\n"
-  ""
-  position {
-    x: 143.0
-    y: 79.0
-  }
-}
-embedded_instances {
-  id: "test3"
-  data: "embedded_components {\n"
-  "  id: \"sprite\"\n"
-  "  type: \"sprite\"\n"
-  "  data: \"default_animation: \\\"40x40_rect\\\"\\n"
-  "material: \\\"/builtins/materials/sprite.material\\\"\\n"
-  "size {\\n"
-  "  x: 40.0\\n"
-  "  y: 40.0\\n"
-  "}\\n"
-  "textures {\\n"
-  "  sampler: \\\"texture_sampler\\\"\\n"
-  "  texture: \\\"/example/assets/main.atlas\\\"\\n"
-  "}\\n"
-  "\"\n"
-  "}\n"
-  ""
-  position {
-    x: 124.0
-    y: 110.0
-  }
 }

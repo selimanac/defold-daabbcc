@@ -59,7 +59,7 @@ function daabbcc.insert_gameobject(group_id, go_url, width, height, mask_bits) e
 ---@param height integer
 function daabbcc.update_aabb(group_id, aabb_id, x, y, width, height) end
 
----update_aabb
+---update_gameobject_size
 ---@param group_id integer
 ---@param aabb_id integer
 ---@param width integer

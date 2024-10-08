@@ -1,4 +1,74 @@
+local ray_start = vmath.vector3(0, 0, 0)
+local ray_end = vmath.vector3(365, 370, 0)
+local groupID = -1
+
+local boxes = {}
+local box_group = -1
+
+local collision_bits = {
+	GROUND = 1,
+	TEAM1  = 2,
+	TEAM2  = 4,
+	TEAM3  = 8,
+
+	ALL    = bit.bnot(0)
+}
+local maskBits = bit.bor(collision_bits.TEAM2)
+
+local function add_box(box_pos)
+	local pos = vmath.vector3(box_pos.x, box_pos.y, 0)
+	local box = factory.create("/factory#box", pos)
+	local sprite = msg.url(nil, box, "sprite")
+	local boxlabel = msg.url(nil, box, "label")
+	local size = go.get(sprite, "size")
+
+	local r = rnd.range(2, 4)
+	local team_text = "TEAM1"
+	local team = collision_bits.TEAM1
+	if r == 2 then
+		team = collision_bits.TEAM1
+		team_text = "TEAM1"
+	elseif r == 3 then
+		team = collision_bits.TEAM2
+		team_text = "TEAM2"
+	elseif r == 4 then
+		team = collision_bits.TEAM3
+		team_text = "TEAM3"
+	end
+
+
+	team = bit.bor(collision_bits.TEAM2, collision_bits.TEAM1)
+
+	-- Insert AABB into the group.
+	local box_proxy_id = daabbcc.insert_gameobject(box_group, box, size.x, size.y, team)
+
+	local label_text = box_proxy_id .. "\n" .. team_text
+	label.set_text(boxlabel, label_text)
+	local t = { pos = pos, box = box, sprite = sprite, size = size, proxy_id = box_proxy_id }
+	table.insert(boxes, box_proxy_id, t)
+end
+
+--[[
+	local collision_bits = {
+		PLAYER      = 1, -- 00000000001 in binary (2^0)
+		ENEMY       = 2, -- 00000000010 in binary (2^1)
+		GROUND      = 4, -- 00000000100 in binary (2^2)
+		ITEM        = 8, -- 00000001000 in binary (2^3)
+		TRIGGER     = 16, -- 00000010000 in binary (2^4)
+		WALL        = 32, -- 00000100000 in binary (2^5)
+		PLATFORM    = 64, -- 00001000000 in binary (2^6)
+		PROJECTILE  = 128, -- 00010000000 in binary (2^7)
+		NPC         = 256, -- 00100000000 in binary (2^8)
+		ENVIRONMENT = 512, -- 01000000000 in binary (2^9)
+
+		ALL         = bit.bnot(0)
+	}
+
+]]
+
+
 function init(self)
+	msg.post(".", "acquire_input_focus")
 	msg.post("@render:", "use_camera_projection")
 	if profiler then
 		profiler.enable_ui(true)
@@ -6,116 +76,77 @@ function init(self)
 	end
 
 
-	--se the powers of two for each category. Each category should be a unique power of two, allowing for clear and non-overlapping bitwise representations.
-	local PLAYER      = 1 -- 00000000001 in binary (2^0)
-	local ENEMY       = 2 -- 00000000010 in binary (2^1)
-	local GROUND      = 4 -- 00000000100 in binary (2^2)
-	local ITEM        = 8 -- 00000001000 in binary (2^3)
-	local TRIGGER     = 16 -- 00000010000 in binary (2^4)
-	local WALL        = 32 -- 00000100000 in binary (2^5)
-	local PLATFORM    = 64 -- 00001000000 in binary (2^6)
-	local PROJECTILE  = 128 -- 00010000000 in binary (2^7)
-	local NPC         = 256 -- 00100000000 in binary (2^8)
-	local ENVIRONMENT = 512 -- 01000000000 in binary (2^9)
+	box_group = daabbcc.new_group(daabbcc.UPDATE_PARTIALREBUILD)
 
+	-- Insert AABB into the group.
+	add_box(vmath.vector3(260, 280, 0))
+	add_box(vmath.vector3(270, 310, 0))
+	add_box(vmath.vector3(525, 490, 0))
+	add_box(vmath.vector3(650, 250, 0))
+	add_box(vmath.vector3(500, 550, 0))
+	add_box(vmath.vector3(600, 250, 0))
+	add_box(vmath.vector3(550, 250, 0))
+	add_box(vmath.vector3(600, 300, 0))
+	add_box(vmath.vector3(600, 200, 0))
+	add_box(vmath.vector3(700, 570, 0))
 
+	pprint(go.get_position(boxes[5].box))
+	go.animate(boxes[5].box, "position", go.PLAYBACK_LOOP_PINGPONG, vmath.vector3(450, 450, 0), go.EASING_INOUTBACK, 2)
+	--[[
 
-	local collision_bits = {
-		GROUND = 0x0001,
-		TEAM1  = 0x0008,
-		TEAM2  = 0x0013,
+	groupID             = daabbcc.new_group(daabbcc.UPDATE_FULLREBUILD)
 
-		ALL    = bit.bnot(0)
-	}
+	local go_url        = msg.url("/box")
+	local box1_id       = daabbcc.insert_gameobject(groupID, go_url, width, height, collision_bits.TEAM1)
 
-	-- must be power of two
-	local GROUND = 1
-	local TEAM1 = 2
-	local TEAM2 = 4
-	local TEAM3 = 8
+	go_url              = msg.url("/test1")
+	local test1         = daabbcc.insert_gameobject(groupID, go_url, width, height, collision_bits.TEAM2)
 
+	go_url              = msg.url("/test3")
+	local test3         = daabbcc.insert_gameobject(groupID, go_url, width, height, collision_bits.TEAM3)
 
-	local FLAG_A  = 1 -- 0001
-	local FLAG_B  = 2 -- 0010
-	local FLAG_C  = 4 -- 0100
-	local ALL     = bit.bnot(0)
+	go_url              = msg.url("/test2")
+	local test2         = daabbcc.insert_gameobject(groupID, go_url, width, height, collision_bits.TEAM1)
 
-	local groupID = daabbcc.new_group(daabbcc.UPDATE_FULLREBUILD)
+	local maskBits      = bit.bor(collision_bits.TEAM1, collision_bits.TEAM3)
 
-	local go_url  = msg.url("/test")
-	local width   = 40
-	local height  = 40
-
-	local test    = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_A)
-
-	go_url        = msg.url("/test1")
-	local test1   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_B)
-	local groupID = daabbcc.new_group(daabbcc.UPDATE_FULLREBUILD)
-	go_url        = msg.url("/test3")
-	local test3   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_C)
-
-	------------------
-	go_url        = msg.url("/test2")
-	local test2   = daabbcc.insert_gameobject(groupID, go_url, width, height, FLAG_A)
-	print('\nTEAM1:', test, '\nTEAM2: ', test1, '\nTEAM3: ', test3, '\nNEVER: ', test2)
-
-	local maskBits = bit.bor(FLAG_A, FLAG_C)
-	print('maskBits:', maskBits)
 	local result, count = daabbcc.query_id(groupID, test2, maskBits)
 
 	print('count: ', count)
 
 	if result then
 		pprint(result)
-	end
+	end]]
+end
 
+function update(self, dt)
+	--  pprint(dt)
+	msg.post("@render:", "draw_line", { start_point = ray_start, end_point = ray_end, color = vmath.vector4(0, 1, 0, 1) })
 
-	local collision_bits = {
-		GROUND = 0x00000001,
-		TEAM1 = 0x00000002,
-		TEAM2 = 0x00000004,
-		TEAM3 = 0x00000008,
+	--  raycast_sort
+	local query_result, result_count = daabbcc.raycast_sort(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y, maskBits)
+	if query_result then
+		-- print("raycast_sort")
+		-- print(result_count)
+		-- pprint(query_result)
 
-		ALL = bit.bnot(0)
-	}
-
-
-	local x = 0
-	local y = 0
-	local w = 100
-	local h = 100
-	local test_group_id = daabbcc.new_group(daabbcc.UPDATE_FULLREBUILD)
-
-	--categoryBits
-	local team1_proxy_id = daabbcc.insert_aabb(test_group_id, x, y, w, h, collision_bits.TEAM1)
-	local team2_proxy_id = daabbcc.insert_aabb(test_group_id, x, y, w, h, collision_bits.TEAM2)
-	local team3_proxy_id = daabbcc.insert_aabb(test_group_id, x, y, w, h, collision_bits.TEAM3)
-
-	print('team1_proxy_id: ', team1_proxy_id)
-	print('team2_proxy_id: ', team2_proxy_id)
-	print('team3_proxy_id: ', team3_proxy_id)
-
-	--maskBits
-	local mask_bits = bit.bor(collision_bits.TEAM1)
-	print(mask_bits)
-	local result, count = daabbcc.query_aabb(test_group_id, x, y, w, h, mask_bits)
-	print('-----:')
-	print('count:', count)
-	if result then
-		for i = 1, count do
-			print(result[i])
+		for i = 1, result_count do
+			local box = boxes[query_result[i].id]
+			go.animate(box.sprite, "tint", go.PLAYBACK_LOOP_PINGPONG, vmath.vector4(1, 0.0, 0.0, 1), go.EASING_INOUTQUAD, 0.5)
 		end
 	end
 
+	--[[
+	--  raycast
+	local query_result, result_count = daabbcc.raycast(box_group, ray_start.x, ray_start.y, ray_end.x, ray_end.y, maskBits)
+	if query_result then
+		print("raycast")
+		print(result_count)
+		pprint(query_result)
+	end]]
+end
 
-	local result, count = daabbcc.raycast(test_group_id, 300, 300, 0, 0, mask_bits)
-	print('raycast-----:')
-	print('count:', count)
-	if result then
-		for i = 1, count do
-			print(result[i])
-		end
-	end
-
-	daabbcc.run(false)
+function on_input(self, action_id, action)
+	ray_end.x = action.x
+	ray_end.y = action.y
 end
