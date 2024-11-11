@@ -16,3 +16,4 @@ compile_commands.json
 /.cache
 *.der
 RELEASE-NOTES.md
+/.editor_settings

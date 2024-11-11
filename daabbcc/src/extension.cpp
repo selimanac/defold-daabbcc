@@ -125,7 +125,7 @@ static inline void SortResult(lua_State* L, uint32_t queryResultSize, dmArray<da
 
 static inline int QueryIDSort(lua_State* L)
 {
-
+  DM_LUA_STACK_CHECK(L, 2);
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -152,16 +152,19 @@ static inline int QueryIDSort(lua_State* L)
   {
     dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetQuerySortResults();
     SortResult(L, queryResultSize, queryResult);
-
-    return 2;
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 static int QueryAABBSort(lua_State* L)
 {
-
+  DM_LUA_STACK_CHECK(L, 2);
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -190,16 +193,19 @@ static int QueryAABBSort(lua_State* L)
   {
     dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetQuerySortResults();
     SortResult(L, queryResultSize, queryResult);
-
-    return 2;
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 static int QueryAABB(lua_State* L)
 {
-
+  DM_LUA_STACK_CHECK(L, 2);
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -228,14 +234,20 @@ static int QueryAABB(lua_State* L)
   {
     dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
     Result(L, queryResultSize, queryResult);
-    return 2;
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 static int QueryID(lua_State* L)
 {
+  DM_LUA_STACK_CHECK(L, 2);
+
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -260,12 +272,16 @@ static int QueryID(lua_State* L)
   if (queryResultSize > 0)
   {
     dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
-    Result(L, queryResultSize, queryResult);
 
-    return 2;
+    Result(L, queryResultSize, queryResult);
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 ////////////////////////////////////////
@@ -274,6 +290,8 @@ static int QueryID(lua_State* L)
 
 static int RayCast(lua_State* L)
 {
+  DM_LUA_STACK_CHECK(L, 2);
+
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -303,15 +321,20 @@ static int RayCast(lua_State* L)
   {
     dmArray<uint16_t>& queryResult = daabbcc::GetRayResults();
     Result(L, queryResultSize, queryResult);
-
-    return 2;
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 static int RayCastSort(lua_State* L)
 {
+  DM_LUA_STACK_CHECK(L, 2);
+
   uint8_t groupID = luaL_checkint(L, 1);
 
   bool isSet = daabbcc::SetTreeGroup(groupID);
@@ -342,11 +365,14 @@ static int RayCastSort(lua_State* L)
 
     dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetRaySortResults();
     SortResult(L, queryResultSize, queryResult);
-
-    return 2;
+  }
+  else
+  {
+    lua_pushnil(L);
+    lua_pushinteger(L, queryResultSize);
   }
 
-  return 0;
+  return 2;
 }
 
 ////////////////////////////////////////
@@ -355,7 +381,6 @@ static int RayCastSort(lua_State* L)
 
 static int AddProxy(lua_State* L)
 {
-  //DM_LUA_STACK_CHECK(L, 1);
 
   uint8_t groupID = luaL_checkint(L, 1);
 
