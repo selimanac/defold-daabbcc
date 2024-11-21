@@ -65,7 +65,7 @@ function init(self)
     boxes[2].position.y = boxes[2].position.y + 50
     go.set_position(boxes[2].position, boxes[2].id)
 
-    -- Updates the AABB position and size when you change it is position or size.
+    -- Manually updates the AABB position and size when you change it is position or size.
     daabbcc.update_aabb(box_group, boxes[2].aabb_id, boxes[2].position.x, boxes[2].position.y, boxes[2].size.x, boxes[2].size.y)
 
     -- Query the possible overlaps using AABB. Returns itself.
