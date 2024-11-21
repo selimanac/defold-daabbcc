@@ -36,8 +36,9 @@ function daabbcc.insert_aabb(group_id, x, y, width, height, category_bit) end
 ---@param width integer Width of AABB.
 ---@param height integer Height of AABB.
 ---@param category_bit? integer Single category bit which aabb belongs to. Default is **all**
+---@param get_world_position? boolean Get world position of gameobject. Default is **false**
 ---@return integer aabb_id New aabb ID
-function daabbcc.insert_gameobject(group_id, go_url, width, height, category_bit) end
+function daabbcc.insert_gameobject(group_id, go_url, width, height, category_bit, get_world_position) end
 
 ---Updates the AABB position and size when you change its position or/and size.Does not effect Gameobject position, Gameobject AABB positions will be overwritten by internal update.
 ---@param group_id integer Group ID

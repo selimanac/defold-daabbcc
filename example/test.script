@@ -12,7 +12,10 @@ local collision_bits = {
 }
 local mask_bits      = bit.bor(collision_bits.ENEMY, collision_bits.ITEM)
 
-local function add_box(box_position, box_type, isStatic, category)
+local function add_box(box_position, box_type, is_static, category, get_world_position)
+    category = category and category or nil
+    get_world_position = get_world_position and get_world_position or nil
+
     local box_id = factory.create("/factory#box", box_position)
     local sprite_url = msg.url(nil, box_id, "sprite")
 
@@ -27,10 +30,11 @@ local function add_box(box_position, box_type, isStatic, category)
     -- Insert AABB into the group.
     local box_aabb_id = -1
 
-    if isStatic then
+
+    if is_static then -- If not moving gameobject
         box_aabb_id = daabbcc.insert_aabb(box_group, box_position.x, box_position.y, sprite_size.x, sprite_size.y, category)
     else
-        box_aabb_id = daabbcc.insert_gameobject(box_group, box_id, sprite_size.x, sprite_size.y, category)
+        box_aabb_id = daabbcc.insert_gameobject(box_group, box_id, sprite_size.x, sprite_size.y, category, get_world_position)
     end
 
     label.set_text(box_label, box_aabb_id .. "\n" .. category)
@@ -56,7 +60,7 @@ function init(self)
     add_box(vmath.vector3(600, 200, 0), 0, true, collision_bits.ALL)
     add_box(vmath.vector3(700, 570, 0), 0, true, collision_bits.ALL)
 
-    -- Move and update position
+    -- Manually Move and update position of 2. box
     boxes[2].position.x = boxes[2].position.x + 50
     boxes[2].position.y = boxes[2].position.y + 50
     go.set_position(boxes[2].position, boxes[2].id)
@@ -114,7 +118,6 @@ function update(self, dt)
 
     --query_id
     query_result, result_count = daabbcc.query_id(box_group, boxes[5].aabb_id)
-
     if query_result then
         print("query_id")
         print(result_count)
@@ -123,7 +126,6 @@ function update(self, dt)
 
     -- query_aabb
     query_result, result_count = daabbcc.query_aabb(box_group, boxes[3].position.x, boxes[3].position.y, boxes[3].size.x, boxes[3].size.y)
-
     if query_result then
         print("query_aabb")
         print(result_count)

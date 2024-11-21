@@ -18,6 +18,6 @@
 
 namespace daabbcc
 {
-void* b2Alloc(uint32_t size);
-void b2Free(void* mem, uint32_t size);
+    void* b2Alloc(uint32_t size);
+    void  b2Free(void* mem, uint32_t size);
 } // namespace daabbcc

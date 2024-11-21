@@ -17,3 +17,4 @@ compile_commands.json
 *.der
 RELEASE-NOTES.md
 /.editor_settings
+build_config.json
