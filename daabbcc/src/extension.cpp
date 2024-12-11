@@ -2,8 +2,6 @@
 #include "dmsdk/dlib/configfile_gen.hpp"
 #include "dmsdk/dlib/log.h"
 #include "dmsdk/extension/extension_gen.hpp"
-#include "dmsdk/lua/lauxlib.h"
-#include "dmsdk/lua/lua.h"
 
 #define LIB_NAME "DAABBCC"
 #define MODULE_NAME "daabbcc"
@@ -117,6 +115,46 @@ static inline void SortResult(lua_State* L, uint32_t queryResultSize, dmArray<da
     lua_pushinteger(L, queryResultSize);
 }
 
+static inline void ManifoldResult(lua_State* L, uint32_t queryResultSize, dmArray<daabbcc::ManifoldResult>& queryResult)
+{
+    lua_createtable(L, queryResultSize, 0);
+
+    int newTable = lua_gettop(L);
+
+    for (int i = 0; i < queryResultSize; i++)
+    {
+        lua_createtable(L, 2, 0);
+        lua_pushstring(L, "id");
+        lua_pushinteger(L, queryResult[i].m_proxyID);
+        lua_settable(L, -3);
+        lua_pushstring(L, "distance");
+        lua_pushnumber(L, queryResult[i].m_distance);
+        lua_settable(L, -3);
+        lua_pushstring(L, "count");
+        lua_pushinteger(L, queryResult[i].m_manifold.count);
+        lua_settable(L, -3);
+        lua_pushstring(L, "depth");
+        lua_pushnumber(L, queryResult[i].m_manifold.depth);
+        lua_settable(L, -3);
+        lua_pushstring(L, "contact_point_x");
+        lua_pushnumber(L, queryResult[i].m_manifold.contact_point.x);
+        lua_settable(L, -3);
+        lua_pushstring(L, "contact_point_y");
+        lua_pushnumber(L, queryResult[i].m_manifold.contact_point.y);
+        lua_settable(L, -3);
+        lua_pushstring(L, "normal_x");
+        lua_pushnumber(L, queryResult[i].m_manifold.n.x);
+        lua_settable(L, -3);
+        lua_pushstring(L, "normal_y");
+        lua_pushnumber(L, queryResult[i].m_manifold.n.y);
+        lua_settable(L, -3);
+
+        lua_rawseti(L, newTable, i + 1);
+    }
+
+    lua_pushinteger(L, queryResultSize);
+}
+
 ////////////////////////////////////////
 // Query Operations
 ////////////////////////////////////////
@@ -217,20 +255,45 @@ static int QueryAABB(lua_State* L)
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
     uint64_t maskBits = b2_defaultMaskBits;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
     {
         maskBits = luaL_checkinteger(L, 6);
     }
 
-    daabbcc::QueryAABB(x, y, width, height, maskBits);
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetQueryResultSize();
+    daabbcc::QueryAABB(x, y, width, height, maskBits, isManifold);
+
+    // Return Result
+
+    uint32_t queryResultSize = 0;
+
+    if (!isManifold)
+    {
+        queryResultSize = daabbcc::GetQueryResultSize();
+    }
+    else
+    {
+        queryResultSize = daabbcc::GetQueryManifoldResultSize();
+    }
 
     if (queryResultSize > 0)
     {
-        dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
-        Result(L, queryResultSize, queryResult);
+        if (!isManifold)
+        {
+            dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
+            Result(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {
@@ -256,21 +319,44 @@ static int QueryID(lua_State* L)
 
     int32_t  proxyID = luaL_checkint(L, 2);
     uint64_t maskBits = b2_defaultMaskBits;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 3))
     {
         maskBits = luaL_checkinteger(L, 3);
     }
 
-    daabbcc::QueryID(proxyID, maskBits);
+    if (lua_isboolean(L, 4))
+    {
+        isManifold = lua_toboolean(L, 4);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetQueryResultSize();
+    daabbcc::QueryID(proxyID, maskBits, isManifold);
+
+    // Return Result
+    uint32_t queryResultSize = 0;
+
+    if (!isManifold)
+    {
+        queryResultSize = daabbcc::GetQueryResultSize();
+    }
+    else
+    {
+        queryResultSize = daabbcc::GetQueryManifoldResultSize();
+    }
 
     if (queryResultSize > 0)
     {
-        dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
-
-        Result(L, queryResultSize, queryResult);
+        if (!isManifold)
+        {
+            dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
+            Result(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {

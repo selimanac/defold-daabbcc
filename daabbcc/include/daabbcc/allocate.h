@@ -2,9 +2,6 @@
 // SPDX-License-Identifier: MIT
 
 #pragma once
-#include "daabbcc/core.h"
-
-#include <stdatomic.h>
 
 #if defined(B2_COMPILER_MSVC)
 #define _CRTDBG_MAP_ALLOC

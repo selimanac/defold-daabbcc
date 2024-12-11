@@ -6,10 +6,9 @@
 #include "daabbcc/collision.h"
 #include "daabbcc/core.h"
 #include "daabbcc/math_functions.h"
-#include "dmsdk/dlib/log.h"
-
 #include <float.h>
 #include <string.h>
+
 namespace daabbcc
 {
 

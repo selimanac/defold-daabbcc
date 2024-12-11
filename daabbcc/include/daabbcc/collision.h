@@ -4,8 +4,8 @@
 #pragma once
 
 #include "math_functions.h"
-
 #include <stdint.h>
+
 namespace daabbcc
 {
     /**

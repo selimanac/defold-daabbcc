@@ -1,5 +1,6 @@
 #pragma once
 
+#include "daabbcc/math_functions.h"
 #include <cstdint>
 #include <daabbcc/collision.h>
 #include <dmsdk/dlib/array.h>
@@ -8,16 +9,21 @@
 #include <dmsdk/dlib/time.h>
 #include <dmsdk/gameobject/gameobject.h>
 
-#define JC_SORT_IMPLEMENTATION
-#include <jc/sort.h>
-
 namespace daabbcc
 {
-    // For Query sorting using JC/SORT
-    struct SortResult
+    typedef struct b2Manifold
     {
-        int32_t m_proxyID;
-        float   m_distance;
+        uint16_t count;
+        float    depth;
+        b2Vec2   contact_point;
+        b2Vec2   n;
+    } b2Manifold;
+
+    struct ManifoldResult
+    {
+        int32_t    m_proxyID;
+        float      m_distance;
+        b2Manifold m_manifold;
     };
 
     // For Query callbacks
@@ -26,6 +32,7 @@ namespace daabbcc
         int32_t m_proxyID;
         b2Vec2  m_center;
         bool    m_isAABB;
+        bool    m_isManifold;
     };
 
     // Update dt calc
@@ -78,17 +85,19 @@ namespace daabbcc
         dmArray<uint16_t> m_rayResult;
 
         // Raycast short result
-        dmArray<SortResult> m_sortRayResults;
-        dmArray<SortResult> m_tempSortRayResults;
-        SortResult          m_sortRayResult;
+        dmArray<ManifoldResult> m_sortRayResults;
+        ManifoldResult          m_sortRayResult;
 
         // Query result
         dmArray<uint16_t> m_queryResult;
 
         // Query short result
-        dmArray<SortResult> m_sortResults;
-        dmArray<SortResult> m_tempSortResults;
-        SortResult          m_sortResult;
+        dmArray<ManifoldResult> m_sortResults;
+        ManifoldResult          m_sortResult;
+
+        // Querymanifold result
+        dmArray<ManifoldResult> m_queryManifoldResult;
+        ManifoldResult          m_manifoldResult;
 
         // Increment Group ID
         uint8_t m_groupID = 0;
@@ -159,23 +168,29 @@ namespace daabbcc
     // Query Operations
     ////////////////////////////////////////
 
-    static void          Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
+    static void              Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
 
-    static void          QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB);
+    static void              QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB);
 
-    void                 QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits);
+    void                     QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
 
-    void                 QueryID(int32_t proxyID, uint64_t maskBits);
+    void                     QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold);
 
-    void                 QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits);
+    void                     QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits);
 
-    void                 QueryIDSort(int32_t proxyID, uint64_t maskBits);
+    void                     QueryIDSort(int32_t proxyID, uint64_t maskBits);
 
-    uint32_t             GetQueryResultSize();
-    uint32_t             GetQuerySortResultSize();
+    uint32_t                 GetQueryResultSize();
 
-    dmArray<uint16_t>&   GetQueryResults();
-    dmArray<SortResult>& GetQuerySortResults();
+    uint32_t                 GetQuerySortResultSize();
+
+    uint32_t                 GetQueryManifoldResultSize();
+
+    dmArray<uint16_t>&       GetQueryResults();
+
+    dmArray<SortResult>&     GetQuerySortResults();
+
+    dmArray<ManifoldResult>& GetQueryManifoldResults();
 
     ////////////////////////////////////////
     // Raycast Operations
@@ -223,15 +238,17 @@ namespace daabbcc
     // Helpers
     ////////////////////////////////////////
 
-    static void Bound(b2AABB* aabb, float x, float y, uint32_t width, uint32_t height);
+    static void        AABBtoAABBManifold(b2AABB A, b2AABB B, b2Manifold* m);
 
-    static void CalcTimeStep(float& step_dt, uint32_t& num_steps);
+    static inline void Bound(b2AABB* aabb, float x, float y, uint32_t width, uint32_t height);
 
-    void        Reset();
+    static void        CalcTimeStep(float& step_dt, uint32_t& num_steps);
 
-    void        ErrorAssert(const char* info, uint8_t groupID);
+    void               Reset();
 
-    void        LimitErrorAssert(const char* info, uint16_t count);
+    void               ErrorAssert(const char* info, uint8_t groupID);
+
+    void               LimitErrorAssert(const char* info, uint16_t count);
 
     ////////////////////////////////////////
     // Tests

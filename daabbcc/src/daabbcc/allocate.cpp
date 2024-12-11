@@ -3,6 +3,9 @@
 
 #include "daabbcc/allocate.h"
 
+#include "daabbcc/core.h"
+#include <stdatomic.h>
+
 namespace daabbcc
 {
 

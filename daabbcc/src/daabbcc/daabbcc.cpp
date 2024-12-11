@@ -1,8 +1,6 @@
 #include "daabbcc/math_functions.h"
 #include "dmsdk/dlib/log.h"
 #include "dmsdk/gameobject/gameobject.h"
-#include "dmsdk/lua/lua.h"
-
 #include <cstdint>
 #include <daabbcc/aabb.h>
 #include <daabbcc/daabbcc.h>
@@ -35,6 +33,9 @@ namespace daabbcc
         m_daabbcc.m_queryResult.SetCapacity(max_query_count);
         m_daabbcc.m_sortResults.SetCapacity(max_query_count);
         m_daabbcc.m_tempSortResults.SetCapacity(max_query_count);
+
+        // QueryManifold
+        m_daabbcc.m_queryManifoldResult.SetCapacity(max_query_count);
 
         // Raycast arrays
         m_daabbcc.m_rayResult.SetCapacity(max_raycast_count);
@@ -188,13 +189,32 @@ namespace daabbcc
             return true;
         }
 
-        if (m_daabbcc.m_queryResult.Full())
+        if (m_daabbcc.m_queryResult.Full() || m_daabbcc.m_queryManifoldResult.Full())
         {
             LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryResult.Size());
         }
         else
         {
-            m_daabbcc.m_queryResult.Push(proxyID);
+            if (!m_queryContainer->m_isManifold)
+            {
+                m_daabbcc.m_queryResult.Push(proxyID);
+            }
+            else
+            {
+                dmLogInfo("Manifold %i", proxyID);
+                b2Manifold manifold;
+                // m_daabbcc.m_aabb
+                b2AABB targetAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+                AABBtoAABBManifold(m_daabbcc.m_aabb, targetAABB, &manifold);
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(targetAABB)),
+                    manifold
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
         }
 
         return true;
@@ -241,6 +261,8 @@ namespace daabbcc
         m_daabbcc.m_queryResult.SetSize(0);
         m_daabbcc.m_sortResults.SetSize(0);
         m_daabbcc.m_tempSortResults.SetSize(0);
+        m_daabbcc.m_queryManifoldResult.SetSize(0);
+
         b2DynamicTree_Query(&m_daabbcc.m_treeGroup->m_dynamicTree, *aabb, maskBits, callback, context);
     }
 
@@ -258,20 +280,20 @@ namespace daabbcc
     // QUERIES
     /**************************/
 
-    void QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits)
+    void QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold)
     {
         Bound(&m_daabbcc.m_aabb, x, y, width, height);
 
-        m_daabbcc.m_queryContainer = { 0, m_daabbcc.m_aabbCenter, true };
+        m_daabbcc.m_queryContainer = { 0, m_daabbcc.m_aabbCenter, true, isManifold };
 
         Query(&m_daabbcc.m_aabb, QueryCallback, &m_daabbcc.m_queryContainer, maskBits);
     }
 
-    void QueryID(int32_t proxyID, uint64_t maskBits)
+    void QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold)
     {
         m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
 
-        m_daabbcc.m_queryContainer = { proxyID, m_daabbcc.m_aabbCenter, false };
+        m_daabbcc.m_queryContainer = { proxyID, m_daabbcc.m_aabbCenter, false, isManifold };
 
         Query(&m_daabbcc.m_aabb, QueryCallback, &m_daabbcc.m_queryContainer, maskBits);
     }
@@ -292,6 +314,12 @@ namespace daabbcc
     {
         return m_daabbcc.m_queryResult.Size();
     }
+
+    uint32_t GetQueryManifoldResultSize()
+    {
+        return m_daabbcc.m_queryManifoldResult.Size();
+    }
+
     uint32_t GetQuerySortResultSize()
     {
         return m_daabbcc.m_sortResults.Size();
@@ -301,9 +329,15 @@ namespace daabbcc
     {
         return m_daabbcc.m_queryResult;
     }
+
     dmArray<SortResult>& GetQuerySortResults()
     {
         return m_daabbcc.m_sortResults;
+    }
+
+    dmArray<ManifoldResult>& GetQueryManifoldResults()
+    {
+        return m_daabbcc.m_queryManifoldResult;
     }
 
     ////////////////////////////////////////
@@ -490,7 +524,82 @@ namespace daabbcc
     // Helpers
     ////////////////////////////////////////
 
-    void Bound(b2AABB* aabb, float x, float y, uint32_t width, uint32_t height)
+    static void AABBtoAABBManifold(b2AABB A, b2AABB B, b2Manifold* m)
+    {
+        m->count = 0;
+
+        b2Vec2 mid_a = b2Add(A.lowerBound, A.upperBound) * 0.5f;
+        b2Vec2 mid_b = b2Add(B.lowerBound, B.upperBound) * 0.5f;
+
+        //   b2Vec2 mid_a = b2MulAdd(A.lowerBound, 0.5f, A.upperBound);
+        //  b2Vec2 mid_b = b2MulAdd(B.lowerBound, 0.5f, B.upperBound);
+
+        b2Vec2 eA = b2Abs(b2Sub(A.upperBound, A.lowerBound) * 0.5f); // c2Absv(c2Mulvs(b2Sub(A.max, A.min), 0.5f));
+        b2Vec2 eB = b2Abs(b2Sub(B.upperBound, B.lowerBound) * 0.5f);
+        ; // c2Absv(c2Mulvs(b2Sub(B.max, B.min), 0.5f));
+        b2Vec2 d = b2Sub(mid_b, mid_a);
+
+        // calc overlap on x and y axes
+        float dx = eA.x + eB.x - b2AbsFloat(d.x);
+        if (dx < 0)
+            return;
+        float dy = eA.y + eB.y - b2AbsFloat(d.y);
+        if (dy < 0)
+            return;
+
+        b2Vec2 n;
+        float  depth;
+        b2Vec2 p;
+
+        b2Vec2 temp = b2Vec2_zero;
+
+        // x axis overlap is smaller
+        if (dx < dy)
+        {
+            depth = dx;
+            if (d.x < 0)
+            {
+                n = { -1.0f, 0 };
+                temp.x = eA.x;
+                temp.y = 0;
+                p = b2Sub(mid_a, temp);
+            }
+            else
+            {
+                n = { 1.0f, 0 };
+                temp.x = eA.x;
+                temp.y = 0;
+                p = b2Add(mid_a, temp);
+            }
+        }
+
+        // y axis overlap is smaller
+        else
+        {
+            depth = dy;
+            if (d.y < 0)
+            {
+                n = { -0, -1.0f }; // c2V(0, -1.0f);
+                temp.x = 0;
+                temp.y = eA.y;
+                p = b2Sub(mid_a, temp);
+            }
+            else
+            {
+                n = { -0, 1.0f }; // c2V(0, 1.0f);
+                temp.x = 0;
+                temp.y = eA.y;
+                p = b2Add(mid_a, temp);
+            }
+        }
+
+        m->count = 1;
+        m->contact_point = p;
+        m->depth = depth;
+        m->n = n;
+    }
+
+    static inline void Bound(b2AABB* aabb, float x, float y, uint32_t width, uint32_t height)
     {
         aabb->lowerBound = { x - (width / 2.0f), y - (height / 2.0f) };
         aabb->upperBound = { x + (width / 2.0f), y + (height / 2.0f) };
@@ -556,6 +665,7 @@ namespace daabbcc
         m_daabbcc.m_queryResult.SetSize(0);
         m_daabbcc.m_sortResults.SetSize(0);
         m_daabbcc.m_tempSortResults.SetSize(0);
+        m_daabbcc.m_queryManifoldResult.SetSize(0);
 
         m_daabbcc.m_treeGroup = NULL;
     }

@@ -68,17 +68,19 @@ function daabbcc.remove(group_id, aabb_id) end
 ---@param width integer Width of AABB.
 ---@param height integer Height of AABB.
 ---@param mask_bits? integer  Default is all
+---@param get_manifold? boolean  Get collision manifold. Default is false
 ---@return table result Table of possible overlapping AABB IDs.
 ---@return integer count Count of `result` table.
-function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits) end
+function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits, get_manifold) end
 
 ---Query the possible overlaps using AABB ID.
 ---@param group_id integer Group ID
 ---@param aabb_id integer AABB ID.
 ---@param mask_bits? integer Default is all
+---@param get_manifold? boolean  Get collision manifold. Default is false
 ---@return table result Table of possible overlapping AABB IDs.
 ---@return integer count Count of `result` table.
-function daabbcc.query_id(group_id, aabb_id, mask_bits) end
+function daabbcc.query_id(group_id, aabb_id, mask_bits, get_manifold) end
 
 ---Query possible overlaps using a raw AABB.
 ---@param group_id integer Group ID

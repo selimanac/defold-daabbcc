@@ -5,7 +5,6 @@
 
 namespace daabbcc
 {
-
     bool b2Vec2_IsValid(b2Vec2 v)
     {
         if (isnan(v.x) || isnan(v.y))
