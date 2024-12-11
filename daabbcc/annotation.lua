@@ -69,8 +69,8 @@ function daabbcc.remove(group_id, aabb_id) end
 ---@param height integer Height of AABB.
 ---@param mask_bits? integer  Default is all
 ---@param get_manifold? boolean  Get collision manifold. Default is false
----@return table result Table of possible overlapping AABB IDs.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABB IDs.
+---@return integer Count of `result` table.
 function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits, get_manifold) end
 
 ---Query the possible overlaps using AABB ID.
@@ -78,8 +78,8 @@ function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits, get_manifo
 ---@param aabb_id integer AABB ID.
 ---@param mask_bits? integer Default is all
 ---@param get_manifold? boolean  Get collision manifold. Default is false
----@return table result Table of possible overlapping AABB IDs.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABB IDs.
+---@return integer Count of `result` table.
 function daabbcc.query_id(group_id, aabb_id, mask_bits, get_manifold) end
 
 ---Query possible overlaps using a raw AABB.
@@ -89,16 +89,16 @@ function daabbcc.query_id(group_id, aabb_id, mask_bits, get_manifold) end
 ---@param width integer Width of AABB.
 ---@param height integer Height of AABB.
 ---@param mask_bits? integer Default is all
----@return table result Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
+---@return integer Count of `result` table.
 function daabbcc.query_aabb_sort(group_id, x, y, width, height, mask_bits) end
 
----Query the possible overlaps using AABB ID. Returns a result table with IDs and distances, ordered from closest to farthest.
+---Query the possible overlaps using AABB ID. Returns a Table with IDs and distances, ordered from closest to farthest.
 ---@param group_id integer Group ID
 ---@param aabb_id integer AABB ID.
 ---@param mask_bits? integer Default is all
----@return table result Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
+---@return integer Count of `result` table.
 function daabbcc.query_id_sort(group_id, aabb_id, mask_bits) end
 
 ---Perform ray casts against the group.
@@ -108,19 +108,19 @@ function daabbcc.query_id_sort(group_id, aabb_id, mask_bits) end
 ---@param end_x number Ray end position X.
 ---@param end_y number Ray end position Y.
 ---@param mask_bits? integer Default is all
----@return table result Table of possible overlapping AABB IDs.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABB IDs.
+---@return integer Count of `result` table.
 function daabbcc.raycast(group_id, start_x, start_y, end_x, end_y, mask_bits) end
 
----Perform ray casts against the group. Returns a result table with AABB IDs and distances, ordered from closest to farthest.
+---Perform ray casts against the group. Returns a Table with AABB IDs and distances, ordered from closest to farthest.
 ---@param group_id integer Group ID
 ---@param start_x number Ray start position X.
 ---@param start_y number Ray start position Y.
 ---@param end_x number Ray end position X.
 ---@param end_y number Ray end position Y.
 ---@param mask_bits? integer  Default is all
----@return table result Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
----@return integer count Count of `result` table.
+---@return table Table of possible overlapping AABBs. The `result` table contains aabb_ids and distances.
+---@return integer Count of `result` table.
 function daabbcc.raycast_sort(group_id, start_x, start_y, end_x, end_y, mask_bits) end
 
 ---Pause or resume the internal game object position update iteration. This is enabled by default but will not iterate if no game objects are registered. Pausing the iteration can free up compute power (e.g., when the game is paused).

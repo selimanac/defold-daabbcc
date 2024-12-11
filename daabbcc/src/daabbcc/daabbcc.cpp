@@ -14,18 +14,7 @@ namespace daabbcc
     ////////////////////////////////////////
     // Initialize dynamic tree
     ////////////////////////////////////////
-
-    void Initialize()
-    {
-        Setup(m_daabbcc.m_max_group_count, m_daabbcc.m_max_gameobject_count, m_daabbcc.m_max_query_count, m_daabbcc.m_max_raycast_count);
-    }
-
-    void Initialize(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count)
-    {
-        Setup(max_group_count, max_gameobject_count, max_query_count, max_raycast_count);
-    }
-
-    static void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count)
+    void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count)
     {
         m_daabbcc.m_dynamicTreeGroup.SetCapacity(max_group_count, max_group_count);
 
@@ -35,7 +24,7 @@ namespace daabbcc
         // QueryManifold
         m_daabbcc.m_queryManifoldResult.SetCapacity(max_query_count);
 
-        m_daabbcc.m_GameObjectContainer.SetCapacity(max_gameobject_count);
+        m_daabbcc.m_gameObjectContainer.SetCapacity(max_gameobject_count);
     }
 
     ////////////////////////////////////////
@@ -69,12 +58,12 @@ namespace daabbcc
     void RemoveGroup(uint8_t groupID)
     {
         // Remove all Gameobjects
-        uint32_t n = m_daabbcc.m_GameObjectContainer.Size();
+        uint32_t n = m_daabbcc.m_gameObjectContainer.Size();
         for (int i = 0; i < n; ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID)
             {
-                m_daabbcc.m_GameObjectContainer.EraseSwap(i);
+                m_daabbcc.m_gameObjectContainer.EraseSwap(i);
                 --n;
                 --i;
             }
@@ -128,13 +117,13 @@ namespace daabbcc
         gameObject.m_height = height;
         gameObject.m_getWorldPosition = getWorldPosition;
 
-        if (m_daabbcc.m_GameObjectContainer.Full())
+        if (m_daabbcc.m_gameObjectContainer.Full())
         {
-            LimitErrorAssert("Max Gameobject Count", m_daabbcc.m_GameObjectContainer.Size());
+            LimitErrorAssert("Max Gameobject Count", m_daabbcc.m_gameObjectContainer.Size());
         }
         else
         {
-            m_daabbcc.m_GameObjectContainer.Push(gameObject);
+            m_daabbcc.m_gameObjectContainer.Push(gameObject);
         }
     }
 
@@ -146,23 +135,23 @@ namespace daabbcc
 
     void UpdateGameobjectSize(uint8_t groupID, int32_t proxyID, uint32_t width, uint32_t height)
     {
-        for (uint32_t i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+        for (uint32_t i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_GameObjectContainer[i].m_proxyID == proxyID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_gameObjectContainer[i].m_proxyID == proxyID)
             {
-                m_daabbcc.m_GameObjectContainer[i].m_width = width;
-                m_daabbcc.m_GameObjectContainer[i].m_width = height;
+                m_daabbcc.m_gameObjectContainer[i].m_width = width;
+                m_daabbcc.m_gameObjectContainer[i].m_width = height;
             }
         }
     }
 
     void RemoveProxy(uint8_t groupID, int32_t proxyID)
     {
-        for (uint32_t i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+        for (uint32_t i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_GameObjectContainer[i].m_proxyID == proxyID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_gameObjectContainer[i].m_proxyID == proxyID)
             {
-                m_daabbcc.m_GameObjectContainer.EraseSwap(i);
+                m_daabbcc.m_gameObjectContainer.EraseSwap(i);
             }
         }
 
@@ -375,26 +364,6 @@ namespace daabbcc
         return input->maxFraction;
     }
 
-    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context)
-    {
-        m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
-        m_daabbcc.m_aabbCenter = b2AABB_Center(m_daabbcc.m_aabb);
-
-        m_daabbcc.m_sortRayResult = { proxyID, b2Distance(m_daabbcc.m_aabbCenter, input->origin) };
-
-        if (m_daabbcc.m_sortRayResults.Full())
-        {
-            LimitErrorAssert("Max Raycast Result Count", m_daabbcc.m_sortRayResults.Size());
-        }
-        else
-        {
-            m_daabbcc.m_tempSortRayResults.Push(m_daabbcc.m_sortRayResult);
-            m_daabbcc.m_sortRayResults.Push(m_daabbcc.m_sortRayResult);
-        }
-
-        return input->maxFraction;
-    }
-
     ////////////////////////////////////////
     // Raycast Operations
     ////////////////////////////////////////
@@ -419,39 +388,6 @@ namespace daabbcc
             qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
         }
     }
-    /*
-        void RayCastSort(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold)
-        {
-            m_daabbcc.m_queryManifoldResult.SetSize(0);
-
-            b2Vec2 m_startPoint = { start_x, start_y };
-            b2Vec2 m_endPoint = { end_x, end_y };
-
-            m_daabbcc.m_raycastInput = { m_startPoint, b2Sub(m_endPoint, m_startPoint), 1.0f };
-
-            // m_center is used for m_endPoint here
-            m_daabbcc.m_queryContainer = { 0, m_endPoint, false, isManifold };
-
-            b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycastInput, maskBits, RayCastSortCallback, &m_daabbcc.m_queryContainer);
-        }
-    */
-    uint32_t GetRayResultSize()
-    {
-        return m_daabbcc.m_rayResult.Size();
-    }
-    uint32_t GetRaySortResultSize()
-    {
-        return m_daabbcc.m_sortRayResults.Size();
-    }
-
-    dmArray<uint16_t>& GetRayResults()
-    {
-        return m_daabbcc.m_rayResult;
-    }
-    dmArray<SortResult>& GetRaySortResults()
-    {
-        return m_daabbcc.m_sortRayResults;
-    }
 
     ////////////////////////////////////////
     // Gameobject Update Operations
@@ -472,7 +408,7 @@ namespace daabbcc
     void GameObjectUpdate()
     {
         // If paused or not set
-        if (!m_gameUpdate.m_updateLoopState || m_daabbcc.m_GameObjectContainer.Empty())
+        if (!m_gameUpdate.m_updateLoopState || m_daabbcc.m_gameObjectContainer.Empty())
         {
             return;
         }
@@ -484,9 +420,9 @@ namespace daabbcc
 
         for (uint32_t i = 0; i < num_steps; ++i)
         {
-            for (int i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+            for (int i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
             {
-                m_daabbcc.m_gameObject = &m_daabbcc.m_GameObjectContainer[i];
+                m_daabbcc.m_gameObject = &m_daabbcc.m_gameObjectContainer[i];
 
                 if (m_daabbcc.m_gameObject->m_getWorldPosition)
                 {
@@ -582,14 +518,14 @@ namespace daabbcc
             depth = dx;
             if (d.x < 0)
             {
-                n = { -1.0f, 0 };
+                n = { 1.0f, 0 };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Sub(mid_a, temp);
             }
             else
             {
-                n = { 1.0f, 0 };
+                n = { -1.0f, 0 };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Add(mid_a, temp);
@@ -632,7 +568,7 @@ namespace daabbcc
     // https://github.com/defold/defold/blob/cdaa870389ca00062bfc03bcda8f4fb34e93124a/engine/engine/src/engine.cpp#L1860
     static void CalcTimeStep(float& step_dt, uint32_t& num_steps)
     {
-        uint64_t time = dmTime::GetTime();
+        uint64_t time = dmTime::GetMonotonicTime();
         uint64_t frame_time = time - m_gameUpdate.m_previousFrameTime;
         m_gameUpdate.m_previousFrameTime = time;
 
@@ -679,15 +615,8 @@ namespace daabbcc
         m_daabbcc.m_dynamicTreeGroup.Iterate(RemoveGroupsIterateCallback, (void*)0x0);
         m_daabbcc.m_dynamicTreeGroup.Clear();
 
-        m_daabbcc.m_GameObjectContainer.SetSize(0);
-
-        m_daabbcc.m_rayResult.SetSize(0);
-        m_daabbcc.m_sortRayResults.SetSize(0);
-        m_daabbcc.m_tempSortRayResults.SetSize(0);
-
+        m_daabbcc.m_gameObjectContainer.SetSize(0);
         m_daabbcc.m_queryResult.SetSize(0);
-        m_daabbcc.m_sortResults.SetSize(0);
-        m_daabbcc.m_tempSortResults.SetSize(0);
         m_daabbcc.m_queryManifoldResult.SetSize(0);
 
         m_daabbcc.m_treeGroup = NULL;
@@ -716,21 +645,12 @@ namespace daabbcc
         }
     }
 
-    void DumpRayResult(char* title)
-    {
-        dmLogInfo("--- %s DumpRayResult ---", title);
-        for (int i = 0; i < m_daabbcc.m_rayResult.Size(); ++i)
-        {
-            dmLogInfo("Proxy ID: %i", m_daabbcc.m_rayResult[i]);
-        }
-    }
-
-    void DumpSortResult(char* title)
+    void DumpManifoldResult(char* title)
     {
         dmLogInfo("--- %s DumpSortResult ---", title);
-        for (int i = 0; i < m_daabbcc.m_sortResults.Size(); ++i)
+        for (int i = 0; i < m_daabbcc.m_queryManifoldResult.Size(); ++i)
         {
-            dmLogInfo("Proxy ID: %i - Distance: %f", m_daabbcc.m_sortResults[i].m_proxyID, m_daabbcc.m_sortResults[i].m_distance);
+            dmLogInfo("Proxy ID: %i - Distance: %f", m_daabbcc.m_queryManifoldResult[i].m_proxyID, m_daabbcc.m_queryManifoldResult[i].m_distance);
         }
     }
 

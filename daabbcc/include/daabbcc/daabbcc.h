@@ -11,6 +11,7 @@
 
 namespace daabbcc
 {
+    // Manifold
     typedef struct b2Manifold
     {
         uint16_t count;
@@ -63,11 +64,6 @@ namespace daabbcc
         UPDATE_PARTIALREBUILD
     };
 
-    /*
-    TODO
-    -- Update all moving proxies at once from lua as table to C
-    */
-
     struct DAABBCC
     {
         struct TreeGroup
@@ -81,19 +77,8 @@ namespace daabbcc
 
         TreeGroup*                      m_treeGroup;
 
-        // Raycast result
-        //   dmArray<uint16_t> m_rayResult;
-
-        // Raycast short result
-        // dmArray<ManifoldResult> m_sortRayResults;
-        // ManifoldResult          m_sortRayResult;
-
         // Query result
         dmArray<uint16_t> m_queryResult;
-
-        // Query short result
-        //   dmArray<ManifoldResult> m_sortResults;
-        //  ManifoldResult          m_sortResult;
 
         // Querymanifold result
         dmArray<ManifoldResult> m_queryManifoldResult;
@@ -104,19 +89,13 @@ namespace daabbcc
         uint8_t m_currentGroupID = 0;
 
         // Query temp AABB, AABB Center, SortContainer
-        b2AABB m_aabb;
-        b2AABB m_manifoldAABB;
-        // b2Vec2         m_aabbCenter;
-        QueryContainer m_queryContainer;
-
-        b2Manifold     m_manifold;
-
-        // Ray-cast input
-        b2RayCastInput m_raycastInput;
-        b2CastOutput   m_raycastOutput;
-
-        // Game-object
-        dmArray<GameObject> m_GameObjectContainer;
+        b2AABB              m_aabb;
+        b2AABB              m_manifoldAABB;
+        b2Manifold          m_manifold;
+        QueryContainer      m_queryContainer;
+        b2RayCastInput      m_raycastInput;
+        b2CastOutput        m_raycastOutput;
+        dmArray<GameObject> m_gameObjectContainer;
         GameObject*         m_gameObject;
 
         // Max allocations
@@ -130,11 +109,7 @@ namespace daabbcc
     // Initialize dynamic tree
     ////////////////////////////////////////
 
-    void        Initialize();
-
-    void        Initialize(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count);
-
-    static void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count);
+    void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count);
 
     ////////////////////////////////////////
     // Group Operations
@@ -164,35 +139,31 @@ namespace daabbcc
     // Query Callbacks
     ////////////////////////////////////////
 
-    static bool QueryCallback(int32_t proxyID, int32_t groupID, void* context);
+    static bool QueryCallback(int32_t proxyID, int32_t groupID, void* queryContainer);
 
-    static bool QuerySortCallback(int32_t proxyID, int32_t groupID, void* context);
+    static bool QuerySortCallback(int32_t proxyID, int32_t groupID, void* queryContainer);
 
     ////////////////////////////////////////
     // Query Operations
     ////////////////////////////////////////
+    static void Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
 
-    static void        Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
+    static void QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB, bool isManifold);
 
-    static void        QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB, bool isManifold);
+    void        QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
 
-    void               QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
+    void        QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold);
 
-    void               QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold);
+    void        QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
 
-    void               QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
+    void        QueryIDSort(int32_t proxyID, uint64_t maskBits, bool isManifold);
 
-    void               QueryIDSort(int32_t proxyID, uint64_t maskBits, bool isManifold);
+    // Query Results
+    uint32_t                 GetQueryResultSize();
 
-    uint32_t           GetQueryResultSize();
+    uint32_t                 GetQueryManifoldResultSize();
 
-    uint32_t           GetQuerySortResultSize();
-
-    uint32_t           GetQueryManifoldResultSize();
-
-    dmArray<uint16_t>& GetQueryResults();
-
-    // dmArray<SortResult>&     GetQuerySortResults();
+    dmArray<uint16_t>&       GetQueryResults();
 
     dmArray<ManifoldResult>& GetQueryManifoldResults();
 
@@ -202,17 +173,7 @@ namespace daabbcc
 
     static float RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
 
-    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
-
-    void         RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold);
-
-    void         RayCastSort(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold);
-
-    uint32_t     GetRayResultSize();
-    uint32_t     GetRaySortResultSize();
-
-    //  dmArray<uint16_t>&   GetRayResults();
-    // dmArray<SortResult>& GetRaySortResults();
+    void         RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold, bool isSort);
 
     ////////////////////////////////////////
     // Gameobject Update Operations
@@ -262,7 +223,7 @@ namespace daabbcc
     // Tests
     ////////////////////////////////////////
     void DumpQueryResult(char* title);
-    void DumpRayResult(char* title);
-    void DumpSortResult(char* title);
+
+    void DumpManifoldResult(char* title);
 
 } // namespace daabbcc

@@ -59,7 +59,7 @@ function init(self)
     add_box(vmath.vector3(0, 0, 0), 0, false, collision_bits.ALL)
     -- add_box(vmath.vector3(10, 10, 0), 1, true, collision_bits.PLAYER)
 
-    query_box = factory.create("/factory#box", vmath.vector3(80, 80, 0))
+
     --[[  query_box = factory.create("/factory#box", vmath.vector3(10, 10, 0))
 
     local result, count = daabbcc.query_aabb(box_group, 10, 10, 40,
@@ -74,9 +74,10 @@ end
 local res_pos
 
 function update(self, dt)
+    daabbcc.update_aabb(box_group, boxes[2].aabb_id, world.x, world.y, 40, 40)
     local result, count = daabbcc.query_id(box_group, boxes[2].aabb_id, nil, true)
-    pprint(result)
-    print("count: ", count)
+
+
 
     -- TODO DO UPDATE HERE
 
@@ -85,11 +86,12 @@ function update(self, dt)
         for i = 1, count do
             local offset_x = result[i].normal_x * result[i].depth
             local offset_y = result[i].normal_y * result[i].depth
-            res_pos = world
-            res_pos = res_pos + vmath.vector3(offset_x, offset_y, 0)
-            go.set_position(res_pos, query_box)
+
+            world = world + vmath.vector3(offset_x, offset_y, 0)
         end
     end
+
+    go.set_position(world, boxes[2].id)
 end
 
 local DISPLAY_WIDTH = sys.get_config_int("display.width")
@@ -123,6 +125,4 @@ function on_input(self, action_id, action)
     ray_end.y = action.y
     local worldx, worldy = screen_to_world(action.x, action.y, 0, "/camera#camera")
     world = vmath.vector3(worldx, worldy, 0)
-
-    go.set_position(world, boxes[2].id)
 end
