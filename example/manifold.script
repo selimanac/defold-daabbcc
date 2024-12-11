@@ -77,13 +77,16 @@ function update(self, dt)
     local result, count = daabbcc.query_id(box_group, boxes[2].aabb_id, nil, true)
     pprint(result)
     print("count: ", count)
+
+    -- TODO DO UPDATE HERE
+
     if result then
         pprint(result)
         for i = 1, count do
             local offset_x = result[i].normal_x * result[i].depth
             local offset_y = result[i].normal_y * result[i].depth
             res_pos = world
-            res_pos = res_pos - vmath.vector3(offset_x, offset_y, 0)
+            res_pos = res_pos + vmath.vector3(offset_x, offset_y, 0)
             go.set_position(res_pos, query_box)
         end
     end

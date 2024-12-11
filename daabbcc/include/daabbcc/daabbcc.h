@@ -82,18 +82,18 @@ namespace daabbcc
         TreeGroup*                      m_treeGroup;
 
         // Raycast result
-        dmArray<uint16_t> m_rayResult;
+        //   dmArray<uint16_t> m_rayResult;
 
         // Raycast short result
-        dmArray<ManifoldResult> m_sortRayResults;
-        ManifoldResult          m_sortRayResult;
+        // dmArray<ManifoldResult> m_sortRayResults;
+        // ManifoldResult          m_sortRayResult;
 
         // Query result
         dmArray<uint16_t> m_queryResult;
 
         // Query short result
-        dmArray<ManifoldResult> m_sortResults;
-        ManifoldResult          m_sortResult;
+        //   dmArray<ManifoldResult> m_sortResults;
+        //  ManifoldResult          m_sortResult;
 
         // Querymanifold result
         dmArray<ManifoldResult> m_queryManifoldResult;
@@ -104,12 +104,16 @@ namespace daabbcc
         uint8_t m_currentGroupID = 0;
 
         // Query temp AABB, AABB Center, SortContainer
-        b2AABB         m_aabb;
-        b2Vec2         m_aabbCenter;
+        b2AABB m_aabb;
+        b2AABB m_manifoldAABB;
+        // b2Vec2         m_aabbCenter;
         QueryContainer m_queryContainer;
 
+        b2Manifold     m_manifold;
+
         // Ray-cast input
-        b2RayCastInput m_raycast_input;
+        b2RayCastInput m_raycastInput;
+        b2CastOutput   m_raycastOutput;
 
         // Game-object
         dmArray<GameObject> m_GameObjectContainer;
@@ -168,27 +172,27 @@ namespace daabbcc
     // Query Operations
     ////////////////////////////////////////
 
-    static void              Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
+    static void        Query(b2AABB* aabb, b2TreeQueryCallbackFcn* callback, void* context, uint64_t maskBits);
 
-    static void              QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB);
+    static void        QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB, bool isManifold);
 
-    void                     QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
+    void               QueryAABB(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
 
-    void                     QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold);
+    void               QueryID(int32_t proxyID, uint64_t maskBits, bool isManifold);
 
-    void                     QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits);
+    void               QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold);
 
-    void                     QueryIDSort(int32_t proxyID, uint64_t maskBits);
+    void               QueryIDSort(int32_t proxyID, uint64_t maskBits, bool isManifold);
 
-    uint32_t                 GetQueryResultSize();
+    uint32_t           GetQueryResultSize();
 
-    uint32_t                 GetQuerySortResultSize();
+    uint32_t           GetQuerySortResultSize();
 
-    uint32_t                 GetQueryManifoldResultSize();
+    uint32_t           GetQueryManifoldResultSize();
 
-    dmArray<uint16_t>&       GetQueryResults();
+    dmArray<uint16_t>& GetQueryResults();
 
-    dmArray<SortResult>&     GetQuerySortResults();
+    // dmArray<SortResult>&     GetQuerySortResults();
 
     dmArray<ManifoldResult>& GetQueryManifoldResults();
 
@@ -196,19 +200,19 @@ namespace daabbcc
     // Raycast Operations
     ////////////////////////////////////////
 
-    static float         RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
+    static float RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
 
-    static float         RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
+    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context);
 
-    void                 RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits);
+    void         RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold);
 
-    void                 RayCastSort(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits);
+    void         RayCastSort(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold);
 
-    uint32_t             GetRayResultSize();
-    uint32_t             GetRaySortResultSize();
+    uint32_t     GetRayResultSize();
+    uint32_t     GetRaySortResultSize();
 
-    dmArray<uint16_t>&   GetRayResults();
-    dmArray<SortResult>& GetRaySortResults();
+    //  dmArray<uint16_t>&   GetRayResults();
+    // dmArray<SortResult>& GetRaySortResults();
 
     ////////////////////////////////////////
     // Gameobject Update Operations
@@ -237,6 +241,10 @@ namespace daabbcc
     ////////////////////////////////////////
     // Helpers
     ////////////////////////////////////////
+    static inline int CompareDistance(const ManifoldResult* a, const ManifoldResult* b)
+    {
+        return a->m_distance - b->m_distance;
+    }
 
     static void        AABBtoAABBManifold(b2AABB A, b2AABB B, b2Manifold* m);
 

@@ -130,9 +130,6 @@ static inline void ManifoldResult(lua_State* L, uint32_t queryResultSize, dmArra
         lua_pushstring(L, "distance");
         lua_pushnumber(L, queryResult[i].m_distance);
         lua_settable(L, -3);
-        lua_pushstring(L, "count");
-        lua_pushinteger(L, queryResult[i].m_manifold.count);
-        lua_settable(L, -3);
         lua_pushstring(L, "depth");
         lua_pushnumber(L, queryResult[i].m_manifold.depth);
         lua_settable(L, -3);
