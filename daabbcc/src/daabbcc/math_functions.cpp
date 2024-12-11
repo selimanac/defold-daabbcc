@@ -5,19 +5,18 @@
 
 namespace daabbcc
 {
+    bool b2Vec2_IsValid(b2Vec2 v)
+    {
+        if (isnan(v.x) || isnan(v.y))
+        {
+            return false;
+        }
 
-bool b2Vec2_IsValid(b2Vec2 v)
-{
-  if (isnan(v.x) || isnan(v.y))
-  {
-    return false;
-  }
+        if (isinf(v.x) || isinf(v.y))
+        {
+            return false;
+        }
 
-  if (isinf(v.x) || isinf(v.y))
-  {
-    return false;
-  }
-
-  return true;
-}
+        return true;
+    }
 } // namespace daabbcc

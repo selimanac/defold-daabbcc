@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 #pragma once
+
 #define DLIB_LOG_DOMAIN "DAABBCC"
 #include "daabbcc/base.h"
 #include "daabbcc/math_functions.h"
 #include "dmsdk/dlib/log.h"
-
 #include <stdio.h>
 
 namespace daabbcc
@@ -14,7 +14,7 @@ namespace daabbcc
 
 #define B2_NULL_INDEX (-1)
 
-// clang-format off
+    // clang-format off
 // Define platform
 #if defined( _WIN64 )
 	#define B2_PLATFORM_WINDOWS
@@ -87,9 +87,9 @@ namespace daabbcc
 #else
 	#define B2_ASSERT( ... ) ( (void)0 )
 #endif
-// clang-format on
+    // clang-format on
 
-extern float b2_lengthUnitsPerMeter;
+    extern float b2_lengthUnitsPerMeter;
 
 // Used to detect bad values. Positions greater than about 16km will have
 // precision problems, so 100km as a limit should be fine in all cases.

@@ -37,6 +37,17 @@ I'd love to hear about your projects! Please share your released projects that u
 
 # Games using DAABBCC
 
+### Skull Horde
+
+![Skull Horde](/.github/skull_horde.png?raw=true)
+
+**Developer:** [8BitSkull](https://www.8bitskull.com/)   
+**Publisher:** [8BitSkull](https://www.8bitskull.com/)   
+**Release Date:** TBA  
+**Steam:** https://store.steampowered.com/app/3199360/Skull_Horde/  
+
+
+
 ## Bore Blasters
 
 ![Bore Blasters](/.github/boreblast.jpg?raw=true)
@@ -45,7 +56,7 @@ I'd love to hear about your projects! Please share your released projects that u
 **Publisher:** [8BitSkull](https://www.8bitskull.com/)   
 **Release Date:** 8 Mar, 2024  
 **Steam:** https://store.steampowered.com/app/2398170/BORE_BLASTERS/  
-**Switch:** TBA
+
 
 
 ## Void Scrappers

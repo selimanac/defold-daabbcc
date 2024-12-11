@@ -6,14 +6,14 @@
 namespace daabbcc
 {
 
-float b2_lengthUnitsPerMeter = 1.0f;
+    float      b2_lengthUnitsPerMeter = 1.0f;
 
-static int b2DefaultAssertFcn(const char* condition, const char* fileName, int lineNumber)
-{
-  dmLogError("ASSERTION: %s, %s, line %d\n", condition, fileName, lineNumber);
-  // return non-zero to break to debugger
-  return 1;
-}
+    static int b2DefaultAssertFcn(const char* condition, const char* fileName, int lineNumber)
+    {
+        dmLogError("ASSERTION: %s, %s, line %d\n", condition, fileName, lineNumber);
+        // return non-zero to break to debugger
+        return 1;
+    }
 
-b2AssertFcn* b2AssertHandler = b2DefaultAssertFcn;
+    b2AssertFcn* b2AssertHandler = b2DefaultAssertFcn;
 } // namespace daabbcc

@@ -15,3 +15,6 @@ compile_commands.json
 *.appmanifest
 /.cache
 *.der
+RELEASE-NOTES.md
+/.editor_settings
+build_config.json

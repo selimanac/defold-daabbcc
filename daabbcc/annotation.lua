@@ -36,8 +36,9 @@ function daabbcc.insert_aabb(group_id, x, y, width, height, category_bit) end
 ---@param width integer Width of AABB.
 ---@param height integer Height of AABB.
 ---@param category_bit? integer Single category bit which aabb belongs to. Default is **all**
+---@param get_world_position? boolean Get world position of gameobject. Default is **false**
 ---@return integer aabb_id New aabb ID
-function daabbcc.insert_gameobject(group_id, go_url, width, height, category_bit) end
+function daabbcc.insert_gameobject(group_id, go_url, width, height, category_bit, get_world_position) end
 
 ---Updates the AABB position and size when you change its position or/and size.Does not effect Gameobject position, Gameobject AABB positions will be overwritten by internal update.
 ---@param group_id integer Group ID
@@ -67,17 +68,19 @@ function daabbcc.remove(group_id, aabb_id) end
 ---@param width integer Width of AABB.
 ---@param height integer Height of AABB.
 ---@param mask_bits? integer  Default is all
+---@param get_manifold? boolean  Get collision manifold. Default is false
 ---@return table result Table of possible overlapping AABB IDs.
 ---@return integer count Count of `result` table.
-function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits) end
+function daabbcc.query_aabb(group_id, x, y, width, height, mask_bits, get_manifold) end
 
 ---Query the possible overlaps using AABB ID.
 ---@param group_id integer Group ID
 ---@param aabb_id integer AABB ID.
 ---@param mask_bits? integer Default is all
+---@param get_manifold? boolean  Get collision manifold. Default is false
 ---@return table result Table of possible overlapping AABB IDs.
 ---@return integer count Count of `result` table.
-function daabbcc.query_id(group_id, aabb_id, mask_bits) end
+function daabbcc.query_id(group_id, aabb_id, mask_bits, get_manifold) end
 
 ---Query possible overlaps using a raw AABB.
 ---@param group_id integer Group ID
