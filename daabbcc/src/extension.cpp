@@ -208,6 +208,11 @@ static int QueryAABBSort(lua_State* L)
         maskBits = luaL_checkinteger(L, 6);
     }
 
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
+
     daabbcc::QueryAABBSort(x, y, width, height, maskBits, isManifold);
 
     // Return Result
@@ -219,6 +224,7 @@ static int QueryAABBSort(lua_State* L)
     if (queryResultSize > 0)
     {
         dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+
         if (!isManifold)
         {
             SortResult(L, queryResultSize, queryResult);
@@ -396,6 +402,11 @@ static int RayCast(lua_State* L)
         maskBits = luaL_checkinteger(L, 6);
     }
 
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
+
     daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits, isManifold, false);
 
     uint32_t queryResultSize = 0;
@@ -455,6 +466,11 @@ static int RayCastSort(lua_State* L)
     if (lua_isnumber(L, 6))
     {
         maskBits = luaL_checkinteger(L, 6);
+    }
+
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
     }
 
     daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits, isManifold, true);

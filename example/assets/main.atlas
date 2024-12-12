@@ -1,7 +1,0 @@
-images {
-  image: "/example/assets/images/40x40.png"
-}
-images {
-  image: "/example/assets/images/60x30.png"
-}
-extrude_borders: 2

@@ -189,7 +189,7 @@ namespace daabbcc
 
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
-                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
                     m_daabbcc.m_manifold
                 };
 
@@ -221,7 +221,7 @@ namespace daabbcc
             {
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
-                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(m_daabbcc.m_manifoldAABB))
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB))
                 };
             }
             else
@@ -230,7 +230,7 @@ namespace daabbcc
 
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
-                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
                     m_daabbcc.m_manifold
                 };
             }
@@ -353,7 +353,7 @@ namespace daabbcc
 
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
-                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
                     m_daabbcc.m_manifold
                 };
 
