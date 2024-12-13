@@ -407,7 +407,7 @@ static int RayCast(lua_State* L)
         isManifold = lua_toboolean(L, 7);
     }
 
-    daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits, isManifold, false);
+    daabbcc::RayCast(start_x, start_y, end_x, end_y, maskBits, isManifold);
 
     uint32_t queryResultSize = 0;
 
@@ -473,7 +473,7 @@ static int RayCastSort(lua_State* L)
         isManifold = lua_toboolean(L, 7);
     }
 
-    daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits, isManifold, true);
+    daabbcc::RayCastSort(start_x, start_y, end_x, end_y, maskBits, isManifold);
 
     uint32_t queryResultSize = 0;
 

@@ -24,6 +24,7 @@ namespace daabbcc
         // QueryManifold
         m_daabbcc.m_queryManifoldResult.SetCapacity(max_query_count);
 
+        //  Gamobject Container
         m_daabbcc.m_gameObjectContainer.SetCapacity(max_gameobject_count);
     }
 
@@ -31,11 +32,6 @@ namespace daabbcc
     // Group Operations
     ////////////////////////////////////////
 
-    /*
-     * Add new group
-     * @param m_treeBuildType Tree rebuild type
-     * @return groupID GroupID
-     */
     uint8_t AddGroup(uint8_t treeBuildType)
     {
         if (m_daabbcc.m_dynamicTreeGroup.Full())
@@ -257,13 +253,6 @@ namespace daabbcc
         b2DynamicTree_Query(&m_daabbcc.m_treeGroup->m_dynamicTree, *aabb, maskBits, callback, context);
     }
 
-    static void QuerySort(int32_t proxyID, uint64_t maskBits)
-    {
-        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
-
-        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
-    }
-
     /**************************/
     // QUERIES
     /**************************/
@@ -292,7 +281,9 @@ namespace daabbcc
 
         m_daabbcc.m_queryContainer = { 0, b2AABB_Center(m_daabbcc.m_aabb), true, isManifold };
 
-        QuerySort(0, maskBits);
+        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
     void QueryIDSort(int32_t proxyID, uint64_t maskBits, bool isManifold)
@@ -301,7 +292,9 @@ namespace daabbcc
 
         m_daabbcc.m_queryContainer = { proxyID, b2AABB_Center(m_daabbcc.m_aabb), false, isManifold };
 
-        QuerySort(proxyID, maskBits);
+        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
     uint32_t GetQueryResultSize()
@@ -364,29 +357,81 @@ namespace daabbcc
         return input->maxFraction;
     }
 
+    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* queryContainer)
+    {
+        QueryContainer* m_queryContainer = (QueryContainer*)queryContainer;
+
+        if (m_daabbcc.m_queryResult.Full() || m_daabbcc.m_queryManifoldResult.Full())
+        {
+            LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryResult.Size());
+        }
+        else
+        {
+            if (!m_queryContainer->m_isManifold)
+            {
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
+            else
+            {
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                m_daabbcc.m_raycastOutput = b2AABB_RayCast(m_daabbcc.m_manifoldAABB, input->origin, m_queryContainer->m_center); // m_center is used for m_endPoint here
+
+                m_daabbcc.m_manifold.n = m_daabbcc.m_raycastOutput.normal;
+                m_daabbcc.m_manifold.contact_point = m_daabbcc.m_raycastOutput.point;
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    m_daabbcc.m_manifold
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
+        }
+
+        return input->maxFraction;
+    }
+
     ////////////////////////////////////////
     // Raycast Operations
     ////////////////////////////////////////
 
-    void RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold, bool isSort)
+    static inline void RayInit(float start_x, float start_y, float end_x, float end_y, bool isManifold)
     {
         m_daabbcc.m_queryResult.SetSize(0);
         m_daabbcc.m_queryManifoldResult.SetSize(0);
 
-        b2Vec2 m_startPoint = { start_x, start_y };
-        b2Vec2 m_endPoint = { end_x, end_y };
+        m_daabbcc.m_ray.m_startPoint = { start_x, start_y };
+        m_daabbcc.m_ray.m_endPoint = { end_x, end_y };
 
-        m_daabbcc.m_raycastInput = { m_startPoint, b2Sub(m_endPoint, m_startPoint), 1.0f };
+        m_daabbcc.m_raycastInput = { m_daabbcc.m_ray.m_startPoint, b2Sub(m_daabbcc.m_ray.m_endPoint, m_daabbcc.m_ray.m_startPoint), 1.0f };
 
         // m_center is used for m_endPoint here
-        m_daabbcc.m_queryContainer = { 0, m_endPoint, false, isManifold };
+        m_daabbcc.m_queryContainer = { 0, m_daabbcc.m_ray.m_endPoint, false, isManifold };
+    }
+
+    void RayCast(float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold)
+    {
+        RayInit(start_x, start_y, end_x, end_y, isManifold);
 
         b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycastInput, maskBits, RayCastCallback, &m_daabbcc.m_queryContainer);
+    }
 
-        if (isSort)
-        {
-            qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
-        }
+    void RayCastSort(float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold)
+    {
+        RayInit(start_x, start_y, end_x, end_y, isManifold);
+
+        b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycastInput, maskBits, RayCastSortCallback, &m_daabbcc.m_queryContainer);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
     ////////////////////////////////////////
@@ -402,6 +447,18 @@ namespace daabbcc
     {
         m_gameUpdate.m_updateFrequency = updateFrequency;
     };
+
+    static inline void GameobjectRebuildIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
+    {
+        if (treeGroup->m_buildType == UPDATE_INCREMENTAL)
+        {
+            return;
+        }
+
+        bool fullBuild = (treeGroup->m_buildType == UPDATE_FULLREBUILD) ? true : false;
+
+        b2DynamicTree_Rebuild(&treeGroup->m_dynamicTree, fullBuild);
+    }
 
     // From Defold source
     // https://github.com/defold/defold/blob/cdaa870389ca00062bfc03bcda8f4fb34e93124a/engine/engine/src/engine.cpp#L1902
@@ -453,18 +510,6 @@ namespace daabbcc
     static inline void RemoveGroupsIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
     {
         b2DynamicTree_Destroy(&treeGroup->m_dynamicTree);
-    }
-
-    static inline void GameobjectRebuildIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
-    {
-        if (treeGroup->m_buildType == UPDATE_INCREMENTAL)
-        {
-            return;
-        }
-
-        bool fullBuild = (treeGroup->m_buildType == UPDATE_FULLREBUILD) ? true : false;
-
-        b2DynamicTree_Rebuild(&treeGroup->m_dynamicTree, fullBuild);
     }
 
     static inline void RebuildIterateCallback(bool* fullBuild, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
