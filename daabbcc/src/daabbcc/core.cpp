@@ -33,7 +33,6 @@
 
 namespace daabbcc
 {
-
     // This allows the user to change the length units at runtime
     float b2_lengthUnitsPerMeter = 1.0f;
 

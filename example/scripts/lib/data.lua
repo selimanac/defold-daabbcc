@@ -1,18 +1,18 @@
-local collision = require("example.scripts.lib.collision")
-local manager = require("example.scripts.lib.manager")
-local utils = require("example.scripts.lib.utils")
+local collision        = require("example.scripts.lib.collision")
+local manager          = require("example.scripts.lib.manager")
+local utils            = require("example.scripts.lib.utils")
 
-local data = {}
+local data             = {}
 
-local box_factory = "/factories#box"
-
-local BOX_SIZE = {
+local active_boxes     = {}
+local active_box_count = 0
+local box_factory      = "/container/factories#box"
+local BOX_SIZE         = {
 	SQUARE = { width = 40, height = 40 },
 	RECTANGLE = { width = 120, height = 60 },
 }
 
-
-data.BOX_TYPE = {
+data.BOX_TYPE          = {
 	AABB = {
 		size          = BOX_SIZE.SQUARE,
 		collision_bit = collision.collision_bits.ITEM,
@@ -72,9 +72,8 @@ data.BOX_TYPE = {
 	}
 }
 
-data.aabbs = {}
-data.boxes = {}
-
+data.aabbs             = {}
+data.boxes             = {}
 
 local function setup_box(box, box_position)
 	box.position   = box_position
@@ -96,7 +95,7 @@ function data.add_box(box_position, box_type, box_static, animate)
 	else
 		box.aabb_id = collision.insert_gameobject(box.id, box.size.width, box.size.height, box.collision_bit)
 	end
-	print(box.aabb_id)
+
 	label.set_text(box.label_url, tostring(box.aabb_id))
 
 	table.insert(data.boxes, box)
@@ -111,93 +110,63 @@ function data.add_aabb()
 	return setup_box(utils.table_copy(data.BOX_TYPE.AABB), vmath.vector3(0, 0, 0))
 end
 
-local active_boxes = {}
+local function clear_highlight(id)
+	local box_id = data.aabbs[id]
+	local box = data.boxes[box_id]
+	box.selected = false
+	go.cancel_animations(box.sprite_url, "tint.y")
+	go.set(box.sprite_url, "tint.y", 1)
+end
 
-function data.clear_highlight()
-	for k, v in pairs(active_boxes) do
-		local box_id = data.aabbs[v]
-		local box = data.boxes[box_id]
-		box.selected = false
-		go.cancel_animations(box.sprite_url, "tint.w")
-		go.set(box.sprite_url, "tint.w", 1)
-		k = nil
+function data.clear_highlights()
+	for _, v in pairs(active_boxes) do
+		clear_highlight(v)
 	end
+	active_boxes = {}
 end
 
 function data.highlight(result, count)
-	for i = 1, count do
-		local id = 0
+	local result_aabb_id = 0
+	local box_id = 0
+	local box = {}
 
+	for i = 1, count do
 		if manager.is_sort or manager.is_manifold then
-			id = result[i].id
+			result_aabb_id = result[i].id
 		else
-			id = result[i]
+			result_aabb_id = result[i]
 		end
 
-		local box_id = data.aabbs[id]
-		local box = data.boxes[box_id]
-
+		box_id = data.aabbs[result_aabb_id]
+		box = data.boxes[box_id]
 
 		if not box.selected then
 			box.selected = true
-			go.animate(box.sprite_url, "tint.w", go.PLAYBACK_LOOP_PINGPONG, 0.5, go.EASING_LINEAR, 0.2)
-			table.insert(active_boxes, box.aabb_id, box.aabb_id)
+			go.animate(box.sprite_url, "tint.y", go.PLAYBACK_LOOP_PINGPONG, 0.5, go.EASING_LINEAR, 0.4)
+			active_boxes[box.aabb_id] = box.aabb_id
 		end
 	end
 
-	--[[for k, v in pairs(active_boxes) do
-		local is_active = true
+	for k, aabb_id in pairs(active_boxes) do
 		for i = 1, count do
-			local id = -1
-
 			if manager.is_sort or manager.is_manifold then
-				id = result[i].id
+				result_aabb_id = result[i].id
 			else
-				id = result[i]
+				result_aabb_id = result[i]
 			end
 
-			print(v, id)
-			if active_boxes[id] == nil then
-				is_active = false
-			end
-		end
-		if not is_active then
-			print(v, is_active)
-			print("---------------")
-		end
-	end]]
-	--[[
-	for k, v in pairs(active_boxes) do
-		local is_active = false
-		for i = 1, count do
-			local id = 0
-
-			if manager.is_sort or manager.is_manifold then
-				id = result[i].id
-			else
-				id = result[i]
-			end
-
-			if active_boxes[id] == nil then
-				print("FUCK NIL")
-				is_active = true
-			else
-				is_active = false
+			if aabb_id == result_aabb_id then
+				active_box_count = active_box_count + 1
 			end
 		end
 
-		print(k, is_active)
-		if is_active then
-			local box_id = data.aabbs[v]
-			local box = data.boxes[box_id]
-
-			box.selected = false
-			go.cancel_animations(box.sprite_url, "tint.w")
-			go.set(box.sprite_url, "tint.w", 1)
+		if active_box_count == 0 then
+			clear_highlight(aabb_id)
 			active_boxes[k] = nil
-			table.remove(active_boxes, k)
 		end
-	end]]
+
+		active_box_count = 0
+	end
 end
 
 function data.reset()

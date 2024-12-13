@@ -1,5 +1,7 @@
 #include "daabbcc/math_functions.h"
 #include "dmsdk/dlib/log.h"
+#include "dmsdk/dlib/time.h"
+#include "dmsdk/dlib/vmath.h"
 #include "dmsdk/gameobject/gameobject.h"
 #include <cstdint>
 #include <daabbcc/aabb.h>
@@ -7,7 +9,6 @@
 
 namespace daabbcc
 {
-
     DAABBCC    m_daabbcc;
     GameUpdate m_gameUpdate;
 

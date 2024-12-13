@@ -10,11 +10,11 @@ local collection_title = "QUERY AABB"
 function init(self)
 	manager.init(collection_title)
 
-	data.add_box(vmath.vector3(0, 0, 0), data.BOX_TYPE.PLAYER, true)
+	data.add_box(vmath.vector3(-50, -50, 0), data.BOX_TYPE.PLAYER, true)
 	data.add_box(vmath.vector3(100, 100, 0), data.BOX_TYPE.ENEMY, true)
 	data.add_box(vmath.vector3(50, 50, 0), data.BOX_TYPE.ENEMY, true)
 	data.add_box(vmath.vector3(180, 160, 0), data.BOX_TYPE.GROUND, false, true)
-	pprint(data.boxes)
+
 	-- Box for dummy visualization
 	aabb_box = data.add_aabb()
 end
@@ -32,7 +32,7 @@ function update(self, dt)
 		pprint(query_result)
 		data.highlight(query_result, query_result_count)
 	else
-		data.clear_highlight()
+		data.clear_highlights()
 	end
 end
 

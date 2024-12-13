@@ -20,6 +20,7 @@ namespace daabbcc
         /// The maximum fraction of the translation to consider, typically 1
         float maxFraction;
     } b2RayCastInput;
+
     /// Low level ray cast or shape-cast output data
     typedef struct b2CastOutput
     {

@@ -52,29 +52,27 @@ function manager.init(title_txt)
 	msg.post(".", "acquire_input_focus")
 	msg.post("@render:", "clear_color", { color = vmath.vector4(100 / 255, 100 / 255, 100 / 255, 0) })
 
-	pointer_url = msg.url(".")
-	pointer_url.path = "/pointer"
-	pprint(pointer_url)
+	pointer_url                         = msg.url(".")
+	pointer_url.path                    = "/container/pointer"
 
 	info_label_url                      = msg.url(".")
-	info_label_url.path                 = "/info"
+	info_label_url.path                 = "/container/info"
 	info_label_url.fragment             = "label"
 
 	collection_title_label_url          = msg.url(".")
-	collection_title_label_url.path     = "/info"
+	collection_title_label_url.path     = "/container/info"
 	collection_title_label_url.fragment = "collection_txt"
 	label.set_text(collection_title_label_url, title_txt)
 
 	next_btn_url                 = msg.url(".")
-	next_btn_url.path            = "/next_btn"
+	next_btn_url.path            = "/container/next_btn"
 
 	local next_btn_sprite_url    = msg.url(".")
-	next_btn_sprite_url.path     = "/next_btn"
+	next_btn_sprite_url.path     = "/container/next_btn"
 	next_btn_sprite_url.fragment = "sprite"
 
 	local next_btn_position      = go.get_position(next_btn_url)
 	local next_btn_size          = go.get(next_btn_sprite_url, "size")
-
 
 	camera.init()
 	collision.init()
@@ -101,7 +99,6 @@ function manager.input(action_id, action)
 
 	local result, _ = collision.query_id_btn(pointer_id)
 	if result and action.pressed then
-		print("BTN CLICK")
 		msg.post("load:/proxies#load", "next", {})
 	end
 end

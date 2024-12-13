@@ -5,7 +5,6 @@
 
 namespace daabbcc
 {
-
     bool b2IsValidAABB(b2AABB a)
     {
         b2Vec2 d = b2Sub(a.upperBound, a.lowerBound);

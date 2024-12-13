@@ -5,7 +5,6 @@
 
 namespace daabbcc
 {
-
     // clang-format off
 	#define B2_LITERAL(T) T
 	#define B2_ZERO_INIT {}
@@ -55,5 +54,4 @@ namespace daabbcc
 #define B2_ASSERT(...) ((void)0)
 #endif
 
-    //! @endcond
 } // namespace daabbcc

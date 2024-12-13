@@ -9,7 +9,7 @@ local tests = {
 	},
 	[3] = {
 		title = "RAYCAST",
-		url = "load:/proxies#raucast"
+		url = "load:/proxies#raycast"
 	}
 }
 
@@ -23,30 +23,17 @@ local function show(self, proxy)
 
 		self.current_proxy = nil
 	end
-	msg.post(proxy, "async_load") -- <8>
+	msg.post(proxy, "async_load")
 end
 
 function init(self)
 	msg.post(".", "acquire_input_focus")
-	self.current_proxy = nil -- <2>
-	msg.post("#", "query_aabb") -- <3>
+	self.current_proxy = nil
+	show(self, tests[1].url)
 end
 
 function on_message(self, message_id, message, sender)
-	if message_id == hash("query_aabb") then -- <4>
-		show(self, "/proxies#query_aabb")
-	elseif message_id == hash("show_level1") then
-		show(self, "#level1proxy")
-	elseif message_id == hash("show_level2") then
-		show(self, "#level2proxy")
-	elseif message_id == hash("show_level3") then
-		show(self, "#level3proxy")
-	elseif message_id == hash("proxy_loaded") then -- <9>
-		self.current_proxy = sender             -- <10>
-		msg.post(sender, "enable")              -- <11>
-	elseif message_id == hash("proxy_unloaded") then
-		print("Unloaded", sender)
-	elseif message_id == hash("next") then
+	if message_id == hash("next") then
 		print("next", sender)
 		if current_test < #tests then
 			current_test = current_test + 1
@@ -54,5 +41,10 @@ function on_message(self, message_id, message, sender)
 			current_test = 1
 		end
 		show(self, tests[current_test].url)
+	elseif message_id == hash("proxy_loaded") then
+		self.current_proxy = sender
+		msg.post(sender, "enable")
+	elseif message_id == hash("proxy_unloaded") then
+		print("Unloaded", sender)
 	end
 end

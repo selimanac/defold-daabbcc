@@ -9,9 +9,7 @@
 
 namespace daabbcc
 {
-
     // clang-format off
-
 #define B2_NULL_INDEX ( -1 )
 
 // for performance comparisons
@@ -37,7 +35,6 @@ namespace daabbcc
 #else
 	#define B2_PLATFORM_UNKNOWN
 #endif
-
 // clang-format on
 
 // Used to prevent the compiler from warning about unused variables

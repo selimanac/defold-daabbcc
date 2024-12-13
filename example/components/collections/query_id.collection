@@ -1,11 +1,7 @@
 name: "query_aabb"
-instances {
-  id: "camera"
-  prototype: "/example/components/gameobjects/camera.go"
-}
-instances {
-  id: "info"
-  prototype: "/example/components/gameobjects/info.go"
+collection_instances {
+  id: "container"
+  collection: "/example/components/collections/container.collection"
 }
 scale_along_z: 0
 embedded_instances {
@@ -13,14 +9,6 @@ embedded_instances {
   data: "components {\n"
   "  id: \"query_id\"\n"
   "  component: \"/example/scripts/query_id.script\"\n"
-  "}\n"
-  ""
-}
-embedded_instances {
-  id: "factories"
-  data: "components {\n"
-  "  id: \"box\"\n"
-  "  component: \"/example/components/factories/box.factory\"\n"
   "}\n"
   ""
 }

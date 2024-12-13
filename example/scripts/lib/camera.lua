@@ -8,7 +8,7 @@ function camera.init()
 	msg.post("@render:", "use_camera_projection")
 
 	camera_url = msg.url(".")
-	camera_url.path = "/camera"
+	camera_url.path = "/container/camera"
 	camera_url.fragment = "camera"
 end
 
