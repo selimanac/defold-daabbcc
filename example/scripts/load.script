@@ -1,0 +1,58 @@
+local tests = {
+	[1] = {
+		title = "QUERY AABB",
+		url = "load:/proxies#query_aabb"
+	},
+	[2] = {
+		title = "QUERY ID",
+		url = "load:/proxies#query_id"
+	},
+	[3] = {
+		title = "RAYCAST",
+		url = "load:/proxies#raucast"
+	}
+}
+
+local current_test = 1
+
+local function show(self, proxy)
+	if self.current_proxy then
+		msg.post(self.current_proxy, "disable")
+		msg.post(self.current_proxy, "final")
+		msg.post(self.current_proxy, "unload")
+
+		self.current_proxy = nil
+	end
+	msg.post(proxy, "async_load") -- <8>
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.current_proxy = nil -- <2>
+	msg.post("#", "query_aabb") -- <3>
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("query_aabb") then -- <4>
+		show(self, "/proxies#query_aabb")
+	elseif message_id == hash("show_level1") then
+		show(self, "#level1proxy")
+	elseif message_id == hash("show_level2") then
+		show(self, "#level2proxy")
+	elseif message_id == hash("show_level3") then
+		show(self, "#level3proxy")
+	elseif message_id == hash("proxy_loaded") then -- <9>
+		self.current_proxy = sender             -- <10>
+		msg.post(sender, "enable")              -- <11>
+	elseif message_id == hash("proxy_unloaded") then
+		print("Unloaded", sender)
+	elseif message_id == hash("next") then
+		print("next", sender)
+		if current_test < #tests then
+			current_test = current_test + 1
+		else
+			current_test = 1
+		end
+		show(self, tests[current_test].url)
+	end
+end

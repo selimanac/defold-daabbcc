@@ -2,38 +2,45 @@
 // SPDX-License-Identifier: MIT
 
 #include "daabbcc/aabb.h"
-#include "daabbcc/allocate.h"
 #include "daabbcc/collision.h"
 #include "daabbcc/core.h"
 #include "daabbcc/math_functions.h"
 #include <float.h>
 #include <string.h>
+#include <daabbcc/constants.h>
 
 namespace daabbcc
 {
 
-#define b2_treeStackSize 1024
+#define B2_TREE_STACK_SIZE 1024
 
-    // TODO_ERIN
-    // - try incrementally sorting internal nodes by height for better cache
-    // efficiency during depth first traversal.
+    static b2TreeNode b2_defaultTreeNode = {
+        .aabb = { { 0.0f, 0.0f }, { 0.0f, 0.0f } },
+        .categoryBits = B2_DEFAULT_CATEGORY_BITS,
+        .parent = B2_NULL_INDEX,
+        .child1 = B2_NULL_INDEX,
+        .child2 = B2_NULL_INDEX,
+        .height = 0,
+        .flags = b2_allocatedNode,
+    };
 
-    static b2TreeNode  b2_defaultTreeNode = { { { 0.0f, 0.0f }, { 0.0f, 0.0f } }, 0, { B2_NULL_INDEX }, B2_NULL_INDEX, B2_NULL_INDEX, -1, -2, false, { 0, 0, 0, 0, 0 } };
-
-    static inline bool b2IsLeaf(const b2TreeNode* node)
+    static bool b2IsLeaf(const b2TreeNode* node)
     {
-        return node->height == 0;
+        return node->flags & b2_leafNode;
     }
 
-    static inline int16_t b2MaxInt16(int16_t a, int16_t b)
+    static bool b2IsAllocated(const b2TreeNode* node)
+    {
+        return node->flags & b2_allocatedNode;
+    }
+
+    static uint16_t b2MaxUInt16(uint16_t a, uint16_t b)
     {
         return a > b ? a : b;
     }
 
     b2DynamicTree b2DynamicTree_Create(void)
     {
-        _Static_assert((sizeof(b2TreeNode) & 0xF) == 0, "tree node size not a multiple of 16");
-
         b2DynamicTree tree;
         tree.root = B2_NULL_INDEX;
 
@@ -46,10 +53,9 @@ namespace daabbcc
         for (int32_t i = 0; i < tree.nodeCapacity - 1; ++i)
         {
             tree.nodes[i].next = i + 1;
-            tree.nodes[i].height = -1;
         }
+
         tree.nodes[tree.nodeCapacity - 1].next = B2_NULL_INDEX;
-        tree.nodes[tree.nodeCapacity - 1].height = -1;
         tree.freeList = 0;
 
         tree.proxyCount = 0;
@@ -84,22 +90,22 @@ namespace daabbcc
 
             // The free list is empty. Rebuild a bigger pool.
             b2TreeNode* oldNodes = tree->nodes;
-            int32_t     oldCapcity = tree->nodeCapacity;
-            tree->nodeCapacity += oldCapcity >> 1;
+            int32_t     oldCapacity = tree->nodeCapacity;
+            tree->nodeCapacity += oldCapacity >> 1;
             tree->nodes = (b2TreeNode*)b2Alloc(tree->nodeCapacity * sizeof(b2TreeNode));
             B2_ASSERT(oldNodes != NULL);
             memcpy(tree->nodes, oldNodes, tree->nodeCount * sizeof(b2TreeNode));
-            b2Free(oldNodes, oldCapcity * sizeof(b2TreeNode));
+            memset(tree->nodes + tree->nodeCount, 0, (tree->nodeCapacity - tree->nodeCount) * sizeof(b2TreeNode));
+            b2Free(oldNodes, oldCapacity * sizeof(b2TreeNode));
 
-            // Build a linked list for the free list. The parent pointer becomes the
-            // "next" pointer. todo avoid building freelist?
+            // Build a linked list for the free list. The parent pointer becomes the "next" pointer.
+            // todo avoid building freelist?
             for (int32_t i = tree->nodeCount; i < tree->nodeCapacity - 1; ++i)
             {
                 tree->nodes[i].next = i + 1;
-                tree->nodes[i].height = -1;
             }
+
             tree->nodes[tree->nodeCapacity - 1].next = B2_NULL_INDEX;
-            tree->nodes[tree->nodeCapacity - 1].height = -1;
             tree->freeList = tree->nodeCount;
         }
 
@@ -118,29 +124,28 @@ namespace daabbcc
         B2_ASSERT(0 <= nodeId && nodeId < tree->nodeCapacity);
         B2_ASSERT(0 < tree->nodeCount);
         tree->nodes[nodeId].next = tree->freeList;
-        tree->nodes[nodeId].height = -1;
+        tree->nodes[nodeId].flags = 0;
         tree->freeList = nodeId;
         --tree->nodeCount;
     }
 
     // Greedy algorithm for sibling selection using the SAH
-    // We have three nodes A-(B,C) and want to add a leaf D, there are three
-    // choices. 1: make a new parent for A and D : E-(A-(B,C), D) 2: associate D
-    // with B
+    // We have three nodes A-(B,C) and want to add a leaf D, there are three choices.
+    // 1: make a new parent for A and D : E-(A-(B,C), D)
+    // 2: associate D with B
     //   a: B is a leaf : A-(E-(B,D), C)
     //   b: B is an internal node: A-(B{D},C)
     // 3: associate D with C
     //   a: C is a leaf : A-(B, E-(C,D))
     //   b: C is an internal node: A-(B, C{D})
-    // All of these have a clear cost except when B or C is an internal node. Hence
-    // we need to be greedy.
+    // All of these have a clear cost except when B or C is an internal node. Hence we need to be greedy.
 
-    // The cost for cases 1, 2a, and 3a can be computed using the sibling cost
-    // formula. cost of sibling H = area(union(H, D)) + increased are of ancestors
+    // The cost for cases 1, 2a, and 3a can be computed using the sibling cost formula.
+    // cost of sibling H = area(union(H, D)) + increased area of ancestors
 
-    // Suppose B (or C) is an internal node, then the lowest cost would be one of
-    // two cases: case1: D becomes a sibling of B case2: D becomes a descendant of B
-    // along with a new internal node of area(D).
+    // Suppose B (or C) is an internal node, then the lowest cost would be one of two cases:
+    // case1: D becomes a sibling of B
+    // case2: D becomes a descendant of B along with a new internal node of area(D).
     static int32_t b2FindBestSibling(const b2DynamicTree* tree, b2AABB boxD)
     {
         b2Vec2            centerD = b2AABB_Center(boxD);
@@ -256,8 +261,8 @@ namespace daabbcc
                 B2_ASSERT(lowerCost1 < FLT_MAX);
                 B2_ASSERT(lowerCost2 < FLT_MAX);
 
-                // No clear choice based on lower bound surface area. This can happen when
-                // both children fully contain D. Fall back to node distance.
+                // No clear choice based on lower bound surface area. This can happen when both
+                // children fully contain D. Fall back to node distance.
                 b2Vec2 d1 = b2Sub(b2AABB_Center(box1), centerD);
                 b2Vec2 d2 = b2Sub(b2AABB_Center(box2), centerD);
                 lowerCost1 = b2LengthSquared(d1);
@@ -355,12 +360,12 @@ namespace daabbcc
 
                 C->aabb = aabbBG;
 
-                C->height = 1 + b2MaxInt16(B->height, G->height);
-                A->height = 1 + b2MaxInt16(C->height, F->height);
+                C->height = 1 + b2MaxUInt16(B->height, G->height);
+                A->height = 1 + b2MaxUInt16(C->height, F->height);
                 C->categoryBits = B->categoryBits | G->categoryBits;
                 A->categoryBits = C->categoryBits | F->categoryBits;
-                C->enlarged = B->enlarged || G->enlarged;
-                A->enlarged = C->enlarged || F->enlarged;
+                C->flags |= (B->flags | G->flags) & b2_enlargedNode;
+                A->flags |= (C->flags | F->flags) & b2_enlargedNode;
             }
             else
             {
@@ -373,12 +378,12 @@ namespace daabbcc
 
                 C->aabb = aabbBF;
 
-                C->height = 1 + b2MaxInt16(B->height, F->height);
-                A->height = 1 + b2MaxInt16(C->height, G->height);
+                C->height = 1 + b2MaxUInt16(B->height, F->height);
+                A->height = 1 + b2MaxUInt16(C->height, G->height);
                 C->categoryBits = B->categoryBits | F->categoryBits;
                 A->categoryBits = C->categoryBits | G->categoryBits;
-                C->enlarged = B->enlarged || F->enlarged;
-                A->enlarged = C->enlarged || G->enlarged;
+                C->flags |= (B->flags | F->flags) & b2_enlargedNode;
+                A->flags |= (C->flags | G->flags) & b2_enlargedNode;
             }
         }
         else if (C->height == 0)
@@ -421,12 +426,12 @@ namespace daabbcc
 
                 B->aabb = aabbCE;
 
-                B->height = 1 + b2MaxInt16(C->height, E->height);
-                A->height = 1 + b2MaxInt16(B->height, D->height);
+                B->height = 1 + b2MaxUInt16(C->height, E->height);
+                A->height = 1 + b2MaxUInt16(B->height, D->height);
                 B->categoryBits = C->categoryBits | E->categoryBits;
                 A->categoryBits = B->categoryBits | D->categoryBits;
-                B->enlarged = C->enlarged || E->enlarged;
-                A->enlarged = B->enlarged || D->enlarged;
+                B->flags |= (C->flags | E->flags) & b2_enlargedNode;
+                A->flags |= (B->flags | D->flags) & b2_enlargedNode;
             }
             else
             {
@@ -438,12 +443,12 @@ namespace daabbcc
                 E->parent = iA;
 
                 B->aabb = aabbCD;
-                B->height = 1 + b2MaxInt16(C->height, D->height);
-                A->height = 1 + b2MaxInt16(B->height, E->height);
+                B->height = 1 + b2MaxUInt16(C->height, D->height);
+                A->height = 1 + b2MaxUInt16(B->height, E->height);
                 B->categoryBits = C->categoryBits | D->categoryBits;
                 A->categoryBits = B->categoryBits | E->categoryBits;
-                B->enlarged = C->enlarged || D->enlarged;
-                A->enlarged = B->enlarged || E->enlarged;
+                B->flags |= (C->flags | D->flags) & b2_enlargedNode;
+                A->flags |= (B->flags | E->flags) & b2_enlargedNode;
             }
         }
         else
@@ -519,12 +524,12 @@ namespace daabbcc
                     F->parent = iA;
 
                     C->aabb = aabbBG;
-                    C->height = 1 + b2MaxInt16(B->height, G->height);
-                    A->height = 1 + b2MaxInt16(C->height, F->height);
+                    C->height = 1 + b2MaxUInt16(B->height, G->height);
+                    A->height = 1 + b2MaxUInt16(C->height, F->height);
                     C->categoryBits = B->categoryBits | G->categoryBits;
                     A->categoryBits = C->categoryBits | F->categoryBits;
-                    C->enlarged = B->enlarged || G->enlarged;
-                    A->enlarged = C->enlarged || F->enlarged;
+                    C->flags |= (B->flags | G->flags) & b2_enlargedNode;
+                    A->flags |= (C->flags | F->flags) & b2_enlargedNode;
                     break;
 
                 case b2_rotateBG:
@@ -535,12 +540,12 @@ namespace daabbcc
                     G->parent = iA;
 
                     C->aabb = aabbBF;
-                    C->height = 1 + b2MaxInt16(B->height, F->height);
-                    A->height = 1 + b2MaxInt16(C->height, G->height);
+                    C->height = 1 + b2MaxUInt16(B->height, F->height);
+                    A->height = 1 + b2MaxUInt16(C->height, G->height);
                     C->categoryBits = B->categoryBits | F->categoryBits;
                     A->categoryBits = C->categoryBits | G->categoryBits;
-                    C->enlarged = B->enlarged || F->enlarged;
-                    A->enlarged = C->enlarged || G->enlarged;
+                    C->flags |= (B->flags | F->flags) & b2_enlargedNode;
+                    A->flags |= (C->flags | G->flags) & b2_enlargedNode;
                     break;
 
                 case b2_rotateCD:
@@ -551,12 +556,12 @@ namespace daabbcc
                     D->parent = iA;
 
                     B->aabb = aabbCE;
-                    B->height = 1 + b2MaxInt16(C->height, E->height);
-                    A->height = 1 + b2MaxInt16(B->height, D->height);
+                    B->height = 1 + b2MaxUInt16(C->height, E->height);
+                    A->height = 1 + b2MaxUInt16(B->height, D->height);
                     B->categoryBits = C->categoryBits | E->categoryBits;
                     A->categoryBits = B->categoryBits | D->categoryBits;
-                    B->enlarged = C->enlarged || E->enlarged;
-                    A->enlarged = B->enlarged || D->enlarged;
+                    B->flags |= (C->flags | E->flags) & b2_enlargedNode;
+                    A->flags |= (B->flags | D->flags) & b2_enlargedNode;
                     break;
 
                 case b2_rotateCE:
@@ -567,12 +572,12 @@ namespace daabbcc
                     E->parent = iA;
 
                     B->aabb = aabbCD;
-                    B->height = 1 + b2MaxInt16(C->height, D->height);
-                    A->height = 1 + b2MaxInt16(B->height, E->height);
+                    B->height = 1 + b2MaxUInt16(C->height, D->height);
+                    A->height = 1 + b2MaxUInt16(B->height, E->height);
                     B->categoryBits = C->categoryBits | D->categoryBits;
                     A->categoryBits = B->categoryBits | E->categoryBits;
-                    B->enlarged = C->enlarged || D->enlarged;
-                    A->enlarged = B->enlarged || E->enlarged;
+                    B->flags |= (C->flags | D->flags) & b2_enlargedNode;
+                    A->flags |= (B->flags | E->flags) & b2_enlargedNode;
                     break;
 
                 default:
@@ -646,8 +651,8 @@ namespace daabbcc
 
             nodes[index].aabb = b2AABB_Union(nodes[child1].aabb, nodes[child2].aabb);
             nodes[index].categoryBits = nodes[child1].categoryBits | nodes[child2].categoryBits;
-            nodes[index].height = 1 + b2MaxInt16(nodes[child1].height, nodes[child2].height);
-            nodes[index].enlarged = nodes[child1].enlarged || nodes[child2].enlarged;
+            nodes[index].height = 1 + b2MaxUInt16(nodes[child1].height, nodes[child2].height);
+            nodes[index].flags |= (nodes[child1].flags | nodes[child2].flags) & b2_enlargedNode;
 
             if (shouldRotate)
             {
@@ -712,7 +717,7 @@ namespace daabbcc
 
                 node->aabb = b2AABB_Union(child1->aabb, child2->aabb);
                 node->categoryBits = child1->categoryBits | child2->categoryBits;
-                node->height = 1 + b2MaxInt16(child1->height, child2->height);
+                node->height = 1 + b2MaxUInt16(child1->height, child2->height);
 
                 index = node->parent;
             }
@@ -725,14 +730,14 @@ namespace daabbcc
         }
     }
 
-    // Create a proxy in the tree as a leaf node. We return the index of the node
-    // instead of a pointer so that we can grow the node pool.
+    // Create a proxy in the tree as a leaf node. We return the index of the node instead of a pointer so that we can grow
+    // the node pool.
     int32_t b2DynamicTree_CreateProxy(b2DynamicTree* tree, b2AABB aabb, uint64_t categoryBits, int32_t userData)
     {
-        B2_ASSERT(-b2_huge < aabb.lowerBound.x && aabb.lowerBound.x < b2_huge);
-        B2_ASSERT(-b2_huge < aabb.lowerBound.y && aabb.lowerBound.y < b2_huge);
-        B2_ASSERT(-b2_huge < aabb.upperBound.x && aabb.upperBound.x < b2_huge);
-        B2_ASSERT(-b2_huge < aabb.upperBound.y && aabb.upperBound.y < b2_huge);
+        B2_ASSERT(-B2_HUGE < aabb.lowerBound.x && aabb.lowerBound.x < B2_HUGE);
+        B2_ASSERT(-B2_HUGE < aabb.lowerBound.y && aabb.lowerBound.y < B2_HUGE);
+        B2_ASSERT(-B2_HUGE < aabb.upperBound.x && aabb.upperBound.x < B2_HUGE);
+        B2_ASSERT(-B2_HUGE < aabb.upperBound.y && aabb.upperBound.y < B2_HUGE);
 
         int32_t     proxyId = b2AllocateNode(tree);
         b2TreeNode* node = tree->nodes + proxyId;
@@ -741,6 +746,7 @@ namespace daabbcc
         node->userData = userData;
         node->categoryBits = categoryBits;
         node->height = 0;
+        node->flags = b2_allocatedNode | b2_leafNode;
 
         bool shouldRotate = true;
         b2InsertLeaf(tree, proxyId, shouldRotate);
@@ -769,9 +775,9 @@ namespace daabbcc
 
     void b2DynamicTree_MoveProxy(b2DynamicTree* tree, int32_t proxyId, b2AABB aabb)
     {
-        B2_ASSERT(b2AABB_IsValid(aabb));
-        B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < b2_huge);
-        B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < b2_huge);
+        B2_ASSERT(b2IsValidAABB(aabb));
+        B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < B2_HUGE);
+        B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < B2_HUGE);
         B2_ASSERT(0 <= proxyId && proxyId < tree->nodeCapacity);
         B2_ASSERT(b2IsLeaf(tree->nodes + proxyId));
 
@@ -787,9 +793,9 @@ namespace daabbcc
     {
         b2TreeNode* nodes = tree->nodes;
 
-        B2_ASSERT(b2AABB_IsValid(aabb));
-        B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < b2_huge);
-        B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < b2_huge);
+        B2_ASSERT(b2IsValidAABB(aabb));
+        B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < B2_HUGE);
+        B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < B2_HUGE);
         B2_ASSERT(0 <= proxyId && proxyId < tree->nodeCapacity);
         B2_ASSERT(b2IsLeaf(tree->nodes + proxyId));
 
@@ -802,7 +808,7 @@ namespace daabbcc
         while (parentIndex != B2_NULL_INDEX)
         {
             bool changed = b2EnlargeAABB(&nodes[parentIndex].aabb, aabb);
-            nodes[parentIndex].enlarged = true;
+            nodes[parentIndex].flags |= b2_enlargedNode;
             parentIndex = nodes[parentIndex].parent;
 
             if (changed == false)
@@ -813,14 +819,13 @@ namespace daabbcc
 
         while (parentIndex != B2_NULL_INDEX)
         {
-            if (nodes[parentIndex].enlarged == true)
+            if (nodes[parentIndex].flags & b2_enlargedNode)
             {
-                // early out because this ancestor was previously ascended and marked as
-                // enlarged
+                // early out because this ancestor was previously ascended and marked as enlarged
                 break;
             }
 
-            nodes[parentIndex].enlarged = true;
+            nodes[parentIndex].flags |= b2_enlargedNode;
             parentIndex = nodes[parentIndex].parent;
         }
     }
@@ -849,9 +854,8 @@ namespace daabbcc
         for (int32_t i = 0; i < tree->nodeCapacity; ++i)
         {
             const b2TreeNode* node = tree->nodes + i;
-            if (node->height < 0 || b2IsLeaf(node) || i == tree->root)
+            if (b2IsAllocated(node) == false || b2IsLeaf(node) || i == tree->root)
             {
-                // Free node in pool
                 continue;
             }
 
@@ -874,7 +878,7 @@ namespace daabbcc
 
         int32_t height1 = b2ComputeHeight(tree, node->child1);
         int32_t height2 = b2ComputeHeight(tree, node->child2);
-        return 1 + b2MaxInt16(height1, height2);
+        return 1 + b2MaxInt(height1, height2);
     }
 
     int b2DynamicTree_ComputeHeight(const b2DynamicTree* tree)
@@ -884,7 +888,7 @@ namespace daabbcc
     }
 
 #if B2_VALIDATE
-    static void b2ValidateStructure(const b2DynamicTree* tree, int32_t index)
+    static void b2ValidateStructure(const b2DynamicTree* tree, int index)
     {
         if (index == B2_NULL_INDEX)
         {
@@ -898,16 +902,16 @@ namespace daabbcc
 
         const b2TreeNode* node = tree->nodes + index;
 
-        int32_t           child1 = node->child1;
-        int32_t           child2 = node->child2;
+        B2_ASSERT(node->flags == 0 || (node->flags & b2_allocatedNode) != 0);
 
         if (b2IsLeaf(node))
         {
-            B2_ASSERT(child1 == B2_NULL_INDEX);
-            B2_ASSERT(child2 == B2_NULL_INDEX);
             B2_ASSERT(node->height == 0);
             return;
         }
+
+        int32_t child1 = node->child1;
+        int32_t child2 = node->child2;
 
         B2_ASSERT(0 <= child1 && child1 < tree->nodeCapacity);
         B2_ASSERT(0 <= child2 && child2 < tree->nodeCapacity);
@@ -915,9 +919,9 @@ namespace daabbcc
         B2_ASSERT(tree->nodes[child1].parent == index);
         B2_ASSERT(tree->nodes[child2].parent == index);
 
-        if (tree->nodes[child1].enlarged || tree->nodes[child2].enlarged)
+        if ((tree->nodes[child1].flags | tree->nodes[child2].flags) & b2_enlargedNode)
         {
-            B2_ASSERT(node->enlarged == true);
+            B2_ASSERT(node->flags & b2_enlargedNode);
         }
 
         b2ValidateStructure(tree, child1);
@@ -933,28 +937,24 @@ namespace daabbcc
 
         const b2TreeNode* node = tree->nodes + index;
 
-        int32_t           child1 = node->child1;
-        int32_t           child2 = node->child2;
-
         if (b2IsLeaf(node))
         {
-            B2_ASSERT(child1 == B2_NULL_INDEX);
-            B2_ASSERT(child2 == B2_NULL_INDEX);
             B2_ASSERT(node->height == 0);
             return;
         }
 
+        int child1 = node->child1;
+        int child2 = node->child2;
+
         B2_ASSERT(0 <= child1 && child1 < tree->nodeCapacity);
         B2_ASSERT(0 <= child2 && child2 < tree->nodeCapacity);
 
-        int32_t height1 = tree->nodes[child1].height;
-        int32_t height2 = tree->nodes[child2].height;
-        int32_t height;
-        height = 1 + b2MaxInt16(height1, height2);
+        int height1 = tree->nodes[child1].height;
+        int height2 = tree->nodes[child2].height;
+        int height = 1 + b2MaxInt(height1, height2);
         B2_ASSERT(node->height == height);
 
-        // b2AABB aabb = b2AABB_Union(tree->nodes[child1].aabb,
-        // tree->nodes[child2].aabb);
+        // b2AABB aabb = b2AABB_Union(tree->nodes[child1].aabb, tree->nodes[child2].aabb);
 
         B2_ASSERT(b2AABB_Contains(node->aabb, tree->nodes[child1].aabb));
         B2_ASSERT(b2AABB_Contains(node->aabb, tree->nodes[child2].aabb));
@@ -983,8 +983,8 @@ namespace daabbcc
         b2ValidateStructure(tree, tree->root);
         b2ValidateMetrics(tree, tree->root);
 
-        int32_t freeCount = 0;
-        int32_t freeIndex = tree->freeList;
+        int freeCount = 0;
+        int freeIndex = tree->freeList;
         while (freeIndex != B2_NULL_INDEX)
         {
             B2_ASSERT(0 <= freeIndex && freeIndex < tree->nodeCapacity);
@@ -992,8 +992,8 @@ namespace daabbcc
             ++freeCount;
         }
 
-        int32_t height = b2DynamicTree_GetHeight(tree);
-        int32_t computedHeight = b2DynamicTree_ComputeHeight(tree);
+        int height = b2DynamicTree_GetHeight(tree);
+        int computedHeight = b2DynamicTree_ComputeHeight(tree);
         B2_ASSERT(height == computedHeight);
 
         B2_ASSERT(tree->nodeCount + freeCount == tree->nodeCapacity);
@@ -1002,127 +1002,23 @@ namespace daabbcc
 #endif
     }
 
-    int32_t b2DynamicTree_GetMaxBalance(const b2DynamicTree* tree)
-    {
-        int32_t maxBalance = 0;
-        for (int32_t i = 0; i < tree->nodeCapacity; ++i)
-        {
-            const b2TreeNode* node = tree->nodes + i;
-            if (node->height <= 1)
-            {
-                continue;
-            }
-
-            B2_ASSERT(b2IsLeaf(node) == false);
-
-            int32_t child1 = node->child1;
-            int32_t child2 = node->child2;
-            int32_t balance = b2AbsFloat(tree->nodes[child2].height - tree->nodes[child1].height);
-            maxBalance = b2MaxInt(maxBalance, balance);
-        }
-
-        return maxBalance;
-    }
-
-    void b2DynamicTree_RebuildBottomUp(b2DynamicTree* tree)
-    {
-        int32_t* nodes = (int32_t*)b2Alloc(tree->nodeCount * sizeof(int32_t));
-        int32_t  count = 0;
-
-        // Build array of leaves. Free the rest.
-        for (int32_t i = 0; i < tree->nodeCapacity; ++i)
-        {
-            if (tree->nodes[i].height < 0)
-            {
-                // free node in pool
-                continue;
-            }
-
-            if (b2IsLeaf(tree->nodes + i))
-            {
-                tree->nodes[i].parent = B2_NULL_INDEX;
-                nodes[count] = i;
-                ++count;
-            }
-            else
-            {
-                b2FreeNode(tree, i);
-            }
-        }
-
-        while (count > 1)
-        {
-            float   minCost = FLT_MAX;
-            int32_t iMin = -1, jMin = -1;
-            for (int32_t i = 0; i < count; ++i)
-            {
-                b2AABB aabbi = tree->nodes[nodes[i]].aabb;
-
-                for (int32_t j = i + 1; j < count; ++j)
-                {
-                    b2AABB aabbj = tree->nodes[nodes[j]].aabb;
-                    b2AABB b = b2AABB_Union(aabbi, aabbj);
-                    float  cost = b2Perimeter(b);
-                    if (cost < minCost)
-                    {
-                        iMin = i;
-                        jMin = j;
-                        minCost = cost;
-                    }
-                }
-            }
-
-            int32_t     index1 = nodes[iMin];
-            int32_t     index2 = nodes[jMin];
-            b2TreeNode* child1 = tree->nodes + index1;
-            b2TreeNode* child2 = tree->nodes + index2;
-
-            int32_t     parentIndex = b2AllocateNode(tree);
-            b2TreeNode* parent = tree->nodes + parentIndex;
-            parent->child1 = index1;
-            parent->child2 = index2;
-            parent->aabb = b2AABB_Union(child1->aabb, child2->aabb);
-            parent->categoryBits = child1->categoryBits | child2->categoryBits;
-            parent->height = 1 + b2MaxInt16(child1->height, child2->height);
-            parent->parent = B2_NULL_INDEX;
-
-            child1->parent = parentIndex;
-            child2->parent = parentIndex;
-
-            nodes[jMin] = nodes[count - 1];
-            nodes[iMin] = parentIndex;
-            --count;
-        }
-
-        tree->root = nodes[0];
-        b2Free(nodes, tree->nodeCount * sizeof(b2TreeNode));
-
-        b2DynamicTree_Validate(tree);
-    }
-
-    void b2DynamicTree_ShiftOrigin(b2DynamicTree* tree, b2Vec2 newOrigin)
-    {
-        // shift all AABBs
-        for (int32_t i = 0; i < tree->nodeCapacity; ++i)
-        {
-            b2TreeNode* n = tree->nodes + i;
-            n->aabb.lowerBound.x -= newOrigin.x;
-            n->aabb.lowerBound.y -= newOrigin.y;
-            n->aabb.upperBound.x -= newOrigin.x;
-            n->aabb.upperBound.y -= newOrigin.y;
-        }
-    }
-
     int b2DynamicTree_GetByteCount(const b2DynamicTree* tree)
     {
-        size_t size = sizeof(b2DynamicTree) + sizeof(b2TreeNode) * tree->nodeCapacity + tree->rebuildCapacity * (sizeof(int32_t) + sizeof(b2AABB) + sizeof(b2Vec2) + sizeof(int32_t));
+        size_t size = sizeof(b2DynamicTree) + sizeof(b2TreeNode) * tree->nodeCapacity +
+        tree->rebuildCapacity * (sizeof(int32_t) + sizeof(b2AABB) + sizeof(b2Vec2) + sizeof(int32_t));
 
         return (int)size;
     }
-
-    void b2DynamicTree_Query(const b2DynamicTree* tree, b2AABB aabb, uint64_t maskBits, b2TreeQueryCallbackFcn* callback, void* context)
+    b2TreeStats b2DynamicTree_Query(const b2DynamicTree* tree, b2AABB aabb, uint64_t maskBits, b2TreeQueryCallbackFcn* callback, void* context)
     {
-        int32_t stack[b2_treeStackSize];
+        b2TreeStats result = { 0 };
+
+        if (tree->nodeCount == 0)
+        {
+            return result;
+        }
+
+        int32_t stack[B2_TREE_STACK_SIZE];
         int32_t stackCount = 0;
         stack[stackCount++] = tree->root;
 
@@ -1131,10 +1027,13 @@ namespace daabbcc
             int32_t nodeId = stack[--stackCount];
             if (nodeId == B2_NULL_INDEX)
             {
+                // todo huh?
+                B2_ASSERT(false);
                 continue;
             }
 
             const b2TreeNode* node = tree->nodes + nodeId;
+            result.nodeVisits += 1;
 
             if (b2AABB_Overlaps(node->aabb, aabb) && (node->categoryBits & maskBits) != 0)
             {
@@ -1142,16 +1041,17 @@ namespace daabbcc
                 {
                     // callback to user code with proxy id
                     bool proceed = callback(nodeId, node->userData, context);
+                    result.leafVisits += 1;
 
                     if (proceed == false)
                     {
-                        return;
+                        return result;
                     }
                 }
                 else
                 {
-                    B2_ASSERT(stackCount < b2_treeStackSize - 1);
-                    if (stackCount < b2_treeStackSize - 1)
+                    B2_ASSERT(stackCount < B2_TREE_STACK_SIZE - 1);
+                    if (stackCount < B2_TREE_STACK_SIZE - 1)
                     {
                         stack[stackCount++] = node->child1;
                         stack[stackCount++] = node->child2;
@@ -1159,10 +1059,19 @@ namespace daabbcc
                 }
             }
         }
+
+        return result;
     }
 
-    void b2DynamicTree_RayCast(const b2DynamicTree* tree, const b2RayCastInput* input, uint64_t maskBits, b2TreeRayCastCallbackFcn* callback, void* context)
+    b2TreeStats b2DynamicTree_RayCast(const b2DynamicTree* tree, const b2RayCastInput* input, uint64_t maskBits, b2TreeRayCastCallbackFcn* callback, void* context)
     {
+        b2TreeStats result = { 0 };
+
+        if (tree->nodeCount == 0)
+        {
+            return result;
+        }
+
         b2Vec2 p1 = input->origin;
         b2Vec2 d = input->translation;
 
@@ -1182,22 +1091,30 @@ namespace daabbcc
         // Build a bounding box for the segment.
         b2AABB  segmentAABB = { b2Min(p1, p2), b2Max(p1, p2) };
 
-        int32_t stack[b2_treeStackSize];
+        int32_t stack[B2_TREE_STACK_SIZE];
         int32_t stackCount = 0;
         stack[stackCount++] = tree->root;
 
-        b2RayCastInput subInput = *input;
+        const b2TreeNode* nodes = tree->nodes;
+
+        b2RayCastInput    subInput = *input;
 
         while (stackCount > 0)
         {
             int32_t nodeId = stack[--stackCount];
             if (nodeId == B2_NULL_INDEX)
             {
+                // todo is this possible?
+                B2_ASSERT(false);
                 continue;
             }
 
-            const b2TreeNode* node = tree->nodes + nodeId;
-            if (b2AABB_Overlaps(node->aabb, segmentAABB) == false || (node->categoryBits & maskBits) == 0)
+            const b2TreeNode* node = nodes + nodeId;
+            result.nodeVisits += 1;
+
+            b2AABB nodeAABB = node->aabb;
+
+            if ((node->categoryBits & maskBits) == 0 || b2AABB_Overlaps(nodeAABB, segmentAABB) == false)
             {
                 continue;
             }
@@ -1205,8 +1122,8 @@ namespace daabbcc
             // Separating axis for segment (Gino, p80).
             // |dot(v, p1 - c)| > dot(|v|, h)
             // radius extension is added to the node in this case
-            b2Vec2 c = b2AABB_Center(node->aabb);
-            b2Vec2 h = b2AABB_Extents(node->aabb);
+            b2Vec2 c = b2AABB_Center(nodeAABB);
+            b2Vec2 h = b2AABB_Extents(nodeAABB);
             float  term1 = b2AbsFloat(b2Dot(v, b2Sub(p1, c)));
             float  term2 = b2Dot(abs_v, h);
             if (term2 < term1)
@@ -1219,14 +1136,17 @@ namespace daabbcc
                 subInput.maxFraction = maxFraction;
 
                 float value = callback(&subInput, nodeId, node->userData, context);
+                result.leafVisits += 1;
+
+                // The user may return -1 to indicate this shape should be skipped
 
                 if (value == 0.0f)
                 {
                     // The client has terminated the ray cast.
-                    return;
+                    return result;
                 }
 
-                if (0.0f < value && value < maxFraction)
+                if (0.0f < value && value <= maxFraction)
                 {
                     // Update segment bounding box.
                     maxFraction = value;
@@ -1237,17 +1157,28 @@ namespace daabbcc
             }
             else
             {
-                B2_ASSERT(stackCount < b2_treeStackSize - 1);
-                if (stackCount < b2_treeStackSize - 1)
+                B2_ASSERT(stackCount < B2_TREE_STACK_SIZE - 1);
+                if (stackCount < B2_TREE_STACK_SIZE - 1)
                 {
-                    // TODO_ERIN just put one node on the stack, continue on a child node
-                    // TODO_ERIN test ordering children by nearest to ray origin
-                    stack[stackCount++] = node->child1;
-                    stack[stackCount++] = node->child2;
+                    b2Vec2 c1 = b2AABB_Center(nodes[node->child1].aabb);
+                    b2Vec2 c2 = b2AABB_Center(nodes[node->child2].aabb);
+                    if (b2DistanceSquared(c1, p1) < b2DistanceSquared(c2, p1))
+                    {
+                        stack[stackCount++] = node->child2;
+                        stack[stackCount++] = node->child1;
+                    }
+                    else
+                    {
+                        stack[stackCount++] = node->child1;
+                        stack[stackCount++] = node->child2;
+                    }
                 }
             }
         }
+
+        return result;
     }
+
 // Median split == 0, Surface area heuristic == 1
 #define B2_TREE_HEURISTIC 0
 
@@ -1262,7 +1193,6 @@ namespace daabbcc
             return count / 2;
         }
 
-        // todo SIMD?
         b2Vec2 lowerBound = centers[0];
         b2Vec2 upperBound = centers[0];
 
@@ -1359,15 +1289,13 @@ namespace daabbcc
         {
             return i1;
         }
-        else
-        {
-            return count / 2;
-        }
+
+        return count / 2;
     }
 
 #else
 
-#define B2_BIN_COUNT 8
+#define B2_BIN_COUNT 64
 
     typedef struct b2TreeBin
     {
@@ -1565,7 +1493,8 @@ namespace daabbcc
         int32_t* binIndices = tree->binIndices;
 #endif
 
-        struct b2RebuildItem stack[b2_treeStackSize];
+        // todo large stack item
+        struct b2RebuildItem stack[B2_TREE_STACK_SIZE];
         int32_t              top = 0;
 
         stack[0].nodeIndex = b2AllocateNode(tree);
@@ -1620,7 +1549,7 @@ namespace daabbcc
                 b2TreeNode* child2 = nodes + node->child2;
 
                 node->aabb = b2AABB_Union(child1->aabb, child2->aabb);
-                node->height = 1 + b2MaxInt16(child1->height, child2->height);
+                node->height = 1 + b2MaxUInt16(child1->height, child2->height);
                 node->categoryBits = child1->categoryBits | child2->categoryBits;
 
                 // Pop stack
@@ -1667,7 +1596,7 @@ namespace daabbcc
                 else
                 {
                     B2_ASSERT(count > 0);
-                    B2_ASSERT(top < b2_treeStackSize);
+                    B2_ASSERT(top < B2_TREE_STACK_SIZE);
 
                     top += 1;
                     struct b2RebuildItem* newItem = stack + top;
@@ -1678,7 +1607,8 @@ namespace daabbcc
 #if B2_TREE_HEURISTIC == 0
                     newItem->splitIndex = b2PartitionMid(leafIndices + startIndex, leafCenters + startIndex, count);
 #else
-                    newItem->splitIndex = b2PartitionSAH(leafIndices + startIndex, binIndices + startIndex, leafBoxes + startIndex, count);
+                    newItem->splitIndex =
+                    b2PartitionSAH(leafIndices + startIndex, binIndices + startIndex, leafBoxes + startIndex, count);
 #endif
                     newItem->splitIndex += startIndex;
                 }
@@ -1694,7 +1624,7 @@ namespace daabbcc
         b2TreeNode* child2 = nodes + rootNode->child2;
 
         rootNode->aabb = b2AABB_Union(child1->aabb, child2->aabb);
-        rootNode->height = 1 + b2MaxInt16(child1->height, child2->height);
+        rootNode->height = 1 + b2MaxUInt16(child1->height, child2->height);
         rootNode->categoryBits = child1->categoryBits | child2->categoryBits;
 
         return stack[0].nodeIndex;
@@ -1730,7 +1660,7 @@ namespace daabbcc
         }
 
         int32_t     leafCount = 0;
-        int32_t     stack[b2_treeStackSize];
+        int32_t     stack[B2_TREE_STACK_SIZE];
         int32_t     stackCount = 0;
 
         int32_t     nodeIndex = tree->root;
@@ -1747,14 +1677,14 @@ namespace daabbcc
         b2AABB* leafBoxes = tree->leafBoxes;
 #endif
 
-        // Gather all proxy nodes that have grown and all internal nodes that haven't
-        // grown. Both are considered leaves in the tree rebuild. Free all internal
-        // nodes that have grown. todo use a node growth metric instead of simply
-        // enlarged to reduce rebuild size and frequency this should be weighed
-        // against b2_aabbMargin
+        // Gather all proxy nodes that have grown and all internal nodes that haven't grown. Both are
+        // considered leaves in the tree rebuild.
+        // Free all internal nodes that have grown.
+        // todo use a node growth metric instead of simply enlarged to reduce rebuild size and frequency
+        // this should be weighed against b2_aabbMargin
         while (true)
         {
-            if (node->height == 0 || (node->enlarged == false && fullBuild == false))
+            if (node->height == 0 || ((node->flags & b2_enlargedNode) == 0 && fullBuild == false))
             {
                 leafIndices[leafCount] = nodeIndex;
 #if B2_TREE_HEURISTIC == 0
@@ -1774,8 +1704,8 @@ namespace daabbcc
                 // Handle children
                 nodeIndex = node->child1;
 
-                B2_ASSERT(stackCount < b2_treeStackSize);
-                if (stackCount < b2_treeStackSize)
+                B2_ASSERT(stackCount < B2_TREE_STACK_SIZE);
+                if (stackCount < B2_TREE_STACK_SIZE)
                 {
                     stack[stackCount++] = node->child2;
                 }
@@ -1801,9 +1731,9 @@ namespace daabbcc
         int32_t capacity = tree->nodeCapacity;
         for (int32_t i = 0; i < capacity; ++i)
         {
-            if (nodes[i].height >= 0)
+            if (nodes[i].flags & b2_allocatedNode)
             {
-                B2_ASSERT(nodes[i].enlarged == false);
+                B2_ASSERT((nodes[i].flags & b2_enlargedNode) == 0);
             }
         }
 #endif

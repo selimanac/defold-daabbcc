@@ -5,7 +5,23 @@
 
 namespace daabbcc
 {
-    bool b2Vec2_IsValid(b2Vec2 v)
+
+    bool b2IsValidFloat(float a)
+    {
+        if (isnan(a))
+        {
+            return false;
+        }
+
+        if (isinf(a))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool b2IsValidVec2(b2Vec2 v)
     {
         if (isnan(v.x) || isnan(v.y))
         {

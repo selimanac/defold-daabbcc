@@ -200,4 +200,9 @@ function data.highlight(result, count)
 	end]]
 end
 
+function data.reset()
+	data.aabbs = {}
+	data.boxes = {}
+end
+
 return data

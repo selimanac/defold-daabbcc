@@ -2,6 +2,7 @@
 
 #include "daabbcc/math_functions.h"
 #include <cstdint>
+#include <daabbcc/constants.h>
 #include <daabbcc/collision.h>
 #include <dmsdk/dlib/array.h>
 #include <dmsdk/dlib/hashtable.h>

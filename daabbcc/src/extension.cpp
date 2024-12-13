@@ -143,7 +143,7 @@ static inline int QueryIDSort(lua_State* L)
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 3))
@@ -200,7 +200,7 @@ static int QueryAABBSort(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
@@ -259,7 +259,7 @@ static int QueryAABB(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
@@ -323,7 +323,7 @@ static int QueryID(lua_State* L)
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 3))
@@ -394,7 +394,7 @@ static int RayCast(lua_State* L)
     float    end_x = luaL_checknumber(L, 4);
     float    end_y = luaL_checknumber(L, 5);
 
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
@@ -460,7 +460,7 @@ static int RayCastSort(lua_State* L)
     float    end_x = luaL_checknumber(L, 4);
     float    end_y = luaL_checknumber(L, 5);
 
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
@@ -519,7 +519,7 @@ static int AddProxy(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t categoryBits = b2_defaultCategoryBits;
+    uint64_t categoryBits = B2_DEFAULT_CATEGORY_BITS;
 
     if (lua_isnumber(L, 6))
     {
@@ -555,7 +555,7 @@ static int AddGameObject(lua_State* L)
     uint32_t                width = luaL_checkint(L, 3);
     uint32_t                height = luaL_checkint(L, 4);
 
-    uint64_t                categoryBits = b2_defaultCategoryBits;
+    uint64_t                categoryBits = B2_DEFAULT_CATEGORY_BITS;
     bool                    getWorldPosition = false;
 
     if (lua_isnumber(L, 5))
