@@ -70,6 +70,10 @@ function collision.raycast_sort(ray_start, ray_end, is_mask, get_manifold)
 	return daabbcc.raycast_sort(aabb_group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y, mask_bits, get_manifold)
 end
 
+function collision.update_aabb(aabb)
+	daabbcc.update_aabb(aabb_group_id, aabb.aabb_id, aabb.position.x, aabb.position.y, aabb.size.width, aabb.size.height)
+end
+
 function collision.reset()
 	daabbcc.reset()
 end

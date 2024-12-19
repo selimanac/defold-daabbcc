@@ -36,6 +36,10 @@ local function toogle_manifold()
 	set_info_text()
 end
 
+function manager.toogle_manifold()
+	toogle_manifold()
+end
+
 local function toogle_mask()
 	manager.is_mask = not manager.is_mask and true or false
 	set_info_text()

@@ -1,4 +1,4 @@
-name: "query_aabb"
+name: "raycast"
 collection_instances {
   id: "container"
   collection: "/example/components/collections/container.collection"

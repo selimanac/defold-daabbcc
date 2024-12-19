@@ -10,6 +10,10 @@ local tests = {
 	[3] = {
 		title = "RAYCAST",
 		url = "load:/proxies#raycast"
+	},
+	[4] = {
+		title = "MANIFOLD",
+		url = "load:/proxies#manifold"
 	}
 }
 
@@ -34,7 +38,6 @@ end
 
 function on_message(self, message_id, message, sender)
 	if message_id == hash("next") then
-		print("next", sender)
 		if current_test < #tests then
 			current_test = current_test + 1
 		else

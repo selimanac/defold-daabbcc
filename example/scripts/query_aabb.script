@@ -7,6 +7,7 @@ local query_result = {}
 local query_result_count = 0
 local collection_title = "QUERY AABB"
 
+
 function init(self)
 	manager.init(collection_title)
 
@@ -15,12 +16,19 @@ function init(self)
 	data.add_box(vmath.vector3(50, 50, 0), data.BOX_TYPE.ENEMY, true)
 	data.add_box(vmath.vector3(180, 160, 0), data.BOX_TYPE.GROUND, false, true)
 
+	-- Fort static update
+	data.add_box(vmath.vector3(-80, -80, 0), data.BOX_TYPE.GROUND, true, true)
+
 	-- Box for dummy visualization
 	aabb_box = data.add_aabb()
 end
 
 function update(self, dt)
 	go.set_position(manager.world_position, aabb_box.id)
+
+	-- Static update
+	data.boxes[5].position = go.get_position(data.boxes[5].id)
+	collision.update_aabb(data.boxes[5])
 
 	if manager.is_sort then
 		query_result, query_result_count = collision.query_aabb_sort(manager.world_position.x, manager.world_position.y, 40, 40, manager.is_mask, manager.is_manifold)

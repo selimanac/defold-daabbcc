@@ -491,6 +491,9 @@ namespace daabbcc
                     m_daabbcc.m_gameObject->m_position = dmGameObject::GetPosition(m_daabbcc.m_gameObject->m_gameObjectInstance);
                 }
 
+                // B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < B2_HUGE);
+                // B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < B2_HUGE);
+
                 // TODO Find a better way:
                 b2AABB              m_aabb;
                 DAABBCC::TreeGroup* m_treeGroup = m_daabbcc.m_dynamicTreeGroup.Get(m_daabbcc.m_gameObject->m_groupID);

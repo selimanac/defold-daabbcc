@@ -24,5 +24,11 @@ embedded_instances {
   "  data: \"collection: \\\"/example/components/collections/raycast.collection\\\"\\n"
   "\"\n"
   "}\n"
+  "embedded_components {\n"
+  "  id: \"manifold\"\n"
+  "  type: \"collectionproxy\"\n"
+  "  data: \"collection: \\\"/example/components/collections/manifold.collection\\\"\\n"
+  "\"\n"
+  "}\n"
   ""
 }
