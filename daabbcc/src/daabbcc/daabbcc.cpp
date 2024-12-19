@@ -1,5 +1,7 @@
 #include "daabbcc/math_functions.h"
 #include "dmsdk/dlib/log.h"
+#include "dmsdk/dlib/time.h"
+#include "dmsdk/dlib/vmath.h"
 #include "dmsdk/gameobject/gameobject.h"
 #include <cstdint>
 #include <daabbcc/aabb.h>
@@ -7,53 +9,30 @@
 
 namespace daabbcc
 {
-
     DAABBCC    m_daabbcc;
     GameUpdate m_gameUpdate;
 
     ////////////////////////////////////////
     // Initialize dynamic tree
     ////////////////////////////////////////
-
-    void Initialize()
-    {
-        Setup(m_daabbcc.m_max_group_count, m_daabbcc.m_max_gameobject_count, m_daabbcc.m_max_query_count, m_daabbcc.m_max_raycast_count);
-    }
-
-    void Initialize(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count)
-    {
-        Setup(max_group_count, max_gameobject_count, max_query_count, max_raycast_count);
-    }
-
-    static void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count, uint16_t max_raycast_count)
+    void Setup(uint8_t max_group_count, uint16_t max_gameobject_count, uint16_t max_query_count)
     {
         m_daabbcc.m_dynamicTreeGroup.SetCapacity(max_group_count, max_group_count);
 
         // Query arrays
         m_daabbcc.m_queryResult.SetCapacity(max_query_count);
-        m_daabbcc.m_sortResults.SetCapacity(max_query_count);
-        m_daabbcc.m_tempSortResults.SetCapacity(max_query_count);
 
         // QueryManifold
         m_daabbcc.m_queryManifoldResult.SetCapacity(max_query_count);
 
-        // Raycast arrays
-        m_daabbcc.m_rayResult.SetCapacity(max_raycast_count);
-        m_daabbcc.m_sortRayResults.SetCapacity(max_raycast_count);
-        m_daabbcc.m_tempSortRayResults.SetCapacity(max_raycast_count);
-
-        m_daabbcc.m_GameObjectContainer.SetCapacity(max_gameobject_count);
+        //  Gamobject Container
+        m_daabbcc.m_gameObjectContainer.SetCapacity(max_gameobject_count);
     }
 
     ////////////////////////////////////////
     // Group Operations
     ////////////////////////////////////////
 
-    /*
-     * Add new group
-     * @param m_treeBuildType Tree rebuild type
-     * @return groupID GroupID
-     */
     uint8_t AddGroup(uint8_t treeBuildType)
     {
         if (m_daabbcc.m_dynamicTreeGroup.Full())
@@ -76,12 +55,12 @@ namespace daabbcc
     void RemoveGroup(uint8_t groupID)
     {
         // Remove all Gameobjects
-        uint32_t n = m_daabbcc.m_GameObjectContainer.Size();
+        uint32_t n = m_daabbcc.m_gameObjectContainer.Size();
         for (int i = 0; i < n; ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID)
             {
-                m_daabbcc.m_GameObjectContainer.EraseSwap(i);
+                m_daabbcc.m_gameObjectContainer.EraseSwap(i);
                 --n;
                 --i;
             }
@@ -135,13 +114,13 @@ namespace daabbcc
         gameObject.m_height = height;
         gameObject.m_getWorldPosition = getWorldPosition;
 
-        if (m_daabbcc.m_GameObjectContainer.Full())
+        if (m_daabbcc.m_gameObjectContainer.Full())
         {
-            LimitErrorAssert("Max Gameobject Count", m_daabbcc.m_GameObjectContainer.Size());
+            LimitErrorAssert("Max Gameobject Count", m_daabbcc.m_gameObjectContainer.Size());
         }
         else
         {
-            m_daabbcc.m_GameObjectContainer.Push(gameObject);
+            m_daabbcc.m_gameObjectContainer.Push(gameObject);
         }
     }
 
@@ -153,23 +132,23 @@ namespace daabbcc
 
     void UpdateGameobjectSize(uint8_t groupID, int32_t proxyID, uint32_t width, uint32_t height)
     {
-        for (uint32_t i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+        for (uint32_t i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_GameObjectContainer[i].m_proxyID == proxyID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_gameObjectContainer[i].m_proxyID == proxyID)
             {
-                m_daabbcc.m_GameObjectContainer[i].m_width = width;
-                m_daabbcc.m_GameObjectContainer[i].m_width = height;
+                m_daabbcc.m_gameObjectContainer[i].m_width = width;
+                m_daabbcc.m_gameObjectContainer[i].m_width = height;
             }
         }
     }
 
     void RemoveProxy(uint8_t groupID, int32_t proxyID)
     {
-        for (uint32_t i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+        for (uint32_t i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
         {
-            if (m_daabbcc.m_GameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_GameObjectContainer[i].m_proxyID == proxyID)
+            if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_gameObjectContainer[i].m_proxyID == proxyID)
             {
-                m_daabbcc.m_GameObjectContainer.EraseSwap(i);
+                m_daabbcc.m_gameObjectContainer.EraseSwap(i);
             }
         }
 
@@ -201,16 +180,14 @@ namespace daabbcc
             }
             else
             {
-                dmLogInfo("Manifold %i", proxyID);
-                b2Manifold manifold;
-                // m_daabbcc.m_aabb
-                b2AABB targetAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
-                AABBtoAABBManifold(m_daabbcc.m_aabb, targetAABB, &manifold);
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                AABBtoAABBManifold(m_daabbcc.m_aabb, m_daabbcc.m_manifoldAABB, &m_daabbcc.m_manifold);
 
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
-                    b2Distance(b2AABB_Center(m_daabbcc.m_aabb), b2AABB_Center(targetAABB)),
-                    manifold
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    m_daabbcc.m_manifold
                 };
 
                 m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
@@ -229,21 +206,34 @@ namespace daabbcc
             return true;
         }
 
-        m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
-        m_daabbcc.m_aabbCenter = b2AABB_Center(m_daabbcc.m_aabb);
-
-        m_daabbcc.m_sortResult = { proxyID, b2Distance(m_daabbcc.m_aabbCenter, m_queryContainer->m_center) };
-
-        if (m_daabbcc.m_sortResults.Full())
+        if (m_daabbcc.m_queryManifoldResult.Full())
         {
-            LimitErrorAssert("Max Query Result Count", m_daabbcc.m_sortResults.Size());
+            LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryManifoldResult.Size());
         }
         else
         {
-            m_daabbcc.m_tempSortResults.Push(m_daabbcc.m_sortResult);
-            m_daabbcc.m_sortResults.Push(m_daabbcc.m_sortResult);
-        }
+            m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
 
+            if (!m_queryContainer->m_isManifold)
+            {
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB))
+                };
+            }
+            else
+            {
+                AABBtoAABBManifold(m_daabbcc.m_aabb, m_daabbcc.m_manifoldAABB, &m_daabbcc.m_manifold);
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    m_daabbcc.m_manifold
+                };
+            }
+
+            m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+        }
         return true;
     }
 
@@ -259,21 +249,9 @@ namespace daabbcc
     {
         // Clear the results
         m_daabbcc.m_queryResult.SetSize(0);
-        m_daabbcc.m_sortResults.SetSize(0);
-        m_daabbcc.m_tempSortResults.SetSize(0);
         m_daabbcc.m_queryManifoldResult.SetSize(0);
 
         b2DynamicTree_Query(&m_daabbcc.m_treeGroup->m_dynamicTree, *aabb, maskBits, callback, context);
-    }
-
-    static void QuerySort(int32_t proxyID, uint64_t maskBits, bool isAABB)
-    {
-        m_daabbcc.m_aabbCenter = b2AABB_Center(m_daabbcc.m_aabb);
-        m_daabbcc.m_queryContainer = { proxyID, m_daabbcc.m_aabbCenter, isAABB };
-
-        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
-
-        jc::radix_sort(m_daabbcc.m_sortResults.Begin(), m_daabbcc.m_sortResults.End(), m_daabbcc.m_tempSortResults.Begin());
     }
 
     /**************************/
@@ -284,7 +262,7 @@ namespace daabbcc
     {
         Bound(&m_daabbcc.m_aabb, x, y, width, height);
 
-        m_daabbcc.m_queryContainer = { 0, m_daabbcc.m_aabbCenter, true, isManifold };
+        m_daabbcc.m_queryContainer = { 0, b2AABB_Center(m_daabbcc.m_aabb), true, isManifold };
 
         Query(&m_daabbcc.m_aabb, QueryCallback, &m_daabbcc.m_queryContainer, maskBits);
     }
@@ -293,21 +271,31 @@ namespace daabbcc
     {
         m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
 
-        m_daabbcc.m_queryContainer = { proxyID, m_daabbcc.m_aabbCenter, false, isManifold };
+        m_daabbcc.m_queryContainer = { proxyID, b2AABB_Center(m_daabbcc.m_aabb), false, isManifold };
 
         Query(&m_daabbcc.m_aabb, QueryCallback, &m_daabbcc.m_queryContainer, maskBits);
     }
 
-    void QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits)
+    void QueryAABBSort(float x, float y, uint32_t width, uint32_t height, uint64_t maskBits, bool isManifold)
     {
         Bound(&m_daabbcc.m_aabb, x, y, width, height);
-        QuerySort(0, maskBits, true);
+
+        m_daabbcc.m_queryContainer = { 0, b2AABB_Center(m_daabbcc.m_aabb), true, isManifold };
+
+        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
-    void QueryIDSort(int32_t proxyID, uint64_t maskBits)
+    void QueryIDSort(int32_t proxyID, uint64_t maskBits, bool isManifold)
     {
         m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
-        QuerySort(proxyID, maskBits, false);
+
+        m_daabbcc.m_queryContainer = { proxyID, b2AABB_Center(m_daabbcc.m_aabb), false, isManifold };
+
+        Query(&m_daabbcc.m_aabb, QuerySortCallback, &m_daabbcc.m_queryContainer, maskBits);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
     uint32_t GetQueryResultSize()
@@ -320,19 +308,9 @@ namespace daabbcc
         return m_daabbcc.m_queryManifoldResult.Size();
     }
 
-    uint32_t GetQuerySortResultSize()
-    {
-        return m_daabbcc.m_sortResults.Size();
-    }
-
     dmArray<uint16_t>& GetQueryResults()
     {
         return m_daabbcc.m_queryResult;
-    }
-
-    dmArray<SortResult>& GetQuerySortResults()
-    {
-        return m_daabbcc.m_sortResults;
     }
 
     dmArray<ManifoldResult>& GetQueryManifoldResults()
@@ -344,35 +322,80 @@ namespace daabbcc
     // Raycast Callbacks
     ////////////////////////////////////////
 
-    static float RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context)
+    static float RayCastCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* queryContainer)
     {
-        if (m_daabbcc.m_rayResult.Full())
+        QueryContainer* m_queryContainer = (QueryContainer*)queryContainer;
+
+        if (m_daabbcc.m_queryResult.Full() || m_daabbcc.m_queryManifoldResult.Full())
         {
-            LimitErrorAssert("Max Raycast Result Count", m_daabbcc.m_rayResult.Size());
+            LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryResult.Size());
         }
         else
         {
-            m_daabbcc.m_rayResult.Push(proxyID);
+            if (!m_queryContainer->m_isManifold)
+            {
+                m_daabbcc.m_queryResult.Push(proxyID);
+            }
+            else
+            {
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                m_daabbcc.m_raycastOutput = b2AABB_RayCast(m_daabbcc.m_manifoldAABB, input->origin, m_queryContainer->m_center); // m_center is used for m_endPoint here
+
+                m_daabbcc.m_manifold.n = m_daabbcc.m_raycastOutput.normal;
+                m_daabbcc.m_manifold.contact_point = m_daabbcc.m_raycastOutput.point;
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    m_daabbcc.m_manifold
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
         }
 
         return input->maxFraction;
     }
 
-    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* context)
+    static float RayCastSortCallback(const b2RayCastInput* input, int32_t proxyID, int32_t groupID, void* queryContainer)
     {
-        m_daabbcc.m_aabb = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
-        m_daabbcc.m_aabbCenter = b2AABB_Center(m_daabbcc.m_aabb);
+        QueryContainer* m_queryContainer = (QueryContainer*)queryContainer;
 
-        m_daabbcc.m_sortRayResult = { proxyID, b2Distance(m_daabbcc.m_aabbCenter, input->origin) };
-
-        if (m_daabbcc.m_sortRayResults.Full())
+        if (m_daabbcc.m_queryResult.Full() || m_daabbcc.m_queryManifoldResult.Full())
         {
-            LimitErrorAssert("Max Raycast Result Count", m_daabbcc.m_sortRayResults.Size());
+            LimitErrorAssert("Max Query Result Count", m_daabbcc.m_queryResult.Size());
         }
         else
         {
-            m_daabbcc.m_tempSortRayResults.Push(m_daabbcc.m_sortRayResult);
-            m_daabbcc.m_sortRayResults.Push(m_daabbcc.m_sortRayResult);
+            if (!m_queryContainer->m_isManifold)
+            {
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
+            else
+            {
+                m_daabbcc.m_manifoldAABB = b2DynamicTree_GetAABB(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID);
+
+                m_daabbcc.m_raycastOutput = b2AABB_RayCast(m_daabbcc.m_manifoldAABB, input->origin, m_queryContainer->m_center); // m_center is used for m_endPoint here
+
+                m_daabbcc.m_manifold.n = m_daabbcc.m_raycastOutput.normal;
+                m_daabbcc.m_manifold.contact_point = m_daabbcc.m_raycastOutput.point;
+
+                m_daabbcc.m_manifoldResult = {
+                    proxyID,
+                    b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    m_daabbcc.m_manifold
+                };
+
+                m_daabbcc.m_queryManifoldResult.Push(m_daabbcc.m_manifoldResult);
+            }
         }
 
         return input->maxFraction;
@@ -382,49 +405,34 @@ namespace daabbcc
     // Raycast Operations
     ////////////////////////////////////////
 
-    void RayCast(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits)
+    static inline void RayInit(float start_x, float start_y, float end_x, float end_y, bool isManifold)
     {
-        m_daabbcc.m_rayResult.SetSize(0);
+        m_daabbcc.m_queryResult.SetSize(0);
+        m_daabbcc.m_queryManifoldResult.SetSize(0);
 
-        b2Vec2 m_startPoint = { start_x, start_y };
-        b2Vec2 m_endPoint = { end_x, end_y };
+        m_daabbcc.m_ray.m_startPoint = { start_x, start_y };
+        m_daabbcc.m_ray.m_endPoint = { end_x, end_y };
 
-        m_daabbcc.m_raycast_input = { m_startPoint, b2Sub(m_endPoint, m_startPoint), 1.0f };
+        m_daabbcc.m_raycastInput = { m_daabbcc.m_ray.m_startPoint, b2Sub(m_daabbcc.m_ray.m_endPoint, m_daabbcc.m_ray.m_startPoint), 1.0f };
 
-        b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycast_input, maskBits, RayCastCallback, &groupID);
+        // m_center is used for m_endPoint here
+        m_daabbcc.m_queryContainer = { 0, m_daabbcc.m_ray.m_endPoint, false, isManifold };
     }
 
-    void RayCastSort(uint8_t groupID, float start_x, float start_y, float end_x, float end_y, uint64_t maskBits)
+    void RayCast(float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold)
     {
-        m_daabbcc.m_sortRayResults.SetSize(0);
-        m_daabbcc.m_tempSortRayResults.SetSize(0);
+        RayInit(start_x, start_y, end_x, end_y, isManifold);
 
-        b2Vec2 m_startPoint = { start_x, start_y };
-        b2Vec2 m_endPoint = { end_x, end_y };
-
-        m_daabbcc.m_raycast_input = { m_startPoint, b2Sub(m_endPoint, m_startPoint), 1.0f };
-
-        b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycast_input, maskBits, RayCastSortCallback, &groupID);
-
-        jc::radix_sort(m_daabbcc.m_sortRayResults.Begin(), m_daabbcc.m_sortRayResults.End(), m_daabbcc.m_tempSortRayResults.Begin());
+        b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycastInput, maskBits, RayCastCallback, &m_daabbcc.m_queryContainer);
     }
 
-    uint32_t GetRayResultSize()
+    void RayCastSort(float start_x, float start_y, float end_x, float end_y, uint64_t maskBits, bool isManifold)
     {
-        return m_daabbcc.m_rayResult.Size();
-    }
-    uint32_t GetRaySortResultSize()
-    {
-        return m_daabbcc.m_sortRayResults.Size();
-    }
+        RayInit(start_x, start_y, end_x, end_y, isManifold);
 
-    dmArray<uint16_t>& GetRayResults()
-    {
-        return m_daabbcc.m_rayResult;
-    }
-    dmArray<SortResult>& GetRaySortResults()
-    {
-        return m_daabbcc.m_sortRayResults;
+        b2DynamicTree_RayCast(&m_daabbcc.m_treeGroup->m_dynamicTree, &m_daabbcc.m_raycastInput, maskBits, RayCastSortCallback, &m_daabbcc.m_queryContainer);
+
+        qsort(m_daabbcc.m_queryManifoldResult.Begin(), m_daabbcc.m_queryManifoldResult.Size(), sizeof(ManifoldResult), (int (*)(const void*, const void*))CompareDistance);
     }
 
     ////////////////////////////////////////
@@ -441,12 +449,24 @@ namespace daabbcc
         m_gameUpdate.m_updateFrequency = updateFrequency;
     };
 
+    static inline void GameobjectRebuildIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
+    {
+        if (treeGroup->m_buildType == UPDATE_INCREMENTAL)
+        {
+            return;
+        }
+
+        bool fullBuild = (treeGroup->m_buildType == UPDATE_FULLREBUILD) ? true : false;
+
+        b2DynamicTree_Rebuild(&treeGroup->m_dynamicTree, fullBuild);
+    }
+
     // From Defold source
     // https://github.com/defold/defold/blob/cdaa870389ca00062bfc03bcda8f4fb34e93124a/engine/engine/src/engine.cpp#L1902
     void GameObjectUpdate()
     {
         // If paused or not set
-        if (!m_gameUpdate.m_updateLoopState || m_daabbcc.m_GameObjectContainer.Empty())
+        if (!m_gameUpdate.m_updateLoopState || m_daabbcc.m_gameObjectContainer.Empty())
         {
             return;
         }
@@ -458,9 +478,9 @@ namespace daabbcc
 
         for (uint32_t i = 0; i < num_steps; ++i)
         {
-            for (int i = 0; i < m_daabbcc.m_GameObjectContainer.Size(); ++i)
+            for (int i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
             {
-                m_daabbcc.m_gameObject = &m_daabbcc.m_GameObjectContainer[i];
+                m_daabbcc.m_gameObject = &m_daabbcc.m_gameObjectContainer[i];
 
                 if (m_daabbcc.m_gameObject->m_getWorldPosition)
                 {
@@ -470,6 +490,9 @@ namespace daabbcc
                 {
                     m_daabbcc.m_gameObject->m_position = dmGameObject::GetPosition(m_daabbcc.m_gameObject->m_gameObjectInstance);
                 }
+
+                // B2_ASSERT(aabb.upperBound.x - aabb.lowerBound.x < B2_HUGE);
+                // B2_ASSERT(aabb.upperBound.y - aabb.lowerBound.y < B2_HUGE);
 
                 // TODO Find a better way:
                 b2AABB              m_aabb;
@@ -491,18 +514,6 @@ namespace daabbcc
     static inline void RemoveGroupsIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
     {
         b2DynamicTree_Destroy(&treeGroup->m_dynamicTree);
-    }
-
-    static inline void GameobjectRebuildIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
-    {
-        if (treeGroup->m_buildType == UPDATE_INCREMENTAL)
-        {
-            return;
-        }
-
-        bool fullBuild = (treeGroup->m_buildType == UPDATE_FULLREBUILD) ? true : false;
-
-        b2DynamicTree_Rebuild(&treeGroup->m_dynamicTree, fullBuild);
     }
 
     static inline void RebuildIterateCallback(bool* fullBuild, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
@@ -528,14 +539,11 @@ namespace daabbcc
     {
         m->count = 0;
 
-        b2Vec2 mid_a = b2Add(A.lowerBound, A.upperBound) * 0.5f;
-        b2Vec2 mid_b = b2Add(B.lowerBound, B.upperBound) * 0.5f;
+        b2Vec2 mid_a = b2AABB_Center(A);
+        b2Vec2 mid_b = b2AABB_Center(B);
 
-        //   b2Vec2 mid_a = b2MulAdd(A.lowerBound, 0.5f, A.upperBound);
-        //  b2Vec2 mid_b = b2MulAdd(B.lowerBound, 0.5f, B.upperBound);
-
-        b2Vec2 eA = b2Abs(b2Sub(A.upperBound, A.lowerBound) * 0.5f); // c2Absv(c2Mulvs(b2Sub(A.max, A.min), 0.5f));
-        b2Vec2 eB = b2Abs(b2Sub(B.upperBound, B.lowerBound) * 0.5f);
+        b2Vec2 eA = b2Abs(b2AABB_Extents(A)); // c2Absv(c2Mulvs(b2Sub(A.max, A.min), 0.5f));
+        b2Vec2 eB = b2Abs(b2AABB_Extents(B));
         ; // c2Absv(c2Mulvs(b2Sub(B.max, B.min), 0.5f));
         b2Vec2 d = b2Sub(mid_b, mid_a);
 
@@ -559,14 +567,14 @@ namespace daabbcc
             depth = dx;
             if (d.x < 0)
             {
-                n = { -1.0f, 0 };
+                n = { 1.0f, 0 };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Sub(mid_a, temp);
             }
             else
             {
-                n = { 1.0f, 0 };
+                n = { -1.0f, 0 };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Add(mid_a, temp);
@@ -579,14 +587,14 @@ namespace daabbcc
             depth = dy;
             if (d.y < 0)
             {
-                n = { -0, -1.0f }; // c2V(0, -1.0f);
+                n = { -0, 1.0f }; // c2V(0, -1.0f);
                 temp.x = 0;
                 temp.y = eA.y;
                 p = b2Sub(mid_a, temp);
             }
             else
             {
-                n = { -0, 1.0f }; // c2V(0, 1.0f);
+                n = { -0, -1.0f }; // c2V(0, 1.0f);
                 temp.x = 0;
                 temp.y = eA.y;
                 p = b2Add(mid_a, temp);
@@ -609,7 +617,7 @@ namespace daabbcc
     // https://github.com/defold/defold/blob/cdaa870389ca00062bfc03bcda8f4fb34e93124a/engine/engine/src/engine.cpp#L1860
     static void CalcTimeStep(float& step_dt, uint32_t& num_steps)
     {
-        uint64_t time = dmTime::GetTime();
+        uint64_t time = dmTime::GetMonotonicTime();
         uint64_t frame_time = time - m_gameUpdate.m_previousFrameTime;
         m_gameUpdate.m_previousFrameTime = time;
 
@@ -656,15 +664,8 @@ namespace daabbcc
         m_daabbcc.m_dynamicTreeGroup.Iterate(RemoveGroupsIterateCallback, (void*)0x0);
         m_daabbcc.m_dynamicTreeGroup.Clear();
 
-        m_daabbcc.m_GameObjectContainer.SetSize(0);
-
-        m_daabbcc.m_rayResult.SetSize(0);
-        m_daabbcc.m_sortRayResults.SetSize(0);
-        m_daabbcc.m_tempSortRayResults.SetSize(0);
-
+        m_daabbcc.m_gameObjectContainer.SetSize(0);
         m_daabbcc.m_queryResult.SetSize(0);
-        m_daabbcc.m_sortResults.SetSize(0);
-        m_daabbcc.m_tempSortResults.SetSize(0);
         m_daabbcc.m_queryManifoldResult.SetSize(0);
 
         m_daabbcc.m_treeGroup = NULL;
@@ -693,21 +694,12 @@ namespace daabbcc
         }
     }
 
-    void DumpRayResult(char* title)
-    {
-        dmLogInfo("--- %s DumpRayResult ---", title);
-        for (int i = 0; i < m_daabbcc.m_rayResult.Size(); ++i)
-        {
-            dmLogInfo("Proxy ID: %i", m_daabbcc.m_rayResult[i]);
-        }
-    }
-
-    void DumpSortResult(char* title)
+    void DumpManifoldResult(char* title)
     {
         dmLogInfo("--- %s DumpSortResult ---", title);
-        for (int i = 0; i < m_daabbcc.m_sortResults.Size(); ++i)
+        for (int i = 0; i < m_daabbcc.m_queryManifoldResult.Size(); ++i)
         {
-            dmLogInfo("Proxy ID: %i - Distance: %f", m_daabbcc.m_sortResults[i].m_proxyID, m_daabbcc.m_sortResults[i].m_distance);
+            dmLogInfo("Proxy ID: %i - Distance: %f", m_daabbcc.m_queryManifoldResult[i].m_proxyID, m_daabbcc.m_queryManifoldResult[i].m_distance);
         }
     }
 

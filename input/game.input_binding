@@ -1,3 +1,19 @@
+key_trigger {
+  input: KEY_0
+  action: "aabb_default"
+}
+key_trigger {
+  input: KEY_1
+  action: "aabb_sort"
+}
+key_trigger {
+  input: KEY_2
+  action: "aabb_manifold"
+}
+key_trigger {
+  input: KEY_3
+  action: "aabb_mask"
+}
 mouse_trigger {
   input: MOUSE_BUTTON_1
   action: "touch"

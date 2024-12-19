@@ -11,32 +11,6 @@
 #include <dmsdk/sdk.h>
 
 ////////////////////////////////////////
-// Initialize
-////////////////////////////////////////
-/*
-77 Dropped in favor of game.project file settings
-static int Init(lua_State* L)
-{
-  DM_LUA_STACK_CHECK(L, 0);
-
-  uint8_t max_group_count = luaL_checkint(L, 1);
-  uint16_t max_gameobject_count = luaL_checkint(L, 2);
-  uint16_t max_query_count = luaL_checkint(L, 3);
-  uint16_t max_raycast_count = luaL_checkint(L, 4);
-
-  if (lua_isnumber(L, 5))
-  {
-    int32_t updateFrequency = luaL_checknumber(L, 5);
-    daabbcc::SetUpdateFrequency(updateFrequency);
-  }
-
-  daabbcc::Initialize(max_group_count, max_gameobject_count, max_query_count, max_raycast_count);
-
-  return 0;
-}
-*/
-
-////////////////////////////////////////
 // Group Operations
 ////////////////////////////////////////
 
@@ -93,7 +67,7 @@ static inline void Result(lua_State* L, uint32_t queryResultSize, dmArray<uint16
     lua_pushinteger(L, queryResultSize);
 }
 
-static inline void SortResult(lua_State* L, uint32_t queryResultSize, dmArray<daabbcc::SortResult>& queryResult)
+static inline void SortResult(lua_State* L, uint32_t queryResultSize, dmArray<daabbcc::ManifoldResult>& queryResult)
 {
     lua_createtable(L, queryResultSize, 0);
 
@@ -129,9 +103,6 @@ static inline void ManifoldResult(lua_State* L, uint32_t queryResultSize, dmArra
         lua_settable(L, -3);
         lua_pushstring(L, "distance");
         lua_pushnumber(L, queryResult[i].m_distance);
-        lua_settable(L, -3);
-        lua_pushstring(L, "count");
-        lua_pushinteger(L, queryResult[i].m_manifold.count);
         lua_settable(L, -3);
         lua_pushstring(L, "depth");
         lua_pushnumber(L, queryResult[i].m_manifold.depth);
@@ -172,21 +143,37 @@ static inline int QueryIDSort(lua_State* L)
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 3))
     {
         maskBits = luaL_checkinteger(L, 3);
     }
 
-    daabbcc::QueryIDSort(proxyID, maskBits);
+    if (lua_isboolean(L, 4))
+    {
+        isManifold = lua_toboolean(L, 4);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetQuerySortResultSize();
+    daabbcc::QueryIDSort(proxyID, maskBits, isManifold);
+
+    // Return Result
+    uint32_t queryResultSize = 0;
+
+    queryResultSize = daabbcc::GetQueryManifoldResultSize();
 
     if (queryResultSize > 0)
     {
-        dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetQuerySortResults();
-        SortResult(L, queryResultSize, queryResult);
+        dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+        if (!isManifold)
+        {
+            SortResult(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {
@@ -213,21 +200,39 @@ static int QueryAABBSort(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
     {
         maskBits = luaL_checkinteger(L, 6);
     }
 
-    daabbcc::QueryAABBSort(x, y, width, height, maskBits);
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetQuerySortResultSize();
+    daabbcc::QueryAABBSort(x, y, width, height, maskBits, isManifold);
+
+    // Return Result
+
+    uint32_t queryResultSize = 0;
+
+    queryResultSize = daabbcc::GetQueryManifoldResultSize();
 
     if (queryResultSize > 0)
     {
-        dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetQuerySortResults();
-        SortResult(L, queryResultSize, queryResult);
+        dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+
+        if (!isManifold)
+        {
+            SortResult(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {
@@ -254,7 +259,7 @@ static int QueryAABB(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
@@ -318,7 +323,7 @@ static int QueryID(lua_State* L)
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
     bool     isManifold = false;
 
     if (lua_isnumber(L, 3))
@@ -389,21 +394,44 @@ static int RayCast(lua_State* L)
     float    end_x = luaL_checknumber(L, 4);
     float    end_y = luaL_checknumber(L, 5);
 
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
     {
         maskBits = luaL_checkinteger(L, 6);
     }
 
-    daabbcc::RayCast(groupID, start_x, start_y, end_x, end_y, maskBits);
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetRayResultSize();
+    daabbcc::RayCast(start_x, start_y, end_x, end_y, maskBits, isManifold);
+
+    uint32_t queryResultSize = 0;
+
+    if (!isManifold)
+    {
+        queryResultSize = daabbcc::GetQueryResultSize();
+    }
+    else
+    {
+        queryResultSize = daabbcc::GetQueryManifoldResultSize();
+    }
 
     if (queryResultSize > 0)
     {
-        dmArray<uint16_t>& queryResult = daabbcc::GetRayResults();
-        Result(L, queryResultSize, queryResult);
+        if (!isManifold)
+        {
+            dmArray<uint16_t>& queryResult = daabbcc::GetQueryResults();
+            Result(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {
@@ -432,21 +460,36 @@ static int RayCastSort(lua_State* L)
     float    end_x = luaL_checknumber(L, 4);
     float    end_y = luaL_checknumber(L, 5);
 
-    uint64_t maskBits = b2_defaultMaskBits;
+    uint64_t maskBits = B2_DEFAULT_MASK_BITS;
+    bool     isManifold = false;
 
     if (lua_isnumber(L, 6))
     {
         maskBits = luaL_checkinteger(L, 6);
     }
 
-    daabbcc::RayCastSort(groupID, start_x, start_y, end_x, end_y, maskBits);
+    if (lua_isboolean(L, 7))
+    {
+        isManifold = lua_toboolean(L, 7);
+    }
 
-    uint32_t queryResultSize = daabbcc::GetRaySortResultSize();
+    daabbcc::RayCastSort(start_x, start_y, end_x, end_y, maskBits, isManifold);
+
+    uint32_t queryResultSize = 0;
+
+    queryResultSize = daabbcc::GetQueryManifoldResultSize();
 
     if (queryResultSize > 0)
     {
-        dmArray<daabbcc::SortResult>& queryResult = daabbcc::GetRaySortResults();
-        SortResult(L, queryResultSize, queryResult);
+        dmArray<daabbcc::ManifoldResult>& queryResult = daabbcc::GetQueryManifoldResults();
+        if (!isManifold)
+        {
+            SortResult(L, queryResultSize, queryResult);
+        }
+        else
+        {
+            ManifoldResult(L, queryResultSize, queryResult);
+        }
     }
     else
     {
@@ -476,7 +519,7 @@ static int AddProxy(lua_State* L)
     float    y = luaL_checknumber(L, 3);
     uint32_t width = luaL_checkint(L, 4);
     uint32_t height = luaL_checkint(L, 5);
-    uint64_t categoryBits = b2_defaultCategoryBits;
+    uint64_t categoryBits = B2_DEFAULT_CATEGORY_BITS;
 
     if (lua_isnumber(L, 6))
     {
@@ -512,7 +555,7 @@ static int AddGameObject(lua_State* L)
     uint32_t                width = luaL_checkint(L, 3);
     uint32_t                height = luaL_checkint(L, 4);
 
-    uint64_t                categoryBits = b2_defaultCategoryBits;
+    uint64_t                categoryBits = B2_DEFAULT_CATEGORY_BITS;
     bool                    getWorldPosition = false;
 
     if (lua_isnumber(L, 5))
@@ -730,11 +773,9 @@ static dmExtension::Result AppInitializeDAABBCC(dmExtension::AppParams* params)
 
     uint16_t max_query_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_query_result_count", 32);
 
-    uint16_t max_raycast_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_raycast_result_count", 32);
-
     int32_t  updateFrequency = dmConfigFile::GetInt(params->m_ConfigFile, "display.update_frequency", 0);
 
-    daabbcc::Initialize(max_group_count, max_gameobject_count, max_query_count, max_raycast_count);
+    daabbcc::Setup(max_group_count, max_gameobject_count, max_query_count);
     daabbcc::SetUpdateFrequency(updateFrequency);
 
     return dmExtension::RESULT_OK;

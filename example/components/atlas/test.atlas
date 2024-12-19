@@ -1,0 +1,19 @@
+images {
+  image: "/example/assets/images/aabb_40x40.png"
+}
+images {
+  image: "/example/assets/images/enemy_40x40.png"
+}
+images {
+  image: "/example/assets/images/ground_120x60.png"
+}
+images {
+  image: "/example/assets/images/player_40x40.png"
+}
+images {
+  image: "/example/assets/images/item_40x40.png"
+}
+images {
+  image: "/example/assets/images/next_btn.png"
+}
+extrude_borders: 2

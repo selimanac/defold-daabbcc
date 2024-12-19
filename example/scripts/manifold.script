@@ -1,0 +1,57 @@
+local manager            = require("example.scripts.lib.manager")
+local data               = require("example.scripts.lib.data")
+local collision          = require("example.scripts.lib.collision")
+
+local aabb_box           = {}
+local query_result       = {}
+local query_result_count = 0
+local collection_title   = "MANIFOLD"
+
+function init(self)
+	manager.init(collection_title)
+	manager.toogle_manifold()
+	data.add_box(vmath.vector3(-50, -50, 0), data.BOX_TYPE.PLAYER, false)
+	data.add_box(vmath.vector3(0, 0, 0), data.BOX_TYPE.ENEMY, true)
+
+	aabb_box = data.boxes[1]
+end
+
+function update(self, dt)
+	-- Update the AABB position before setting it to gameobject. This way, the collision occurs ahead of the current frame.
+	data.boxes[1].position = manager.world_position
+	collision.update_aabb(data.boxes[1])
+
+	if manager.is_sort then
+		query_result, query_result_count = collision.query_id_sort(aabb_box.aabb_id, manager.is_mask, manager.is_manifold)
+	else
+		query_result, query_result_count = collision.query_id(aabb_box.aabb_id, manager.is_mask, manager.is_manifold)
+	end
+
+	if query_result then
+		data.highlight(query_result, query_result_count)
+		if manager.is_manifold then
+			for i = 1, query_result_count do
+				pprint(query_result[i])
+				-- Offset the position if a collision occurs."
+				local offset_x = query_result[i].normal_x * query_result[i].depth
+				local offset_y = query_result[i].normal_y * query_result[i].depth
+
+				manager.world_position = manager.world_position + vmath.vector3(offset_x, offset_y, 0)
+			end
+		end
+	else
+		data.clear_highlights()
+	end
+
+	-- Finally set the position
+	go.set_position(manager.world_position, aabb_box.id)
+end
+
+function on_input(self, action_id, action)
+	manager.input(action_id, action)
+end
+
+function final(self)
+	manager.final()
+	data.reset()
+end

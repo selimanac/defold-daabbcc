@@ -153,6 +153,13 @@ namespace daabbcc
         return v.x * v.x + v.y * v.y;
     }
 
+    /// Get the distance squared between points
+    static inline float b2DistanceSquared(b2Vec2 a, b2Vec2 b)
+    {
+        b2Vec2 c = { b.x - a.x, b.y - a.y };
+        return c.x * c.x + c.y * c.y;
+    }
+
     /// Does a fully contain b
     static inline bool b2AABB_Contains(b2AABB a, b2AABB b)
     {
@@ -189,12 +196,15 @@ namespace daabbcc
         return c;
     }
 
+    /// Is this a valid number? Not NaN or infinity.
+    bool b2IsValidFloat(float a);
+
     /// Is this a valid vector? Not NaN or infinity.
-    bool b2Vec2_IsValid(b2Vec2 v);
+    bool b2IsValidVec2(b2Vec2 v);
 
     /// Is this a valid bounding box? Not Nan or infinity. Upper bound greater than
     /// or equal to lower bound.
-    bool b2AABB_IsValid(b2AABB aabb);
+    bool b2IsValidAABB(b2AABB aabb);
 
     /**@}*/
 

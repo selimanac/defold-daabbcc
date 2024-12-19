@@ -5,12 +5,11 @@
 
 namespace daabbcc
 {
-
-    bool b2AABB_IsValid(b2AABB a)
+    bool b2IsValidAABB(b2AABB a)
     {
         b2Vec2 d = b2Sub(a.upperBound, a.lowerBound);
         bool   valid = d.x >= 0.0f && d.y >= 0.0f;
-        valid = valid && b2Vec2_IsValid(a.lowerBound) && b2Vec2_IsValid(a.upperBound);
+        valid = valid && b2IsValidVec2(a.lowerBound) && b2IsValidVec2(a.upperBound);
         return valid;
     }
 

@@ -1,0 +1,53 @@
+local tests = {
+	[1] = {
+		title = "QUERY AABB",
+		url = "load:/proxies#query_aabb"
+	},
+	[2] = {
+		title = "QUERY ID",
+		url = "load:/proxies#query_id"
+	},
+	[3] = {
+		title = "RAYCAST",
+		url = "load:/proxies#raycast"
+	},
+	[4] = {
+		title = "MANIFOLD",
+		url = "load:/proxies#manifold"
+	}
+}
+
+local current_test = 1
+
+local function show(self, proxy)
+	if self.current_proxy then
+		msg.post(self.current_proxy, "disable")
+		msg.post(self.current_proxy, "final")
+		msg.post(self.current_proxy, "unload")
+
+		self.current_proxy = nil
+	end
+	msg.post(proxy, "async_load")
+end
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.current_proxy = nil
+	show(self, tests[1].url)
+end
+
+function on_message(self, message_id, message, sender)
+	if message_id == hash("next") then
+		if current_test < #tests then
+			current_test = current_test + 1
+		else
+			current_test = 1
+		end
+		show(self, tests[current_test].url)
+	elseif message_id == hash("proxy_loaded") then
+		self.current_proxy = sender
+		msg.post(sender, "enable")
+	elseif message_id == hash("proxy_unloaded") then
+		print("Unloaded", sender)
+	end
+end

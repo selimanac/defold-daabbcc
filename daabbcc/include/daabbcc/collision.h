@@ -8,16 +8,7 @@
 
 namespace daabbcc
 {
-    /**
-     * @defgroup geometry Geometry
-     * @brief Geometry types and algorithms
-     *
-     * Definitions of circles, capsules, segments, and polygons. Various algorithms
-     * to compute hulls, mass properties, and so on.
-     * @{
-     */
-
-    /// Low level ray-cast input data
+    /// Low level ray cast input data
     typedef struct b2RayCastInput
     {
         /// Start point of the ray cast
@@ -30,7 +21,7 @@ namespace daabbcc
         float maxFraction;
     } b2RayCastInput;
 
-    /// Low level ray-cast or shape-cast output data
+    /// Low level ray cast or shape-cast output data
     typedef struct b2CastOutput
     {
         /// The surface normal at the hit point
@@ -49,42 +40,7 @@ namespace daabbcc
         bool hit;
     } b2CastOutput;
 
-/**@}*/
-
-/**
- * @defgroup tree Dynamic Tree
- * The dynamic tree is a binary AABB tree to organize and query large numbers of
- * geometric objects
- *
- * Box2D uses the dynamic tree internally to sort collision shapes into a binary
- * bounding volume hierarchy. This data structure may have uses in games for
- * organizing other geometry data and may be used independently of Box2D rigid
- * body simulation.
- *
- * A dynamic AABB tree broad-phase, inspired by Nathanael Presson's btDbvt.
- * A dynamic tree arranges data in a binary tree to accelerate
- * queries such as AABB queries and ray casts. Leaf nodes are proxies
- * with an AABB. These are used to hold a user collision object, such as a
- * reference to a b2Shape. Nodes are pooled and relocatable, so I use node
- * indices rather than pointers. The dynamic tree is made available for advanced
- * users that would like to use it to organize spatial game data besides rigid
- * bodies.
- *
- * @note This is an advanced feature and normally not used by applications
- * directly.
- * @{
- */
-
-/// The default category bit for a tree proxy. Used for collision filtering.
-#define b2_defaultCategoryBits (1)
-
-/// Convenience mask bits to use when you don't need collision filtering and
-/// just want
-///	all results.
-#define b2_defaultMaskBits (UINT64_MAX)
-
-    /// A node in the dynamic tree. This is private data placed here for performance
-    /// reasons.
+    /// A node in the dynamic tree. This is private data placed here for performance reasons.
     typedef struct b2TreeNode
     {
         /// The node bounding box
@@ -95,31 +51,27 @@ namespace daabbcc
 
         union
         {
-            /// The node parent index
+            /// The node parent index (allocated node)
             int32_t parent;
 
-            /// The node freelist next index
+            /// The node freelist next index (free node)
             int32_t next;
         }; // 4
 
-        /// Child 1 index
+        /// Child 1 index (internal node)
         int32_t child1; // 4
 
-        /// Child 2 index
-        int32_t child2; // 4
+        union
+        {
+            /// Child 2 index (internal node)
+            int32_t child2;
 
-        /// User data
-        // todo could be union with child index
-        int32_t userData; // 4
+            /// User data (leaf node)
+            int32_t userData;
+        }; // 4
 
-        /// Leaf = 0, free node = -1
-        int16_t height; // 2
-
-        /// Has the AABB been enlarged?
-        bool enlarged; // 1
-
-        /// Padding for clarity
-        char pad[5];
+        uint16_t height; // 2
+        uint16_t flags;  // 2
     } b2TreeNode;
 
     /// The dynamic tree structure. This should be considered private data.
@@ -160,6 +112,16 @@ namespace daabbcc
         int32_t rebuildCapacity;
     } b2DynamicTree;
 
+    /// These are performance results returned by dynamic tree queries.
+    typedef struct b2TreeStats
+    {
+        /// Number of internal nodes visited during the query
+        int32_t nodeVisits;
+
+        /// Number of leaf nodes visited during the query
+        int32_t leafVisits;
+    } b2TreeStats;
+
     /// Constructing the tree initializes the node pool.
     b2DynamicTree b2DynamicTree_Create(void);
 
@@ -184,7 +146,7 @@ namespace daabbcc
 
     /// Query an AABB for overlapping proxies. The callback class is called for each
     /// proxy that overlaps the supplied AABB.
-    void b2DynamicTree_Query(const b2DynamicTree* tree, b2AABB aabb, uint64_t maskBits, b2TreeQueryCallbackFcn* callback, void* context);
+    b2TreeStats b2DynamicTree_Query(const b2DynamicTree* tree, b2AABB aabb, uint64_t maskBits, b2TreeQueryCallbackFcn* callback, void* context);
 
     /// This function receives clipped raycast input for a proxy. The function
     /// returns the new ray fraction.
@@ -209,7 +171,7 @@ namespace daabbcc
     /// @param callback a callback class that is called for each proxy that is hit
     /// by the ray
     ///	@param context user context that is passed to the callback
-    void b2DynamicTree_RayCast(const b2DynamicTree* tree, const b2RayCastInput* input, uint64_t maskBits, b2TreeRayCastCallbackFcn* callback, void* context);
+    b2TreeStats b2DynamicTree_RayCast(const b2DynamicTree* tree, const b2RayCastInput* input, uint64_t maskBits, b2TreeRayCastCallbackFcn* callback, void* context);
 
     /// Validate this tree. For testing.
     void b2DynamicTree_Validate(const b2DynamicTree* tree);

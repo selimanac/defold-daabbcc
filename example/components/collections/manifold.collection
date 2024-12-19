@@ -1,0 +1,14 @@
+name: "manifold"
+collection_instances {
+  id: "container"
+  collection: "/example/components/collections/container.collection"
+}
+scale_along_z: 0
+embedded_instances {
+  id: "scripts"
+  data: "components {\n"
+  "  id: \"manifold\"\n"
+  "  component: \"/example/scripts/manifold.script\"\n"
+  "}\n"
+  ""
+}

@@ -1,0 +1,29 @@
+name: "container"
+instances {
+  id: "camera"
+  prototype: "/example/components/gameobjects/camera.go"
+}
+instances {
+  id: "info"
+  prototype: "/example/components/gameobjects/info.go"
+}
+instances {
+  id: "next_btn"
+  prototype: "/example/components/gameobjects/next_btn.go"
+  position {
+    x: 410.0
+  }
+}
+instances {
+  id: "pointer"
+  prototype: "/example/components/gameobjects/pointer.go"
+}
+scale_along_z: 0
+embedded_instances {
+  id: "factories"
+  data: "components {\n"
+  "  id: \"box\"\n"
+  "  component: \"/example/components/factories/box.factory\"\n"
+  "}\n"
+  ""
+}

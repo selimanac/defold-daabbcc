@@ -1,5 +1,5 @@
 [bootstrap]
-main_collection = /example/mainfold.collectionc
+main_collection = /example/components/collections/load.collectionc
 
 [script]
 shared_state = 1
@@ -10,7 +10,7 @@ height = 640
 
 [project]
 title = defold-daabbcc
-dependencies = 
+dependencies#0 = https://github.com/selimanac/defold-random/archive/refs/heads/master.zip
 
 [library]
 include_dirs = daabbcc
@@ -19,7 +19,6 @@ include_dirs = daabbcc
 max_group_count = 1
 max_gameobject_count = 10
 max_query_result_count = 10
-max_raycast_result_count = 10
 
 [native_extension]
 app_manifest = /test.appmanifest

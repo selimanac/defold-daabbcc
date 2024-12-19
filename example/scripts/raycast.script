@@ -1,0 +1,43 @@
+local manager            = require("example.scripts.lib.manager")
+local data               = require("example.scripts.lib.data")
+local collision          = require("example.scripts.lib.collision")
+
+local query_result       = {}
+local query_result_count = 0
+local ray_start          = vmath.vector3()
+local collection_title   = "RAYCAST"
+
+function init(self)
+	manager.init(collection_title)
+
+	data.add_box(vmath.vector3(90, 55, 0), data.BOX_TYPE.PLAYER, true)
+	data.add_box(vmath.vector3(100, 100, 0), data.BOX_TYPE.ENEMY, true)
+	data.add_box(vmath.vector3(50, 50, 0), data.BOX_TYPE.ENEMY, true)
+	data.add_box(vmath.vector3(180, 160, 0), data.BOX_TYPE.GROUND, false, true)
+end
+
+function update(self, dt)
+	if manager.is_sort then
+		query_result, query_result_count = collision.raycast_sort(ray_start, manager.world_position, manager.is_mask, manager.is_manifold)
+	else
+		query_result, query_result_count = collision.raycast(ray_start, manager.world_position, manager.is_mask, manager.is_manifold)
+	end
+
+	msg.post("@render:", "draw_line", { start_point = ray_start, end_point = manager.world_position, color = vmath.vector4(1, 1, 1, 1) })
+
+	if query_result then
+		pprint(query_result)
+		data.highlight(query_result, query_result_count)
+	else
+		data.clear_highlights()
+	end
+end
+
+function on_input(self, action_id, action)
+	manager.input(action_id, action)
+end
+
+function final(self)
+	manager.final()
+	data.reset()
+end

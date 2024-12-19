@@ -5,7 +5,6 @@
 
 namespace daabbcc
 {
-
     // clang-format off
 	#define B2_LITERAL(T) T
 	#define B2_ZERO_INIT {}
@@ -31,5 +30,28 @@ namespace daabbcc
     ///	@param assertFcn a non-null assert callback
     void b2SetAssertFcn(b2AssertFcn* assertFcn);
 
-    //! @endcond
+    // see https : // github.com/scottt/debugbreak
+#if defined(_MSC_VER)
+#define B2_BREAKPOINT __debugbreak()
+#elif defined(__GNUC__) || defined(__clang__)
+#define B2_BREAKPOINT __builtin_trap()
+#else
+// Unknown compiler
+#include <assert.h>
+#define B2_BREAKPOINT assert(0)
+#endif
+
+#if !defined(NDEBUG) || defined(B2_ENABLE_ASSERT)
+    int
+    b2InternalAssertFcn(const char* condition, const char* fileName, int lineNumber);
+#define B2_ASSERT(condition) \
+    do \
+    { \
+        if (!(condition) && b2InternalAssertFcn(#condition, __FILE__, (int)__LINE__)) \
+            B2_BREAKPOINT; \
+    } while (0)
+#else
+#define B2_ASSERT(...) ((void)0)
+#endif
+
 } // namespace daabbcc
