@@ -1,12 +1,11 @@
-local manager = require("example.scripts.lib.manager")
-local data = require("example.scripts.lib.data")
-local collision = require("example.scripts.lib.collision")
+local manager            = require("example.scripts.lib.manager")
+local data               = require("example.scripts.lib.data")
+local collision          = require("example.scripts.lib.collision")
 
-local aabb_box = {}
-local query_result = {}
+local aabb_box           = {}
+local query_result       = {}
 local query_result_count = 0
-local collection_title = "QUERY AABB"
-
+local collection_title   = "QUERY AABB"
 
 function init(self)
 	manager.init(collection_title)
@@ -16,7 +15,7 @@ function init(self)
 	data.add_box(vmath.vector3(50, 50, 0), data.BOX_TYPE.ENEMY, true)
 	data.add_box(vmath.vector3(180, 160, 0), data.BOX_TYPE.GROUND, false, true)
 
-	-- Fort static update
+	-- For static update
 	data.add_box(vmath.vector3(-80, -80, 0), data.BOX_TYPE.GROUND, true, true)
 
 	-- Box for dummy visualization

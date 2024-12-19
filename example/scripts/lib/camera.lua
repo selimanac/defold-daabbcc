@@ -1,8 +1,7 @@
-local camera = {}
-
-local DISPLAY_WIDTH = sys.get_config_int("display.width")
+local camera         = {}
+local DISPLAY_WIDTH  = sys.get_config_int("display.width")
 local DISPLAY_HEIGHT = sys.get_config_int("display.height")
-local camera_url = msg.url(".")
+local camera_url     = msg.url(".")
 
 function camera.init()
 	msg.post("@render:", "use_camera_projection")

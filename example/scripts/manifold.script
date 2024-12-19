@@ -1,18 +1,17 @@
-local manager = require("example.scripts.lib.manager")
-local data = require("example.scripts.lib.data")
-local collision = require("example.scripts.lib.collision")
+local manager            = require("example.scripts.lib.manager")
+local data               = require("example.scripts.lib.data")
+local collision          = require("example.scripts.lib.collision")
 
-local aabb_box = {}
-local query_result = {}
+local aabb_box           = {}
+local query_result       = {}
 local query_result_count = 0
-local collection_title = "MANIFOLD"
+local collection_title   = "MANIFOLD"
 
 function init(self)
 	manager.init(collection_title)
 	manager.toogle_manifold()
 	data.add_box(vmath.vector3(-50, -50, 0), data.BOX_TYPE.PLAYER, false)
 	data.add_box(vmath.vector3(0, 0, 0), data.BOX_TYPE.ENEMY, true)
-
 
 	aabb_box = data.boxes[1]
 end

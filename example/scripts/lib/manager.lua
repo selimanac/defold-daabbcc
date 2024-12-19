@@ -2,7 +2,6 @@ local collision                  = require("example.scripts.lib.collision")
 local camera                     = require("example.scripts.lib.camera")
 
 local manager                    = {}
-
 local info_label_url             = msg.url(".")
 local collection_title_label_url = msg.url(".")
 local next_btn_url               = msg.url(".")

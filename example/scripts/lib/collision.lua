@@ -1,5 +1,4 @@
 local collision          = {}
-
 collision.collision_bits = {
 	PLAYER  = 1, -- (2^0)
 	ENEMY   = 2, -- (2^1)
@@ -10,7 +9,6 @@ collision.collision_bits = {
 	BUTTON  = 64,
 	ALL     = bit.bnot(0) -- -1 for all results
 }
-
 local default_mask_bits  = bit.bor(collision.collision_bits.PLAYER, collision.collision_bits.ENEMY, collision.collision_bits.GROUND, collision.collision_bits.ITEM, collision.collision_bits.WALL)
 local selected_mask_bits = bit.bor(collision.collision_bits.ENEMY, collision.collision_bits.ITEM)
 local btn_mask_bits      = bit.bor(collision.collision_bits.BUTTON)

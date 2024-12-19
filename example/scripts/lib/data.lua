@@ -3,7 +3,6 @@ local manager          = require("example.scripts.lib.manager")
 local utils            = require("example.scripts.lib.utils")
 
 local data             = {}
-
 local active_boxes     = {}
 local active_box_count = 0
 local box_factory      = "/container/factories#box"

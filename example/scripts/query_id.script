@@ -1,11 +1,11 @@
-local manager = require("example.scripts.lib.manager")
-local data = require("example.scripts.lib.data")
-local collision = require("example.scripts.lib.collision")
+local manager            = require("example.scripts.lib.manager")
+local data               = require("example.scripts.lib.data")
+local collision          = require("example.scripts.lib.collision")
 
-local aabb_box = {}
-local query_result = {}
+local aabb_box           = {}
+local query_result       = {}
 local query_result_count = 0
-local collection_title = "QUERY ID"
+local collection_title   = "QUERY ID"
 
 function init(self)
 	manager.init(collection_title)
