@@ -137,7 +137,7 @@ namespace daabbcc
             if (m_daabbcc.m_gameObjectContainer[i].m_groupID == groupID && m_daabbcc.m_gameObjectContainer[i].m_proxyID == proxyID)
             {
                 m_daabbcc.m_gameObjectContainer[i].m_width = width;
-                m_daabbcc.m_gameObjectContainer[i].m_width = height;
+                m_daabbcc.m_gameObjectContainer[i].m_height = height;
             }
         }
     }
