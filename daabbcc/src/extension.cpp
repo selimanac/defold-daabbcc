@@ -1,8 +1,4 @@
 // Extension lib defines
-#include "dmsdk/dlib/configfile_gen.hpp"
-#include "dmsdk/dlib/log.h"
-#include "dmsdk/extension/extension_gen.hpp"
-
 #define LIB_NAME "DAABBCC"
 #define MODULE_NAME "daabbcc"
 
