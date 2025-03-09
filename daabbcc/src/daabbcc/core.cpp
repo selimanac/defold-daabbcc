@@ -11,7 +11,13 @@
 #include <stdlib.h>
 #endif
 
+
+#if defined(B2_PLATFORM_ANDROID)
+#include <atomic> 
+#else
 #include <stdatomic.h>
+#endif
+
 #include <string.h>
 
 #ifdef BOX2D_PROFILE
@@ -71,7 +77,11 @@ namespace daabbcc
     static b2AllocFcn* b2_allocFcn = NULL;
     static b2FreeFcn*  b2_freeFcn = NULL;
 
+    #if defined(B2_PLATFORM_ANDROID)
+    std::atomic<int> b2_byteCount;
+    #else
     static _Atomic int b2_byteCount;
+    #endif
 
     void               b2SetAllocator(b2AllocFcn* allocFcn, b2FreeFcn* freeFcn)
     {
@@ -90,7 +100,11 @@ namespace daabbcc
         }
 
         // This could cause some sharing issues, however Box2D rarely calls b2Alloc.
+        #if defined(B2_PLATFORM_ANDROID)
+        b2_byteCount.fetch_add(size, std::memory_order_relaxed);
+        #else
         atomic_fetch_add_explicit(&b2_byteCount, size, memory_order_relaxed);
+        #endif
 
         // Allocation must be a multiple of 32 or risk a seg fault
         // https://en.cppreference.com/w/c/memory/aligned_alloc
@@ -150,7 +164,11 @@ namespace daabbcc
 #endif
         }
 
+        #if defined(B2_PLATFORM_ANDROID)
+        b2_byteCount.fetch_sub(size, std::memory_order_relaxed);
+        #else
         atomic_fetch_sub_explicit(&b2_byteCount, size, memory_order_relaxed);
+        #endif    
     }
 
 } // namespace daabbcc
