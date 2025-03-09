@@ -12,7 +12,6 @@
 #endif
 
 #include <stdatomic.h>
-
 #include <string.h>
 
 #ifdef BOX2D_PROFILE
@@ -108,8 +107,6 @@ namespace daabbcc
 
         // This could cause some sharing issues, however Box2D rarely calls b2Alloc.
         b2AtomicFetchAddInt( &b2_byteCount, size );
-        //atomic_fetch_add_explicit(&b2_byteCount, size, memory_order_relaxed);
-
 
         // Allocation must be a multiple of 32 or risk a seg fault
         // https://en.cppreference.com/w/c/memory/aligned_alloc
@@ -169,7 +166,6 @@ namespace daabbcc
 #endif
         }
         b2AtomicFetchAddInt( &b2_byteCount, -size );
-        //atomic_fetch_sub_explicit(&b2_byteCount, size, memory_order_relaxed);
      
     }
 
