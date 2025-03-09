@@ -4,4 +4,4 @@ name: "DAABBCC"
 platforms:
     common:
        context:
-           flags: ["-std=c++11"]
+           flags: ["-std=c++17"]

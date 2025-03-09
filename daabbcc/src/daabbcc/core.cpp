@@ -11,12 +11,7 @@
 #include <stdlib.h>
 #endif
 
-
-#if defined(B2_PLATFORM_ANDROID)
-#include <atomic> 
-#else
 #include <stdatomic.h>
-#endif
 
 #include <string.h>
 
@@ -42,6 +37,22 @@ namespace daabbcc
     // This allows the user to change the length units at runtime
     float b2_lengthUnitsPerMeter = 1.0f;
 
+    typedef struct b2AtomicInt
+    {
+        int value;
+    } b2AtomicInt;
+
+    int b2AtomicFetchAddInt( b2AtomicInt* a, int increment )
+    {
+        #if defined( _MSC_VER )
+        return _InterlockedExchangeAdd( (long*)&a->value, (long)increment );
+        #elif defined( __GNUC__ ) || defined( __clang__ )
+        return __atomic_fetch_add( &a->value, increment, __ATOMIC_SEQ_CST );
+        #else
+        #error "Unsupported platform"
+        #endif
+    }
+    
     void  b2SetLengthUnitsPerMeter(float lengthUnits)
     {
         B2_ASSERT(b2IsValidFloat(lengthUnits) && lengthUnits > 0.0f);
@@ -77,11 +88,7 @@ namespace daabbcc
     static b2AllocFcn* b2_allocFcn = NULL;
     static b2FreeFcn*  b2_freeFcn = NULL;
 
-    #if defined(B2_PLATFORM_ANDROID)
-    std::atomic<int> b2_byteCount;
-    #else
-    static _Atomic int b2_byteCount;
-    #endif
+    b2AtomicInt b2_byteCount;
 
     void               b2SetAllocator(b2AllocFcn* allocFcn, b2FreeFcn* freeFcn)
     {
@@ -100,11 +107,9 @@ namespace daabbcc
         }
 
         // This could cause some sharing issues, however Box2D rarely calls b2Alloc.
-        #if defined(B2_PLATFORM_ANDROID)
-        b2_byteCount.fetch_add(size, std::memory_order_relaxed);
-        #else
-        atomic_fetch_add_explicit(&b2_byteCount, size, memory_order_relaxed);
-        #endif
+        b2AtomicFetchAddInt( &b2_byteCount, size );
+        //atomic_fetch_add_explicit(&b2_byteCount, size, memory_order_relaxed);
+
 
         // Allocation must be a multiple of 32 or risk a seg fault
         // https://en.cppreference.com/w/c/memory/aligned_alloc
@@ -163,12 +168,9 @@ namespace daabbcc
             free(mem);
 #endif
         }
-
-        #if defined(B2_PLATFORM_ANDROID)
-        b2_byteCount.fetch_sub(size, std::memory_order_relaxed);
-        #else
-        atomic_fetch_sub_explicit(&b2_byteCount, size, memory_order_relaxed);
-        #endif    
+        b2AtomicFetchAddInt( &b2_byteCount, -size );
+        //atomic_fetch_sub_explicit(&b2_byteCount, size, memory_order_relaxed);
+     
     }
 
 } // namespace daabbcc
