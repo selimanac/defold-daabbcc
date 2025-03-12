@@ -3,6 +3,7 @@
 
 #include "daabbcc/core.h"
 #include "dmsdk/dlib/log.h"
+
 #if defined(B2_COMPILER_MSVC)
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
@@ -11,25 +12,9 @@
 #include <stdlib.h>
 #endif
 
-#include <stdatomic.h>
-#include <string.h>
-
-#ifdef BOX2D_PROFILE
-
-#include <tracy/TracyC.h>
-#define b2TracyCAlloc(ptr, size) TracyCAlloc(ptr, size)
-#define b2TracyCFree(ptr) TracyCFree(ptr)
-
-#else
-
-#define b2TracyCAlloc(ptr, size)
-#define b2TracyCFree(ptr)
-
-#endif
-
-#include <daabbcc/math_functions.h>
-
 #include <stdio.h>
+#include <string.h>
+#include <daabbcc/math_functions.h>
 
 namespace daabbcc
 {
@@ -41,18 +26,18 @@ namespace daabbcc
         int value;
     } b2AtomicInt;
 
-    int b2AtomicFetchAddInt( b2AtomicInt* a, int increment )
+    int b2AtomicFetchAddInt(b2AtomicInt* a, int increment)
     {
-        #if defined( _MSC_VER )
-        return _InterlockedExchangeAdd( (long*)&a->value, (long)increment );
-        #elif defined( __GNUC__ ) || defined( __clang__ )
-        return __atomic_fetch_add( &a->value, increment, __ATOMIC_SEQ_CST );
-        #else
-        #error "Unsupported platform"
-        #endif
+#if defined(_MSC_VER)
+        return _InterlockedExchangeAdd((long*)&a->value, (long)increment);
+#elif defined(__GNUC__) || defined(__clang__)
+        return __atomic_fetch_add(&a->value, increment, __ATOMIC_SEQ_CST);
+#else
+#error "Unsupported platform"
+#endif
     }
-    
-    void  b2SetLengthUnitsPerMeter(float lengthUnits)
+
+    void b2SetLengthUnitsPerMeter(float lengthUnits)
     {
         B2_ASSERT(b2IsValidFloat(lengthUnits) && lengthUnits > 0.0f);
         b2_lengthUnitsPerMeter = lengthUnits;
@@ -87,7 +72,7 @@ namespace daabbcc
     static b2AllocFcn* b2_allocFcn = NULL;
     static b2FreeFcn*  b2_freeFcn = NULL;
 
-    b2AtomicInt b2_byteCount;
+    b2AtomicInt        b2_byteCount;
 
     void               b2SetAllocator(b2AllocFcn* allocFcn, b2FreeFcn* freeFcn)
     {
@@ -106,7 +91,7 @@ namespace daabbcc
         }
 
         // This could cause some sharing issues, however Box2D rarely calls b2Alloc.
-        b2AtomicFetchAddInt( &b2_byteCount, size );
+        b2AtomicFetchAddInt(&b2_byteCount, size);
 
         // Allocation must be a multiple of 32 or risk a seg fault
         // https://en.cppreference.com/w/c/memory/aligned_alloc
@@ -115,7 +100,7 @@ namespace daabbcc
         if (b2_allocFcn != NULL)
         {
             void* ptr = b2_allocFcn(size32, B2_ALIGNMENT);
-            b2TracyCAlloc(ptr, size);
+            //    b2TracyCAlloc(ptr, size);
 
             B2_ASSERT(ptr != NULL);
             B2_ASSERT(((uintptr_t)ptr & 0x1F) == 0);
@@ -136,7 +121,7 @@ namespace daabbcc
         void* ptr = aligned_alloc(B2_ALIGNMENT, size32);
 #endif
 
-        b2TracyCAlloc(ptr, size);
+        //  b2TracyCAlloc(ptr, size);
 
         B2_ASSERT(ptr != NULL);
         B2_ASSERT(((uintptr_t)ptr & 0x1F) == 0);
@@ -151,7 +136,7 @@ namespace daabbcc
             return;
         }
 
-        b2TracyCFree(mem);
+        // b2TracyCFree(mem);
 
         if (b2_freeFcn != NULL)
         {
@@ -165,8 +150,7 @@ namespace daabbcc
             free(mem);
 #endif
         }
-        b2AtomicFetchAddInt( &b2_byteCount, -size );
-     
+        b2AtomicFetchAddInt(&b2_byteCount, -size);
     }
 
 } // namespace daabbcc
