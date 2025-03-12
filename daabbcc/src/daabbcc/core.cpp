@@ -50,7 +50,7 @@ namespace daabbcc
 
     static int b2DefaultAssertFcn(const char* condition, const char* fileName, int lineNumber)
     {
-        dmLogError("BOX2D ASSERTION: %s, %s, line %d\n", condition, fileName, lineNumber);
+        dmLogError("DAABBCC ASSERTION: %s, %s, line %d\n", condition, fileName, lineNumber);
 
         // return non-zero to break to debugger
         return 1;
