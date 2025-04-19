@@ -12,9 +12,11 @@ DAABBCC build by using Box2D’s [Dynamic Tree](https://box2d.org/documentation/
 
 A Dynamic AABB Tree is a binary search algorithm for fast overlap testing. Dynamic AABB trees are well-suited for general-purpose use and can handle moving objects efficiently. This data structure provides an effective method for detecting potential overlap between objects.  
 
-DAABBCC is not a physics engine. It does not include narrow-phase collision detection or manifold generation.  
+DAABBCC is not a physics engine. It does not include narrow-phase collision detection or ~manifold generation~<sup>1</sup>.  
 
-It is particularly well-suited for casual games, platformers, bullet-hell, top-down games, server-side headless builds that do not require narrow-phase collision detection.  
+It is particularly well-suited for casual games, platformers, bullet-hell, top-down games, server-side headless builds that do not require narrow-phase collision detection.   
+
+_<sup>1</sup> Added  v3.0.1_   
 
 ## Discussions & Release Notes
 
