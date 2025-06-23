@@ -6,6 +6,9 @@
 #include <daabbcc/daabbcc.h>
 #include <dmsdk/sdk.h>
 
+#define RETURN_INVALID_GROUP_ERROR(name, id) \
+    return DM_LUA_ERROR("%s: Group ID [%i] is invalid or already removed!", name, id)
+
 ////////////////////////////////////////
 // Group Operations
 ////////////////////////////////////////
@@ -35,8 +38,7 @@ static int RemoveGroup(lua_State* L)
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("RemoveGroup", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.remove_group()", groupID);
     }
 
     daabbcc::RemoveGroup(groupID);
@@ -129,13 +131,12 @@ static inline void ManifoldResult(lua_State* L, uint32_t queryResultSize, dmArra
 static inline int QueryIDSort(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 2);
-    uint8_t groupID = luaL_checkint(L, 1);
 
+    uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("QueryIDSort", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.query_id_sort()", groupID);
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
@@ -183,13 +184,12 @@ static inline int QueryIDSort(lua_State* L)
 static int QueryAABBSort(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 2);
-    uint8_t groupID = luaL_checkint(L, 1);
 
+    uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("QueryAABBSort", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.query_aabb_sort()", groupID);
     }
 
     float    x = luaL_checknumber(L, 2);
@@ -242,13 +242,12 @@ static int QueryAABBSort(lua_State* L)
 static int QueryAABB(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 2);
-    uint8_t groupID = luaL_checkint(L, 1);
 
+    uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("QueryAABB", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.query_aabb()", groupID);
     }
 
     float    x = luaL_checknumber(L, 2);
@@ -310,12 +309,10 @@ static int QueryID(lua_State* L)
     DM_LUA_STACK_CHECK(L, 2);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("QueryID", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.query_id()", groupID);
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
@@ -377,12 +374,10 @@ static int RayCast(lua_State* L)
     DM_LUA_STACK_CHECK(L, 2);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("RayCast", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.raycast()", groupID);
     }
 
     float    start_x = luaL_checknumber(L, 2);
@@ -443,12 +438,10 @@ static int RayCastSort(lua_State* L)
     DM_LUA_STACK_CHECK(L, 2);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("RayCast", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.raycast_sort()", groupID);
     }
 
     float    start_x = luaL_checknumber(L, 2);
@@ -502,13 +495,13 @@ static int RayCastSort(lua_State* L)
 
 static int AddProxy(lua_State* L)
 {
-    uint8_t groupID = luaL_checkint(L, 1);
+    DM_LUA_STACK_CHECK(L, 1);
 
+    uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("AddProxy", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.insert_aabb()", groupID);
     }
 
     float    x = luaL_checknumber(L, 2);
@@ -531,15 +524,13 @@ static int AddProxy(lua_State* L)
 
 static int AddGameObject(lua_State* L)
 {
-    // DM_LUA_STACK_CHECK(L, 1);
+    DM_LUA_STACK_CHECK(L, 1);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        dmLogError("AddGameObject: Group ID %i is invalid or already removed!", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.insert_gameobject()", groupID);
     }
 
     dmGameObject::HInstance gameobjectInstance = dmScript::CheckGOInstance(L, 2);
@@ -578,12 +569,10 @@ static int MoveProxy(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("MoveProxy", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.update_aabb()", groupID);
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
@@ -606,8 +595,7 @@ static int UpdateGameobjectSize(lua_State* L)
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("UpdateGameobjectSize", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.update_gameobject_size()", groupID);
     }
 
     int32_t  proxyID = luaL_checkint(L, 2);
@@ -628,8 +616,7 @@ static int RemoveProxy(lua_State* L)
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("RemoveProxy", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.remove()", groupID);
     }
 
     int32_t proxyID = luaL_checkint(L, 2);
@@ -679,8 +666,7 @@ static int Rebuild(lua_State* L)
     bool    isSet = daabbcc::SetTreeGroup(groupID);
     if (!isSet)
     {
-        daabbcc::ErrorAssert("Rebuild", groupID);
-        return 0;
+        RETURN_INVALID_GROUP_ERROR("daabbcc.rebuild()", groupID);
     }
 
     bool fullBuild = lua_toboolean(L, 2);
