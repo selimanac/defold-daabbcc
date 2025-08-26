@@ -543,8 +543,7 @@ namespace daabbcc
         b2Vec2 mid_b = b2AABB_Center(B);
 
         b2Vec2 eA = b2Abs(b2AABB_Extents(A)); // c2Absv(c2Mulvs(b2Sub(A.max, A.min), 0.5f));
-        b2Vec2 eB = b2Abs(b2AABB_Extents(B));
-        ; // c2Absv(c2Mulvs(b2Sub(B.max, B.min), 0.5f));
+        b2Vec2 eB = b2Abs(b2AABB_Extents(B)); // c2Absv(c2Mulvs(b2Sub(B.max, B.min), 0.5f));
         b2Vec2 d = b2Sub(mid_b, mid_a);
 
         // calc overlap on x and y axes
@@ -567,14 +566,14 @@ namespace daabbcc
             depth = dx;
             if (d.x < 0)
             {
-                n = { 1.0f, 0 };
+                n = { 1.0f, 0.0f };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Sub(mid_a, temp);
             }
             else
             {
-                n = { -1.0f, 0 };
+                n = { -1.0f, 0.0f };
                 temp.x = eA.x;
                 temp.y = 0;
                 p = b2Add(mid_a, temp);
@@ -587,14 +586,14 @@ namespace daabbcc
             depth = dy;
             if (d.y < 0)
             {
-                n = { -0, 1.0f }; // c2V(0, -1.0f);
+                n = { 0.0f, 1.0f }; // c2V(0, -1.0f);
                 temp.x = 0;
                 temp.y = eA.y;
                 p = b2Sub(mid_a, temp);
             }
             else
             {
-                n = { -0, -1.0f }; // c2V(0, 1.0f);
+                n = { 0.0f, -1.0f }; // c2V(0, 1.0f);
                 temp.x = 0;
                 temp.y = eA.y;
                 p = b2Add(mid_a, temp);

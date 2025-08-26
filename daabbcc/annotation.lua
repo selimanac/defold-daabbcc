@@ -1,3 +1,5 @@
+---@diagnostic disable: missing-return, unused-local
+
 ---@class daabbcc
 daabbcc = {
 	UPDATE_INCREMENTAL = 0,
@@ -12,7 +14,7 @@ daabbcc = {
 
 
 ---New empty group for AABBs. Every group is a seperate [Dynamic Tree](https://box2d.org/documentation/md_collision.html#autotoc_md46).
----@param rebuild_type? rebuildType Rebuilds the tree after each [update](https://github.com/selimanac/defold-daabbcc/wiki/Utilities#daabbccupdate_frequencyfrequency) for moving gameobject positions. The tree will only be rebuilt if there is at least one gameobject present.
+---@param rebuild_type? rebuildType Rebuilds the tree after each [update](https://github.com/selimanac/defold-daabbcc/wiki/Utilities#daabbccupdate_frequencyfrequency) for moving gameobject positions. [...]
 ---@return integer group_id New group ID
 function daabbcc.new_group(rebuild_type) end
 
@@ -127,11 +129,11 @@ function daabbcc.raycast(group_id, start_x, start_y, end_x, end_y, mask_bits, ge
 ---@return integer Count of `result` table.
 function daabbcc.raycast_sort(group_id, start_x, start_y, end_x, end_y, mask_bits, get_manifold) end
 
----Pause or resume the internal game object position update iteration. This is enabled by default but will not iterate if no game objects are registered. Pausing the iteration can free up compute power (e.g., when the game is paused).
+---Pause or resume the internal game object position update iteration. This is enabled by default but will not iterate if no game objects are registered. Pausing the iteration can free up compute powe[...]
 ---@param state boolean Pause or resume
 function daabbcc.run(state) end
 
----It is possible to set an independent update frequency for the game object position update iteration. The default value is taken from the [display.frequency](https://defold.com/manuals/project-settings/#update-frequency) setting in the game.project file. The update loop follows the same structure as in the [Defold source](https://github.com/defold/defold/blob/cdaa870389ca00062bfc03bcda8f4fb34e93124a/engine/engine/src/engine.cpp#L1860).  This can be very useful if you're running a headless build on a server.
+---It is possible to set an independent update frequency for the game object position update iteration. The default value is taken from the [display.frequency](https://defold.com/manuals/project-setti[...]
 ---@param frequency integer Update frequency
 function daabbcc.update_frequency(frequency) end
 
@@ -146,3 +148,5 @@ function daabbcc.rebuild_all(full_build) end
 
 ---Removes all AABBs, groups, and game objects, resetting to the initial state. It is recommended to reset the DAABBC when you're done with it (e.g., when your game or level is over).
 function daabbcc.reset() end
+
+---@diagnostic enable: missing-return, unused-local

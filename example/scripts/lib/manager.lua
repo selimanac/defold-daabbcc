@@ -87,7 +87,10 @@ function manager.init(title_txt)
 end
 
 function manager.input(action_id, action)
-	manager.world_position = camera.screen_to_world(action.x, action.y, 0)
+	if action.screen_x and action.screen_y then
+		manager.world_position = camera.screen_to_world(action.screen_x, action.screen_y, 0)
+	end
+
 	go.set_position(manager.world_position, pointer_url)
 
 	if action_id == KEYS.AABB_DEFAULT and action.pressed then

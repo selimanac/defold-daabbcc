@@ -76,4 +76,8 @@ function collision.reset()
 	daabbcc.reset()
 end
 
+function collision.remove(aabb_id)
+	daabbcc.remove(aabb_group_id, aabb_id)
+end
+
 return collision
