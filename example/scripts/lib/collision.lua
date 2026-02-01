@@ -31,13 +31,13 @@ end
 function collision.query_aabb(x, y, width, height, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.query_aabb(aabb_group_id, x, y, width, height, mask_bits, get_manifold)
+	return daabbcc.query_aabb(aabb_group_id, x, y, width, height, mask_bits, get_manifold, is_mask)
 end
 
 function collision.query_id(aabb_id, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.query_id(aabb_group_id, aabb_id, mask_bits, get_manifold)
+	return daabbcc.query_id(aabb_group_id, aabb_id, mask_bits, get_manifold, is_mask)
 end
 
 function collision.query_id_btn(aabb_id)
@@ -47,25 +47,25 @@ end
 function collision.query_id_sort(aabb_id, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.query_id_sort(aabb_group_id, aabb_id, mask_bits, get_manifold)
+	return daabbcc.query_id_sort(aabb_group_id, aabb_id, mask_bits, get_manifold, is_mask)
 end
 
 function collision.query_aabb_sort(x, y, width, height, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.query_aabb_sort(aabb_group_id, x, y, width, height, mask_bits, get_manifold)
+	return daabbcc.query_aabb_sort(aabb_group_id, x, y, width, height, mask_bits, get_manifold, is_mask)
 end
 
 function collision.raycast(ray_start, ray_end, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.raycast(aabb_group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y, mask_bits, get_manifold)
+	return daabbcc.raycast(aabb_group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y, mask_bits, get_manifold, is_mask)
 end
 
 function collision.raycast_sort(ray_start, ray_end, is_mask, get_manifold)
 	local mask_bits = is_mask and selected_mask_bits or default_mask_bits
 	get_manifold    = get_manifold and get_manifold or nil
-	return daabbcc.raycast_sort(aabb_group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y, mask_bits, get_manifold)
+	return daabbcc.raycast_sort(aabb_group_id, ray_start.x, ray_start.y, ray_end.x, ray_end.y, mask_bits, get_manifold, is_mask)
 end
 
 function collision.update_aabb(aabb)

@@ -219,5 +219,11 @@ namespace daabbcc
         return tree->nodes[proxyId].aabb;
     }
 
+    /// Get the category bits of a proxy
+    static inline uint64_t b2DynamicTree_GetCategoryBits(const b2DynamicTree* tree, int32_t proxyId)
+    {
+        return tree->nodes[proxyId].categoryBits;
+    }
+
     /**@}*/
 } // namespace daabbcc
