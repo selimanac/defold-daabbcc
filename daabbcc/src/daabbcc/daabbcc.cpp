@@ -187,6 +187,7 @@ namespace daabbcc
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
                     b2Distance(m_queryContainer->m_center, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    b2DynamicTree_GetCategoryBits(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID),
                     m_daabbcc.m_manifold
                 };
 
@@ -350,6 +351,7 @@ namespace daabbcc
                 m_daabbcc.m_manifoldResult = {
                     proxyID,
                     b2Distance(input->origin, b2AABB_Center(m_daabbcc.m_manifoldAABB)),
+                    b2DynamicTree_GetCategoryBits(&m_daabbcc.m_treeGroup->m_dynamicTree, proxyID),
                     m_daabbcc.m_manifold
                 };
 
