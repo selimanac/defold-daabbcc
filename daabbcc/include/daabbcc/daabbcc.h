@@ -25,6 +25,7 @@ namespace daabbcc
     {
         int32_t    m_proxyID;
         float      m_distance;
+        uint64_t   m_categoryBits;
         b2Manifold m_manifold;
     };
 
