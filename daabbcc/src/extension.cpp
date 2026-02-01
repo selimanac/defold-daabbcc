@@ -120,7 +120,7 @@ static inline void ManifoldResult(lua_State* L, uint32_t queryResultSize, dmArra
 
     for (int i = 0; i < queryResultSize; i++)
     {
-        lua_createtable(L, 0, 6);
+        lua_createtable(L, 0, 8);
         lua_pushstring(L, "id");
         lua_pushinteger(L, queryResult[i].m_proxyID);
         lua_settable(L, -3);
