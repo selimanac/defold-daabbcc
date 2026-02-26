@@ -34,8 +34,8 @@ static int RemoveGroup(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
 
     uint8_t groupID = luaL_checkint(L, 1);
-
     bool    isSet = daabbcc::SetTreeGroup(groupID);
+
     if (!isSet)
     {
         RETURN_INVALID_GROUP_ERROR("daabbcc.remove_group()", groupID);
@@ -162,6 +162,7 @@ static inline int QueryIDSort(lua_State* L)
 
     uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
+
     if (!isSet)
     {
         RETURN_INVALID_GROUP_ERROR("daabbcc.query_id_sort()", groupID);
@@ -225,6 +226,7 @@ static int QueryAABBSort(lua_State* L)
 
     uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
+
     if (!isSet)
     {
         RETURN_INVALID_GROUP_ERROR("daabbcc.query_aabb_sort()", groupID);
@@ -293,6 +295,7 @@ static int QueryAABB(lua_State* L)
 
     uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
+
     if (!isSet)
     {
         RETURN_INVALID_GROUP_ERROR("daabbcc.query_aabb()", groupID);
@@ -371,6 +374,7 @@ static int QueryID(lua_State* L)
 
     uint8_t groupID = luaL_checkint(L, 1);
     bool    isSet = daabbcc::SetTreeGroup(groupID);
+
     if (!isSet)
     {
         RETURN_INVALID_GROUP_ERROR("daabbcc.query_id()", groupID);
@@ -847,15 +851,14 @@ static dmExtension::Result AppInitializeDAABBCC(dmExtension::AppParams* params)
     dmLogInfo("AppInitializeDAABBCC");
 
     uint8_t  max_group_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_group_count", 3);
-
     uint16_t max_gameobject_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_gameobject_count", 128);
-
     uint16_t max_query_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_query_result_count", 32);
-
     int32_t  updateFrequency = dmConfigFile::GetInt(params->m_ConfigFile, "display.update_frequency", 0);
+    float    m_MaxTimeStep = dmConfigFile::GetFloat(params->m_ConfigFile, "engine.max_time_step", 1.0f / 30);
 
     daabbcc::Setup(max_group_count, max_gameobject_count, max_query_count);
     daabbcc::SetUpdateFrequency(updateFrequency);
+    daabbcc::SetMaxTimeStep(m_MaxTimeStep);
 
     return dmExtension::RESULT_OK;
 }

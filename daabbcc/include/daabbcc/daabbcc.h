@@ -42,6 +42,7 @@ namespace daabbcc
     struct GameUpdate
     {
         uint8_t  m_updateFrequency = 0;
+        float    m_maxTimeStep;
         uint64_t m_previousFrameTime;
         float    m_accumFrameTime;
         bool     m_updateLoopState = true;
@@ -180,6 +181,7 @@ namespace daabbcc
     void Run(bool toggle);
 
     void SetUpdateFrequency(int32_t updateFrequency);
+    void SetMaxTimeStep(float max_time_step);
 
     void GameObjectUpdate();
 
