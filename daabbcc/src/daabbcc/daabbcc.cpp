@@ -680,6 +680,7 @@ namespace daabbcc
 
         m_daabbcc.m_treeGroup = NULL;
         m_daabbcc.m_groupID = 0;
+        m_daabbcc.m_currentGroupID = 0;
     }
 
     void ErrorAssert(const char* info, uint8_t groupID)
