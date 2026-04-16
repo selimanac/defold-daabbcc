@@ -18,6 +18,23 @@ It is particularly well-suited for casual games, platformers, bullet-hell, top-d
 
 _<sup>1</sup> Added  v3.0.1_   
 
+## Notes
+
+### `daabbcc.remove()` is required
+
+When using `daabbcc.insert_gameobject()`, you **must** call `daabbcc.remove()` before or when the game object is deleted — either before `go.delete()` or inside the game object's `final()` callback. Failing to do so leaves a stale reference in the update loop, which can cause a crash on the next frame.
+
+### `game.project` settings
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `daabbcc.max_group_count` | `3` | Maximum number of tree groups |
+| `daabbcc.max_gameobject_count` | `128` | Maximum tracked game objects |
+| `daabbcc.max_query_result_count` | `32` | Maximum query results |
+| `daabbcc.validate_gameobjects` | `0` | Set to `1` to enable per-frame validity checks on tracked game objects. When enabled, the extension automatically removes and logs an error for any game object that was deleted without calling `daabbcc.remove()`. Has a small per-frame cost proportional to the number of tracked objects. |
+
+---
+
 ## Discussions & Release Notes
 
 https://github.com/selimanac/defold-daabbcc/discussions

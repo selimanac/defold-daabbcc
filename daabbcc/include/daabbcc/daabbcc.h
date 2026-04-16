@@ -52,13 +52,15 @@ namespace daabbcc
 
     typedef struct GameObject
     {
-        uint8_t                 m_groupID;
-        int32_t                 m_proxyID;
-        dmVMath::Point3         m_position;
-        dmGameObject::HInstance m_gameObjectInstance;
-        uint32_t                m_width;
-        uint32_t                m_height;
-        bool                    m_getWorldPosition = false;
+        uint8_t                   m_groupID;
+        int32_t                   m_proxyID;
+        dmVMath::Point3           m_position;
+        dmGameObject::HInstance   m_gameObjectInstance;
+        dmGameObject::HCollection m_collection;
+        dmhash_t                  m_identifier;
+        uint32_t                  m_width;
+        uint32_t                  m_height;
+        bool                      m_getWorldPosition = false;
     } GameObject;
 
     typedef struct Ray
@@ -138,7 +140,7 @@ namespace daabbcc
 
     int32_t AddProxy(uint8_t groupID, float x, float y, uint32_t width, uint32_t height, uint64_t categoryBits);
 
-    void    AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance, bool getWorldPosition);
+    void    AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance, dmGameObject::HCollection collection, dmhash_t identifier, bool getWorldPosition);
 
     void    MoveProxy(int32_t proxyID, float x, float y, uint32_t width, uint32_t height);
 

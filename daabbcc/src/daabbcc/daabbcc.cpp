@@ -102,17 +102,19 @@ namespace daabbcc
         return proxyID;
     }
 
-    void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance, bool getWorldPosition)
+    void AddGameObject(uint8_t groupID, int32_t proxyID, dmVMath::Point3 position, uint32_t width, uint32_t height, dmGameObject::HInstance gameObjectInstance, dmGameObject::HCollection collection, dmhash_t identifier, bool getWorldPosition)
     {
         GameObject gameObject;
 
-        gameObject.m_groupID = groupID;
-        gameObject.m_proxyID = proxyID;
-        gameObject.m_position = position;
-        gameObject.m_gameObjectInstance = gameObjectInstance;
-        gameObject.m_width = width;
-        gameObject.m_height = height;
-        gameObject.m_getWorldPosition = getWorldPosition;
+        gameObject.m_groupID             = groupID;
+        gameObject.m_proxyID             = proxyID;
+        gameObject.m_position            = position;
+        gameObject.m_gameObjectInstance  = gameObjectInstance;
+        gameObject.m_collection          = collection;
+        gameObject.m_identifier          = identifier;
+        gameObject.m_width               = width;
+        gameObject.m_height              = height;
+        gameObject.m_getWorldPosition    = getWorldPosition;
 
         if (m_daabbcc.m_gameObjectContainer.Full())
         {
@@ -497,6 +499,19 @@ namespace daabbcc
             for (int i = 0; i < m_daabbcc.m_gameObjectContainer.Size(); ++i)
             {
                 m_daabbcc.m_gameObject = &m_daabbcc.m_gameObjectContainer[i];
+
+                if (m_gameUpdate.m_validateGameobjects)
+                {
+                    if (dmGameObject::GetInstanceFromIdentifier(m_daabbcc.m_gameObject->m_collection, m_daabbcc.m_gameObject->m_identifier) == nullptr)
+                    {
+                        dmLogError("daabbcc: game object [%llu] was deleted without calling daabbcc.remove(). Auto-removing.", (unsigned long long)m_daabbcc.m_gameObject->m_identifier);
+                        DAABBCC::TreeGroup* treeGroup = m_daabbcc.m_dynamicTreeGroup.Get(m_daabbcc.m_gameObject->m_groupID);
+                        b2DynamicTree_DestroyProxy(&treeGroup->m_dynamicTree, m_daabbcc.m_gameObject->m_proxyID);
+                        m_daabbcc.m_gameObjectContainer.EraseSwap(i);
+                        --i;
+                        continue;
+                    }
+                }
 
                 if (m_daabbcc.m_gameObject->m_getWorldPosition)
                 {

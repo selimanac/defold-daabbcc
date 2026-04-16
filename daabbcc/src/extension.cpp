@@ -635,17 +635,19 @@ static int AddGameObject(lua_State* L)
         RETURN_INVALID_GROUP_ERROR("daabbcc.insert_gameobject()", groupID);
     }
 
-    dmGameObject::HInstance gameobjectInstance = dmScript::CheckGOInstance(L, 2);
+    dmGameObject::HInstance   gameobjectInstance = dmScript::CheckGOInstance(L, 2);
+    dmGameObject::HCollection collection = dmGameObject::GetCollection(gameobjectInstance);
+    dmhash_t                  identifier = dmGameObject::GetIdentifier(gameobjectInstance);
 
-    dmVMath::Point3         gameobjectPosition = dmGameObject::GetPosition(gameobjectInstance);
-    float                   x = gameobjectPosition.getX();
-    float                   y = gameobjectPosition.getY();
+    dmVMath::Point3           gameobjectPosition = dmGameObject::GetPosition(gameobjectInstance);
+    float                     x = gameobjectPosition.getX();
+    float                     y = gameobjectPosition.getY();
 
-    uint32_t                width = luaL_checkint(L, 3);
-    uint32_t                height = luaL_checkint(L, 4);
+    uint32_t                  width = luaL_checkint(L, 3);
+    uint32_t                  height = luaL_checkint(L, 4);
 
-    uint64_t                categoryBits = B2_DEFAULT_CATEGORY_BITS;
-    bool                    getWorldPosition = false;
+    uint64_t                  categoryBits = B2_DEFAULT_CATEGORY_BITS;
+    bool                      getWorldPosition = false;
 
     if (lua_isnumber(L, 5))
     {
@@ -659,7 +661,7 @@ static int AddGameObject(lua_State* L)
 
     int32_t proxyID = daabbcc::AddProxy(groupID, x, y, width, height, categoryBits);
 
-    daabbcc::AddGameObject(groupID, proxyID, gameobjectPosition, width, height, gameobjectInstance, getWorldPosition);
+    daabbcc::AddGameObject(groupID, proxyID, gameobjectPosition, width, height, gameobjectInstance, collection, identifier, getWorldPosition);
 
     lua_pushinteger(L, proxyID);
 
