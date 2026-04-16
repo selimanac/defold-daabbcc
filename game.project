@@ -19,6 +19,7 @@ include_dirs = daabbcc
 max_group_count = 1
 max_gameobject_count = 10
 max_query_result_count = 10
+validate_gameobjects = false
 
 [native_extension]
 app_manifest = 

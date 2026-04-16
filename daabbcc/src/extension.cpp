@@ -1,4 +1,5 @@
 // Extension lib defines
+#include "dmsdk/dlib/configfile_gen.hpp"
 #define LIB_NAME "DAABBCC"
 #define MODULE_NAME "daabbcc"
 
@@ -785,46 +786,44 @@ static int RebuildAll(lua_State* L)
     return 0;
 }
 
-// clang-format off
 // Functions exposed to Lua
 static const luaL_reg Module_methods[] = {
- // {"init", Init}, 
+    // {"init", Init},
 
-  // Group Operations
-  {"new_group", AddGroup}, 
-  {"remove_group", RemoveGroup}, 
+    // Group Operations
+    { "new_group", AddGroup },
+    { "remove_group", RemoveGroup },
 
-  // Proxy Operations
-  {"insert_aabb", AddProxy},
-  {"insert_gameobject", AddGameObject},
-  {"update_aabb", MoveProxy},
-  {"update_gameobject_size", UpdateGameobjectSize},
-  {"remove", RemoveProxy},
+    // Proxy Operations
+    { "insert_aabb", AddProxy },
+    { "insert_gameobject", AddGameObject },
+    { "update_aabb", MoveProxy },
+    { "update_gameobject_size", UpdateGameobjectSize },
+    { "remove", RemoveProxy },
 
-  // Query Operations
-  {"query_aabb", QueryAABB},
-  {"query_id", QueryID},
-  {"query_aabb_sort", QueryAABBSort},
-  {"query_id_sort", QueryIDSort},
+    // Query Operations
+    { "query_aabb", QueryAABB },
+    { "query_id", QueryID },
+    { "query_aabb_sort", QueryAABBSort },
+    { "query_id_sort", QueryIDSort },
 
     // Raycast Operations
-  {"raycast", RayCast},
-  {"raycast_sort", RayCastSort},
+    { "raycast", RayCast },
+    { "raycast_sort", RayCastSort },
 
-  // Gameobject Update Operations
-  {"run", Run},
-  {"update_frequency", UpdateFrequency},
+    // Gameobject Update Operations
+    { "run", Run },
+    { "update_frequency", UpdateFrequency },
 
-  // Tree Operations
-{"rebuild", Rebuild},
-{"rebuild_all", RebuildAll},
+    // Tree Operations
+    { "rebuild", Rebuild },
+    { "rebuild_all", RebuildAll },
 
-  // Helpers
-{"reset", Reset},
+    // Helpers
+    { "reset", Reset },
 
-  {0, 0}
+    { 0, 0 }
 };
-// clang-format on
 
 static void LuaInit(lua_State* L)
 {
@@ -855,10 +854,12 @@ static dmExtension::Result AppInitializeDAABBCC(dmExtension::AppParams* params)
     uint16_t max_query_count = dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.max_query_result_count", 32);
     int32_t  updateFrequency = dmConfigFile::GetInt(params->m_ConfigFile, "display.update_frequency", 0);
     float    m_MaxTimeStep = dmConfigFile::GetFloat(params->m_ConfigFile, "engine.max_time_step", 1.0f / 30);
+    bool     validate_gameobjects = (bool)dmConfigFile::GetInt(params->m_ConfigFile, "daabbcc.validate_gameobjects", 0);
 
     daabbcc::Setup(max_group_count, max_gameobject_count, max_query_count);
     daabbcc::SetUpdateFrequency(updateFrequency);
     daabbcc::SetMaxTimeStep(m_MaxTimeStep);
+    daabbcc::SetValidateGameobjects(validate_gameobjects);
 
     return dmExtension::RESULT_OK;
 }

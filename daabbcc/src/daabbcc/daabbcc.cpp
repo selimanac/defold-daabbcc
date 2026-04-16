@@ -460,6 +460,11 @@ namespace daabbcc
         m_gameUpdate.m_maxTimeStep = max_time_step;
     };
 
+    void SetValidateGameobjects(bool validate_gameobjects)
+    {
+        m_gameUpdate.m_validateGameobjects = validate_gameobjects;
+    };
+
     static inline void GameobjectRebuildIterateCallback(void*, const uint8_t* key, DAABBCC::TreeGroup* treeGroup)
     {
         if (treeGroup->m_buildType == UPDATE_INCREMENTAL)

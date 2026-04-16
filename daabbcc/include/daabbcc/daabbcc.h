@@ -47,6 +47,7 @@ namespace daabbcc
         float    m_accumFrameTime = 0.0f;
         bool     m_updateLoopState = true;
         uint32_t m_loopCounter;
+        bool     m_validateGameobjects = false;
     };
 
     typedef struct GameObject
@@ -182,6 +183,7 @@ namespace daabbcc
 
     void SetUpdateFrequency(int32_t updateFrequency);
     void SetMaxTimeStep(float max_time_step);
+    void SetValidateGameobjects(bool validate_gameobjects);
 
     void GameObjectUpdate();
 
