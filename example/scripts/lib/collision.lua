@@ -25,7 +25,7 @@ end
 
 function collision.insert_gameobject(go_url, width, height, collision_bit)
 	collision_bit = collision_bit and collision_bit or nil
-	return daabbcc.insert_gameobject(aabb_group_id, go_url, width, height, collision_bit, false)
+	return daabbcc.insert_gameobject(aabb_group_id, go_url, width, height, collision_bit, true)
 end
 
 function collision.query_aabb(x, y, width, height, is_mask, get_manifold)
