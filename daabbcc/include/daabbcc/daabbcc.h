@@ -42,9 +42,9 @@ namespace daabbcc
     struct GameUpdate
     {
         uint8_t  m_updateFrequency = 0;
-        float    m_maxTimeStep;
-        uint64_t m_previousFrameTime;
-        float    m_accumFrameTime;
+        float    m_maxTimeStep = 0.033333;
+        uint64_t m_previousFrameTime = dmTime::GetMonotonicTime();
+        float    m_accumFrameTime = 0.0f;
         bool     m_updateLoopState = true;
         uint32_t m_loopCounter;
     };
