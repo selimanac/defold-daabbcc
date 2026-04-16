@@ -106,15 +106,15 @@ namespace daabbcc
     {
         GameObject gameObject;
 
-        gameObject.m_groupID             = groupID;
-        gameObject.m_proxyID             = proxyID;
-        gameObject.m_position            = position;
-        gameObject.m_gameObjectInstance  = gameObjectInstance;
-        gameObject.m_collection          = collection;
-        gameObject.m_identifier          = identifier;
-        gameObject.m_width               = width;
-        gameObject.m_height              = height;
-        gameObject.m_getWorldPosition    = getWorldPosition;
+        gameObject.m_groupID = groupID;
+        gameObject.m_proxyID = proxyID;
+        gameObject.m_position = position;
+        gameObject.m_gameObjectInstance = gameObjectInstance;
+        gameObject.m_collection = collection;
+        gameObject.m_identifier = identifier;
+        gameObject.m_width = width;
+        gameObject.m_height = height;
+        gameObject.m_getWorldPosition = getWorldPosition;
 
         if (m_daabbcc.m_gameObjectContainer.Full())
         {
@@ -504,7 +504,7 @@ namespace daabbcc
                 {
                     if (dmGameObject::GetInstanceFromIdentifier(m_daabbcc.m_gameObject->m_collection, m_daabbcc.m_gameObject->m_identifier) == nullptr)
                     {
-                        dmLogError("daabbcc: game object [%llu] was deleted without calling daabbcc.remove(). Auto-removing.", (unsigned long long)m_daabbcc.m_gameObject->m_identifier);
+                        dmLogError("Game object was deleted without calling daabbcc.remove(). Group ID: %u - AABB ID: %u. Auto-removing.", m_daabbcc.m_gameObject->m_groupID, m_daabbcc.m_gameObject->m_proxyID);
                         DAABBCC::TreeGroup* treeGroup = m_daabbcc.m_dynamicTreeGroup.Get(m_daabbcc.m_gameObject->m_groupID);
                         b2DynamicTree_DestroyProxy(&treeGroup->m_dynamicTree, m_daabbcc.m_gameObject->m_proxyID);
                         m_daabbcc.m_gameObjectContainer.EraseSwap(i);
