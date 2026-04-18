@@ -1,0 +1,12 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - v3.x
+
+jobs:
+  build:
+    uses: ./.github/workflows/bob.yml
+    with:
+      channel: stable
