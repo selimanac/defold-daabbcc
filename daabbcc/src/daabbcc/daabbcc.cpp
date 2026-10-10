@@ -502,7 +502,7 @@ namespace daabbcc
 
                 if (m_gameUpdate.m_validateGameobjects)
                 {
-                    if (dmGameObject::GetInstanceFromIdentifier(m_daabbcc.m_gameObject->m_collection, m_daabbcc.m_gameObject->m_identifier) == nullptr)
+                    if (dmGameObject::GetInstanceFromIdentifier(m_daabbcc.m_gameObject->m_collection, m_daabbcc.m_gameObject->m_identifier) == 0)
                     {
                         dmLogError("Game object was deleted without calling daabbcc.remove(). Group ID: %u - AABB ID: %u. Auto-removing.", m_daabbcc.m_gameObject->m_groupID, m_daabbcc.m_gameObject->m_proxyID);
                         DAABBCC::TreeGroup* treeGroup = m_daabbcc.m_dynamicTreeGroup.Get(m_daabbcc.m_gameObject->m_groupID);
