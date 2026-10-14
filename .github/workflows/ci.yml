@@ -1,12 +1,17 @@
-name: CI
+name: Build with Bob
 
 on:
   push:
     branches:
       - v3.x
+  pull_request:
+    branches:
+      - v3.x
+  workflow_dispatch:
 
 jobs:
   build:
-    uses: ./.github/workflows/bob.yml
+    uses: defold/github-actions-common/.github/workflows/bob.yml@master
     with:
       channel: stable
+      build_server: https://build.defold.com/
